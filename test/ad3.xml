@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<advertisement id="3">
+		<service>
+			<name>Ad 3</name>
+			<details>
+				<location type="source">
+					<ip version="4">A</ip>
+				</location>
+				<location type="destination">
+					<ip version="4">A</ip>
+				</location>
+				<format type="source">
+					<media>2</media>
+				</format>
+				<format type="destination">
+					<media>1</media>
+				</format>
+			</details>
+			<description>Test Advertisement</description>
+		</service>
+		<price>
+			<method>Bitcoin</method>
+			<value>2</value>
+		</price>
+		<providerID>
+			ACME Systems
+		</providerID>
+		<purchasePortal>
+			<location>
+				<ip version="4">127.0.0.1</ip>
+				<port type="udp">4040</port>
+			</location>
+		</purchasePortal>
+		<provisioningParameters>
+				<ports>
+					54990
+				</ports>
+		</provisioningParameters>
+	</advertisement>
+</listings>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<requirement id="1">
+		<service>
+			<details>
+				<source_location scheme="IPv4" value="A" />
+				<source_location scheme="IPv4" value="B" />
+				<destination_location scheme="IPv6" value="C"/>
+				<source_format scheme="transport media" value="1"/>
+				<source_format scheme="transport media" value="2"/>
+				<destination_format scheme="transport media" value="1"/>
+				<destination_format scheme="transport media" value="2"/>
+			</details>
+		</service>
+		<price method="Bitcoin" value="1"/>
+	</requirement>
+</listings>

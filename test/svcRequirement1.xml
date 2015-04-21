@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<requirement id="1">
+		<service>
+			<details>
+				<location type="source">
+					<ip version="4">A</ip>
+					<ip version="4">B</ip>
+				</location>
+				<location type="destination">
+					<ip version="6">C</ip>
+				</location>
+				<format type="source">
+					<media>1</media>
+					<media>2</media>
+				</format>
+				<format type="destination">
+					<media>1</media>
+					<media>2</media>
+				</format>
+			</details>
+		</service>
+		<price>
+			<method>Bitcoin</method>
+			<value>1</value>
+		</price>
+	</requirement>
+</listings>

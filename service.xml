@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?> 
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>NCSU-RENCI Transit</name>
+			<type>Transit</type>
+			<description>Transit service between NCSU and RENCI</description>
+			<property>
+				<name>Minimum Bandwidth (Mbps)</name>
+				<value>750</value>
+			</property>
+			<location>
+				<addressingScheme>Network</addressingScheme>
+				<addressingValue>91.237.88.247</addressingValue>
+			</location>
+			<location>
+				<addressingScheme>Network</addressingScheme>
+				<addressingValue>64.207.147.106</addressingValue>
+			</location>
+		</service>
+		<price>$1200</price>
+		<economyPlane>
+			<addressingScheme>UDPv4</addressingScheme>
+			<addressingValue>10.1.1.1:8080</addressingValue>
+			<advertiserName>AA</advertiserName>
+		</economyPlane>
+	</advertisement>
+</listings>

@@ -1,0 +1,23 @@
+{
+  "_id":"_design/marketplace",
+  "language": "javascript",
+  "views":
+  {
+    "by_source": {
+      "map": "function(doc) { if (doc.value) { emit(doc.source, {id: doc.id, value: doc.value, description: doc.description, advertiserID: doc.advertiserID, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, }) } }"
+    },
+    "by_destination": {
+      "map": "function(doc) { if (doc.value) { emit(doc.destination, {id: doc.id, value: doc.value, description: doc.description, advertiserID: doc.advertiserID, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, }) } }"
+    },
+    "by_pathMagnitude": {
+      "map": "function(doc) { if (doc.value) { emit(doc.pathMagnitude, {id: doc.id, value: doc.value, description: doc.description, advertiserID: doc.advertiserID, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, }) } }"
+    },
+    "by_id": {
+      "map": "function(doc) { if (doc.value) { emit(doc.id, {id: doc.id, value: doc.value, description: doc.description, advertiserID: doc.advertiserID, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, }) } }"
+    },
+    "show_all": {
+      "map": "function(doc) { if (doc.value) { emit(doc.id, {id: doc.id, value: doc.value, description: doc.description, advertiserID: doc.advertiserID, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, }) } }"
+    }
+    
+  }
+}

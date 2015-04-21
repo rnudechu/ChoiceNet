@@ -1,0 +1,8 @@
+# Ubuntu 12.04
+# Install CouchDB
+apt-get install couchdb -y
+# make port accessible to everyone, copy your couchdb config file
+wget 
+# Run CouchDB
+couchdb restart
+# Install table

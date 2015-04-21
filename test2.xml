@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>NCSU-NICT Optical Packet Transit</name>
+			<details>
+				<format type="source">
+					<media>optical packet</media>
+				</format>
+				<format type="destination">
+					<media>optical circuit</media>
+				</format>
+			</details>
+			<description>Optical Packet Transit from NCSU to NICT</description>
+		</service>
+		<price>
+			<method>Bitcoin</method>
+			<value>100</value>
+		</price>
+		<providerID>
+			ACME Systems
+		</providerID>
+		<purchasePortal>
+			<location>
+				<ip version="4">127.0.0.1</ip>
+				<port type="udp">4090</port>>
+			</location>
+		</purchasePortal>
+		<provisioningParameters>
+				<wavelength unit="nanometer">
+					1470, 1490, 1510, 1530, 1590, 1610 
+				</wavelength>
+		</provisioningParameters>
+	</advertisement>
+</listings>

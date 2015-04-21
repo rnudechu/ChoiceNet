@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>Ad 1</name>
+			<details>
+				<location type="source">
+					<ip version="4">source Location</ip>
+				</location>
+				<location type="destination">
+					<ip version="4">source Location</ip>
+				</location>
+			</details>
+		</service>
+	</advertisement>
+</listings>

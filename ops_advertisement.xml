@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?> 
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>NCSU-RENCI Transit</name>
+			<type>Transit</type>
+			<description>Transit service between NCSU and RENCI</description>
+			<property>
+				<name>Minimum Bandwidth (Mbps)</name>
+				<value>750</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>91.237.88.247</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>64.207.147.106</addressing_value>
+			</location>
+		</service>
+		<price>$1200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:8080</addressing_value>
+		</economyplane>
+	</advertisement>
+	<advertisement id="2">
+		<service>
+			<name>NCSU Video Reconditioning Service</name>
+			<type>Network Processor</type>
+			<description>Video Reconditioning Service for HD video content</description>
+			<property>
+				<name>Traffic Shaping</name>
+				<value>HD Video</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+		</service>
+		<price>$200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:7100</addressing_value>
+		</economyplane>
+	</advertisement>
+	<advertisement id="3">
+		<service>
+			<name>NCSU Network Scheduler Service</name>
+			<type>Network Processor</type>
+			<description>Class-based queuing network scheduler</description>
+			<property>
+				<name>Network Scheduler</name>
+				<value>Class-based queuing (CBQ)</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.Y.X.X</addressing_value>
+			</location>
+		</service>
+		<price>$200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:8080</addressing_value>
+		</economyplane>
+	</advertisement>
+	<advertisement id="4">
+		<service>
+			<name>NCSU Storage Service</name>
+			<type>Storage</type>
+			<description>Storage Service</description>
+			<property>
+				<name>Size (Gigabyte)</name>
+				<value>20</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.Y.X.X</addressing_value>
+			</location>
+		</service>
+		<price>$200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:5080</addressing_value>
+		</economyplane>
+	</advertisement>
+	<advertisement id="5">
+		<service>
+			<name>NCSU Encryption Service</name>
+			<type>Encryption</type>
+			<description>Encryption Service - IPSec DES</description>
+			<property>
+				<name>Encryption Type</name>
+				<value>DES: 56-bit</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.Y.X.X</addressing_value>
+			</location>
+		</service>
+		<price>$200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:5000</addressing_value>
+		</economyplane>
+	</advertisement>
+	<advertisement id="6">
+		<service>
+			<name>NCSU Encryption Service</name>
+			<type>Encryption</type>
+			<description>Encryption Service - IPSec 3DES</description>
+			<property>
+				<name>Encryption Type</name>
+				<value>3DES</value>
+			</property>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>152.X.X.X</addressing_value>
+			</location>
+			<location>
+				<addressing_scheme>Network</addressing_scheme>
+				<addressing_value>153.Y.X.X</addressing_value>
+			</location>
+		</service>
+		<price>$200</price>
+		<economyplane>
+			<addressing_scheme>UDPv4</addressing_scheme>
+			<addressing_value>10.1.1.1:5000</addressing_value>
+		</economyplane>
+	</advertisement>
+</listings>

@@ -1,0 +1,30 @@
+# Node 0: The Provider
+# Ubuntu 12.04
+# Download the provider code
+apt-get update 
+apt-get install openjdk-6-jre-headless -y
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/provider.jar
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/server_cp.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/config.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/marketplace_view.json
+# must modify *.properties for the system
+
+# Node 1: The Client
+# Ubuntu 12.04
+apt-get update 
+apt-get install openjdk-6-jre-headless -y
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/clientGUI.jar
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/server.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/JUNO/prototype0/config.properties
+
+# Node 2
+# Ubuntu 12.04
+# Install CouchDB
+apt-get install couchdb -y
+apt-get install curl -y
+# make port accessible to everyone, copy your couchdb config file
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/CouchDB/default.ini
+mv default.ini /etc/couchdb
+# Run CouchDB
+couchdb stop
+couchdb start

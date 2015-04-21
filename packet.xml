@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<choicenetmessage>
+	<field attributeName="Originator Name" url="">
+		<value>Unknown</value>
+	</field>
+	<field attributeName="Originator Signature" url="">
+		<value />
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Unknown</value>
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Unknown</value>
+	</field>
+	<field attributeName="Message Type" url="">
+		<value>TRANSFER_CONSIDERATION</value>
+	</field>
+	<field attributeName="Message Specific" url="">
+		<value>
+			<field attributeName="Transaction Number" url="">
+				<value>transcactionNum</value>
+			</field>
+			<field attributeName="Consideration Target" url="">
+				<value>cTarget</value>
+			</field>
+			<field attributeName="Service Name" url="">
+				<value>sName</value>
+			</field>
+			<field attributeName="Consideration Exchange Method" url="">
+				<value>exchangeMethod</value>
+			</field>
+			<field attributeName="Consideration Exchange Value" url="">
+				<value>900</value>
+			</field>
+		</value>
+	</field>
+</choicenetmessage>

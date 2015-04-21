@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<choicenetmessage>
+	<field attributeName="Originator Name" url="">
+		<value>ABC Marketplace</value>
+	</field>
+	<field attributeName="Originator Signature" url="">
+		<value />
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Provider</value>
+	</field>
+	<field attributeName="Originator Provider Type" url="">
+		<value>Marketplace</value>
+	</field>
+	<field attributeName="Message Type" url="">
+		<value>MARKETPLACE_RESPONSE</value>
+	</field>
+	<field attributeName="Message Specific" url="">
+		<value>
+			<field attributeName="Results" url="">
+				<value><![CDATA[
+				{"total_rows":25,"offset":15,"rows":[{"id":"0e35827a928fa363c0826985d10096ff","key":["A","B"],"value":{"id":"0e35827a928fa363c0826985d10096ff","serviceName":"Ad 7","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-40855fd31fd71c61c7fc3f96176c60f9","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"A","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"2"}},{"id":"0e35827a928fa363c0826985d100d29a","key":["A","B"],"value":{"id":"0e35827a928fa363c0826985d100d29a","serviceName":"Ad 1","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-6c776369fd54a6700fe49e86b874858b","considerationMethod":"Bitcoin","considerationValue":2,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"A","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"1","dstFormatScheme":"media","dstFormatValue":"1"}}]}
+
+				{"total_rows":25,"offset":15,"rows":[{"id":"0e35827a928fa363c0826985d10096ff","key":["A","B"],"value":{"id":"0e35827a928fa363c0826985d10096ff","serviceName":"Ad 7","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-40855fd31fd71c61c7fc3f96176c60f9","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"A","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"2"}},{"id":"0e35827a928fa363c0826985d100d29a","key":["A","B"],"value":{"id":"0e35827a928fa363c0826985d100d29a","serviceName":"Ad 1","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-6c776369fd54a6700fe49e86b874858b","considerationMethod":"Bitcoin","considerationValue":2,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"A","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"1","dstFormatScheme":"media","dstFormatValue":"1"}}]}
+				
+				{"total_rows":25,"offset":19,"rows":[{"id":"0e35827a928fa363c0826985d1009713","key":["B","B"],"value":{"id":"0e35827a928fa363c0826985d1009713","serviceName":"Ad 6","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-01e978639b07a8b46b8aa7ef69118bb5","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"B","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"1"}},{"id":"0e35827a928fa363c0826985d100a29d","key":["B","B"],"value":{"id":"0e35827a928fa363c0826985d100a29d","serviceName":"Ad 5","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-89f62d0f694bb242015c2b1612202ee3","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"B","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"1","dstFormatScheme":"media","dstFormatValue":"2"}}]}
+				
+				{"total_rows":25,"offset":19,"rows":[{"id":"0e35827a928fa363c0826985d1009713","key":["B","B"],"value":{"id":"0e35827a928fa363c0826985d1009713","serviceName":"Ad 6","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-01e978639b07a8b46b8aa7ef69118bb5","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"B","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"1"}},{"id":"0e35827a928fa363c0826985d100a29d","key":["B","B"],"value":{"id":"0e35827a928fa363c0826985d100a29d","serviceName":"Ad 5","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-89f62d0f694bb242015c2b1612202ee3","considerationMethod":"Bitcoin","considerationValue":1,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"B","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"B","srcFormatScheme":"media","srcFormatValue":"1","dstFormatScheme":"media","dstFormatValue":"2"}}]}
+]]></value>
+			</field>
+		</value>
+	</field>
+</choicenetmessage>
