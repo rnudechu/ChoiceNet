@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<choicenetmessage>
+	<field attributeName="Originator Name" url="">
+		<value>ABC Marketplace</value>
+	</field>
+	<field attributeName="Originator Signature" url="">
+		<value />
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Provider</value>
+	</field>
+	<field attributeName="Originator Provider Type" url="">
+		<value>Marketplace</value>
+	</field>
+	<field attributeName="Message Type" url="">
+		<value>MARKETPLACE_RESPONSE</value>
+	</field>
+	<field attributeName="Message Specific" url="">
+		<value>
+			<field attributeName="Results" url="">
+				<value>
+				<![CDATA[
+				{"total_rows":26,"offset":10,"rows":[{"id":"0e35827a928fa363c0826985d100c540","key":["0e35827a928fa363c0826985d100c540"],"value":{"id":"0e35827a928fa363c0826985d100c540","serviceName":"Ad 11","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-9c132071c473ddfc3bb7ecfbd410e9e2","considerationMethod":"Bitcoin","considerationValue":7,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"B","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"C","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"1"}}]}
+
+				{"total_rows":26,"offset":9,"rows":[{"id":"0e35827a928fa363c0826985d100b618","key":["0e35827a928fa363c0826985d100b618"],"value":{"id":"0e35827a928fa363c0826985d100b618","serviceName":"Ad 12","description":"Test Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-d8e51aa1a7fa5885ea0d4a7e72dfefc9","considerationMethod":"Bitcoin","considerationValue":2,"srcLocationAddrScheme":"IPv4","srcLocationAddrValue":"A","dstLocationAddrScheme":"IPv4","dstLocationAddrValue":"C","srcFormatScheme":"media","srcFormatValue":"2","dstFormatScheme":"media","dstFormatValue":"1"}}]}
+				]]>
+				</value>
+			</field>
+		</value>
+	</field>
+</choicenetmessage>

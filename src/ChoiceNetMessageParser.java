@@ -288,7 +288,7 @@ public class ChoiceNetMessageParser {
 		ArrayList<ChoiceNetMessageField> queries = new ArrayList<ChoiceNetMessageField>();
 		ChoiceNetMessageField[] contents;
 		// Loop through all possible QueryTypes and see if XML has any matching fields
-		for(QueryType queryType: QueryType.values())
+		for(RequestType queryType: RequestType.values())
 		{
 			contents = getChoiceNetMessageArray(pktXML,queryType.toString());
 			if(contents.length>0)

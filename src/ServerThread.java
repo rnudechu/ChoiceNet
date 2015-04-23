@@ -405,7 +405,8 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		ChoiceNetMessageField searchparameters = payload[0];
 		payload = (ChoiceNetMessageField[]) searchparameters.getValue();
-		
+		InternalMessageField[] queryPayload = determineQueryType(payload);
+
 		System.out.println("payload length is "+payload.length);
 		String attr, queryValue, adID, query, response = "";
 		String queryField = "";
@@ -414,7 +415,7 @@ public class ServerThread extends Thread {
 		CouchDBResponse cResponse;
 
 		Map<String, String> responseCollection = new HashMap<String, String>();
-		for(ChoiceNetMessageField searchField : payload)
+		for(InternalMessageField searchField : queryPayload)
 		{
 			attr = searchField.getAttributeName();
 			System.out.println("YO => "+attr);
@@ -499,7 +500,7 @@ public class ServerThread extends Thread {
 				queryField = "bySrcDstLocationSrcDstFormat";
 			}
 
-			System.out.println(attr.equals(QueryType.LOCATION_SRC.toString()));
+			System.out.println(attr.equals(RequestType.LOCATION_SRC.toString()));
 			System.out.println(queryValue);
 			// make the required calls per query content
 			if(!isRange)
@@ -540,7 +541,7 @@ public class ServerThread extends Thread {
 			Logger.log(url);
 			response = couchDBsocket.getRestInterface(url);
 			results += response+jsonSeparator;
-//			i++;
+			//			i++;
 		}
 
 		// loop through unique response
@@ -554,6 +555,266 @@ public class ServerThread extends Thread {
 		send(packet);
 		// 
 	}
+
+	public InternalMessageField[] determineQueryType(ChoiceNetMessageField[] message)
+	{
+		ArrayList<InternalMessageField> list = new ArrayList<InternalMessageField>();
+		String sourceLoc = "";
+		String destinationLoc = "";
+		String sourceFormat = "";
+		String destinationFormat = "";
+		String sourceLocType = "";
+		String destinationLocType = "";
+		String sourceFormatType = "";
+		String destinationFormatType = "";
+		String adID = "";
+		String cost = "";
+		String attr = "";
+		for(ChoiceNetMessageField msg: message)
+		{
+			attr = msg.getAttributeName();
+			if(attr.equals(RequestType.LOCATION_SRC.toString()))
+			{
+				sourceLoc = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_DST.toString()))
+			{
+				destinationLoc = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_SRC.toString()))
+			{
+				sourceFormat = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_DST.toString()))
+			{
+				destinationFormat = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_SRC_TYPE.toString()))
+			{
+				sourceLocType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_DST_TYPE.toString()))
+			{
+				destinationLocType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_SRC_TYPE.toString()))
+			{
+				sourceFormatType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_DST_TYPE.toString()))
+			{
+				destinationFormatType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.COST.toString()))
+			{
+				cost = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.ADVERTISEMENT_ID.toString()))
+			{
+				adID = (String) msg.getValue();
+			}
+		}
+			
+		// determine the query property by content submitted in the location/format source/destination
+		InternalMessageField searchedContent;
+		// determine the query property by content submitted in the location/format source/destination
+		// check if any of the query parameters contain a comma if so multiple searches need to be performed
+		String[] srcLocArr = sourceLoc.split(",");
+		String[] dstLocArr = destinationLoc.split(",");
+		String[] srcFormatArr = sourceFormat.split(",");
+		String[] dstFormatArr = destinationFormat.split(",");
+		String[] srcLocTypeArr = sourceLocType.split(",");
+		String[] dstLocTypeArr = destinationLocType.split(",");
+		String[] srcFormatTypeArr = sourceFormatType.split(",");
+		String[] dstFormatTypeArr = destinationFormatType.split(",");
+
+		int i = 0;
+		int j = 0;
+		int k = 0;
+		int l = 0;
+		boolean operate;
+		// loop through the possible combinations between this four fields
+		while(i<srcLocArr.length)
+		{
+			operate = false;
+			searchedContent = determineQueryParameter(srcLocArr[i],dstLocArr[j],srcFormatArr[k],dstFormatArr[l],srcLocTypeArr[i],dstLocTypeArr[j],srcFormatTypeArr[k],dstFormatTypeArr[l]);
+			if(searchedContent!=null)
+			{
+				list.add(searchedContent);
+			}
+			if(j<dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1 && operate==false)
+			{
+				operate = true;
+				j++;
+				k = 0;
+				l = 0;
+			}
+			if(k<srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
+			{
+				operate = true;
+				k++;
+				l = 0;
+			}
+			if(l<dstFormatArr.length-1  && operate==false)
+			{
+				operate = true;
+				l++;
+			}
+			if(j == dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
+			{
+
+				i++;
+				j = 0;
+				k = 0;
+				l = 0;
+			}
+		}
+		// decode the source field
+		if(!cost.isEmpty())
+		{
+			searchedContent = new InternalMessageField(""+QueryType.COST, "[\""+cost+"\"]", "");
+			list.add(searchedContent);
+		}
+		// decode the advertisement ID field
+		if(!adID.isEmpty())
+		{
+			searchedContent = new InternalMessageField(""+QueryType.ADVERTISEMENT_ID, "[\""+adID+"\"]", "");
+			list.add(searchedContent);
+		}
+		int size = list.size();
+		InternalMessageField payload[] = new InternalMessageField[size];
+		for(i=0;i<size;i++)
+		{
+			payload[i] = list.get(i);
+		}
+		return payload;
+	}
+
+	/**
+	 * 
+	 * @param sourceLoc
+	 * @param destinationLoc
+	 * @param sourceFormat
+	 * @param destinationFormat
+	 * @return
+	 */
+	public InternalMessageField determineQueryParameter(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, 
+			String sourceLocType, String destinationLocType, String sourceFormatType, String destinationFormatType)
+	{
+		// 1: (1,2,3,4)
+		// 2: (1,2,3)
+		// 3: (1,2,4)
+		// 4: (1,3,4)
+		// 5: (2,3,4)
+		// 6: (1,2)
+		// 7: (1,3)
+		// 8: (1,4)
+		// 9: (2,3)
+		// 10: (2,4)
+		// 11: (3,4)
+		// 12: (1)
+		// 13: (2)
+		// 14: (3)
+		// 15: (4)
+		InternalMessageField searchedContent = null;
+		String data = "";
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Triplets
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Pair Case
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+sourceLocType+"\",\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(destinationLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			data = "[\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty() &&  !destinationFormat.isEmpty())
+		{
+			data = "[\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			data = "[\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Single case
+		if(!sourceLoc.isEmpty())
+		{
+			data = "[\""+sourceLoc+"\",\""+sourceLocType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty())
+		{
+			data = "[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceFormat.isEmpty())
+		{
+			data = "[\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationFormat.isEmpty())
+		{
+			data = "[\""+destinationFormat+"\",\""+destinationFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_DST, data, "");
+			return searchedContent;
+		}
+
+		return searchedContent;
+	}
+
 	/**
 	 * Marketplace Provider to Any
 	 * Decode a Marketplace Response
@@ -568,8 +829,8 @@ public class ServerThread extends Thread {
 		parsedResults = parsedResults.replace("<![CDATA[", "");
 		parsedResults = parsedResults.replace("\n]]>", "");
 		String[] results = parsedResults.split(jsonSeparator);
-//		String[] results = (String[]) payload[0].getValue();
-		
+		//		String[] results = (String[]) payload[0].getValue();
+
 		String message = "";
 		System.out.println(Server.runningMode);
 		if(Server.runningMode.equals("standalone"))
@@ -893,7 +1154,7 @@ public class ServerThread extends Thread {
 			// Store advertisement in Advertisement Manager (Internal Database)
 			adXML = adXML.replace("<![CDATA[", "");
 			adXML = adXML.replace("]]>", "");
-			
+
 			ArrayList<Advertisement> submittedAds = cnLibrary.getAdvertisementsFromXML(adXML, "String");
 			cnLibrary.storeAdvertisement(submittedAds);
 			// check that the service type matches
@@ -903,8 +1164,9 @@ public class ServerThread extends Thread {
 			{
 				if(currTime<expirationTime)
 				{
-					String adServiceName = myAd.getService().getName();
+					// check whether the Ad contains an IPv4 location
 
+					String adServiceName = myAd.getService().getName();
 					String queryValue = adServiceName.replaceAll(" ", "%20");
 					// Store in CouchDB
 					couchDBsocket.postRestInterface(Server.marketplaceRESTAPI, myAd);

@@ -160,210 +160,6 @@ public class ChoiceNetLibrary {
 	
 	
 	// 	========================== XML Reader ================================
-	public ServiceRequirement parseServiceRequirementXML(String filename)
-	{
-		ServiceRequirement svcRequirement = null;
-		try {
-			File fXmlFile = new File(filename);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(fXmlFile);
-
-			//optional, but recommended
-			//read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-			doc.getDocumentElement().normalize();
-
-			System.out.println("Root element:" + doc.getDocumentElement().getNodeName());
-
-			NodeList nList = doc.getElementsByTagName("requirement");
-			int advertisementCount = nList.getLength();
-			System.out.println("----------------------------");
-			NodeList myList, thisList = null;
-			Node myNode = null;
-			Element myElement = null;
-			NamedNodeMap attributes = null;
-			System.out.println(">>> XML "+filename);
-			String type, addressType = "",  location = "";
-			String priceMethod, pValue, providerID, provisioningParameters, serviceName; 
-
-			priceMethod = pValue = null;
-			ProvisioningProperty pProp;
-			String sourceLoc, sourceLocType, destinationLoc, destinationLocType, sourceFormat, sourceFormatType, destinationFormat, destinationFormatType;
-			sourceLoc =  sourceLocType =  destinationLoc =  destinationLocType =  sourceFormat =  sourceFormatType =  destinationFormat =  destinationFormatType = "";
-			ArrayList<String> locationsIPv4Src = new ArrayList<String>();
-			ArrayList<String> locationsIPv4Dst = new ArrayList<String>();
-			ArrayList<String> locationsIPv6Src = new ArrayList<String>();
-			ArrayList<String> locationsIPv6Dst = new ArrayList<String>();
-			ArrayList<String> locationsURL = new ArrayList<String>();
-			ArrayList<String> formatsMediaSrc = new ArrayList<String>();
-			ArrayList<String> formatsMediaDst = new ArrayList<String>();
-			int max = 0;
-			for (int temp = 0; temp < advertisementCount; temp++) 
-			{
-				Node nNode = nList.item(temp);
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					// Price
-					myList = doc.getElementsByTagName("price");
-					myNode = myList.item(temp);
-					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
-
-						myElement = (Element) myNode;
-						priceMethod = myElement.getElementsByTagName("method").item(0).getTextContent();
-						pValue = myElement.getElementsByTagName("value").item(0).getTextContent();
-					}
-					// Service Information
-					myList = doc.getElementsByTagName("service");
-					myNode = myList.item(temp);
-					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
-						myElement = (Element) myNode;
-
-						myList = myElement.getElementsByTagName("details");
-						myNode = myList.item(temp);
-						if (myNode.getNodeType() == Node.ELEMENT_NODE) {
-
-							myElement = (Element) myNode;
-							myList = myElement.getElementsByTagName("location");
-							for(int i=0;i<myList.getLength();i++)
-							{
-								attributes = myList.item(i).getAttributes();
-								int j = max;
-								max += getChildElementCount(myList.item(i).getChildNodes());
-								// only looking at the first element under location and first attribute
-								if (myNode.getNodeType() == Node.ELEMENT_NODE && !attributes.getNamedItem("type").equals("null")) 
-								{
-									myElement = (Element) myNode;
-									addressType = attributes.item(0).getNodeValue();
-									for(;j<max;j++)
-									{
-										if(myElement.getElementsByTagName("ip").getLength() > 0)
-										{
-
-											thisList = myElement.getElementsByTagName("ip");
-											location = (thisList.item(j).getTextContent()).trim();//+";";
-											attributes = thisList.item(j).getAttributes();
-											type = attributes.item(0).getNodeValue();
-											if(type.equals("4"))
-											{
-												if(addressType.equals("source"))
-												{
-													locationsIPv4Src.add(location);
-												}
-												if(addressType.equals("destination"))
-												{
-													locationsIPv4Dst.add(location);
-												}
-											}
-											if(type.equals("6"))
-											{
-												if(addressType.equals("source"))
-												{
-													locationsIPv6Src.add(location);
-												}
-												if(addressType.equals("destination"))
-												{
-													locationsIPv6Dst.add(location);
-												}
-											}
-										}
-										if(myElement.getElementsByTagName("url").getLength() > 0)
-										{
-											thisList = myElement.getElementsByTagName("url");
-											location = (thisList.item(j).getTextContent()).trim();//+";";
-											locationsURL.add(location);
-										}
-									}
-								}
-							}
-							max = 0;
-							myElement = (Element) myNode;
-							myList = myElement.getElementsByTagName("format");
-							System.out.println(myList.getLength());
-
-							for(int i=0;i<myList.getLength();i++)
-							{
-								attributes = myList.item(i).getAttributes();
-								int j = max;
-								max += getChildElementCount(myList.item(i).getChildNodes());
-								// only looking at the first element under location and first attribute
-								if (myNode.getNodeType() == Node.ELEMENT_NODE && !attributes.getNamedItem("type").equals("null")) 
-								{
-									myElement = (Element) myNode;
-									addressType = attributes.item(0).getNodeValue();
-									if(myElement.getElementsByTagName("media").getLength() > 0)
-									{
-										thisList = myElement.getElementsByTagName("media");
-										for(; j<max; j++)
-										{
-											location = (thisList.item(j).getTextContent()).trim();//+";";
-											if(addressType.equals("source"))
-											{
-												formatsMediaSrc.add(location);
-											}
-											if(addressType.equals("destination"))
-											{
-												formatsMediaDst.add(location);
-											}
-
-										}
-										System.out.println(location);
-									}
-								}
-							}
-						}
-					}
-				}
-				Cost myCost = new Cost(priceMethod, pValue);
-				// URL will always need to be at the end since it doesn't have a src
-				// print out all source locations (IPv4, IPv6)
-				for(int i = 0; i<locationsIPv4Src.size();i++)
-				{
-					sourceLoc += locationsIPv4Src.get(i)+";";
-					sourceLocType += "IPv4;";
-				}
-				for(int i = 0; i<locationsIPv6Src.size();i++)
-				{
-					sourceLoc += locationsIPv6Src.get(i)+";";
-					sourceLocType += "IPv6;";
-				}
-				// print out all destination locations (IPv4, IPv6, URL)
-				for(int i = 0; i<locationsIPv4Dst.size();i++)
-				{
-					destinationLoc += locationsIPv4Dst.get(i)+";";
-					destinationLocType += "IPv4;";
-				}
-				for(int i = 0; i<locationsIPv6Dst.size();i++)
-				{
-					destinationLoc += locationsIPv6Dst.get(i)+";";
-					destinationLocType += "IPv6;";
-				}
-				for(int i = 0; i<locationsURL.size();i++)
-				{
-					destinationLoc += locationsURL.get(i)+";";
-					destinationLocType += "URL;";
-				}
-				// print out all source locations (media)
-				for(int i = 0; i<formatsMediaSrc.size();i++)
-				{
-					sourceFormat += formatsMediaSrc.get(i)+";";
-					sourceFormatType += "media;";
-				}
-				// print out all destination locations (media)
-				for(int i = 0; i<formatsMediaDst.size();i++)
-				{
-					destinationFormat += formatsMediaDst.get(i)+";";
-					destinationFormatType += "media;";
-				}
-				svcRequirement = new ServiceRequirement(sourceLoc, sourceLocType, destinationLoc, destinationLocType, sourceFormat, sourceFormatType, destinationFormat, destinationFormatType, myCost);
-				System.out.println(svcRequirement);
-			}
-		} catch (Exception e) {
-			Server.systemMessage = e.getMessage();
-			//e.printStackTrace();
-		}
-		System.out.println("----------------------------");
-		return svcRequirement;
-	}
-
 	public int getChildElementCount(NodeList childNodes) {
 		int count = 0;
 		for (int i = 0; i < childNodes.getLength(); i++) {
@@ -373,7 +169,7 @@ public class ChoiceNetLibrary {
 		}
 		return count;
 	}
-
+	
 	public ArrayList<Advertisement> getAdvertisementsFromXML(String filename, String source)
 	{
 		ArrayList<Advertisement> result = new ArrayList<Advertisement>();
@@ -428,14 +224,9 @@ public class ChoiceNetLibrary {
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					// Price
 					myList = doc.getElementsByTagName("price");
-					myNode = myList.item(temp);
-					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
-
-						myElement = (Element) myNode;
-						priceMethod = myElement.getElementsByTagName("method").item(0).getTextContent();
-						pValue = myElement.getElementsByTagName("value").item(0).getTextContent();
-						priceValue = Integer.parseInt(pValue);
-					}
+					priceMethod = getAttributes(myList, "method",0);
+					pValue = getAttributes(myList, "value",0);
+					priceValue = Integer.parseInt(pValue);
 					System.out.println("Hello "+priceMethod);
 					// Provider ID
 					providerID = doc.getElementsByTagName("providerID").item(0).getTextContent();
@@ -446,29 +237,11 @@ public class ChoiceNetLibrary {
 					myNode = myList.item(temp);
 					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
 						myElement = (Element) myNode;
-						myList = myElement.getElementsByTagName("location");
-						if (myNode.getNodeType() == Node.ELEMENT_NODE) 
-						{
-							myElement = (Element) myNode;
-							if(myElement.getElementsByTagName("url").getLength() > 0)
-							{
-								portalType = "URL";
-								purchasePortal = myElement.getElementsByTagName("url").item(0).getTextContent();
-							}
-							if(myElement.getElementsByTagName("ip").getLength() > 0)
-							{
-
-								attributes = myElement.getElementsByTagName("ip").item(0).getAttributes();
-
-								purchasePortal = myElement.getElementsByTagName("ip").item(0).getTextContent();
-
-								portalType += "v"+(attributes.item(0).getNodeValue());
-								attributes = myElement.getElementsByTagName("port").item(0).getAttributes();
-								portalType = (attributes.item(0).getNodeValue()).toUpperCase()+portalType;
-								purchasePortal += ":"+myElement.getElementsByTagName("port").item(0).getTextContent();
-							}
-						}
-
+						//						myList = myElement.getElementsByTagName("source_location");
+						myList = myElement.getElementsByTagName("destination_location");
+						portalType = getAttributes(myList, "scheme", 0);
+						purchasePortal = getAttributes(myList, "value", 0);
+						System.out.println("My list "+portalType+" "+purchasePortal+"<<<");
 						purchasePortal = purchasePortal.trim();
 					}
 					System.out.println("Hello "+purchasePortal);
@@ -481,14 +254,14 @@ public class ChoiceNetLibrary {
 						myList = myElement.getElementsByTagName("ports");
 						for(int i=0; myList.getLength()>0 && i<myList.getLength(); i++)
 						{
-							provisioningParameters += (myList.item(i).getTextContent()).trim();//+";";
+							provisioningParameters = getAttributes(myList, "value", i);
 							pProp = new ProvisioningProperty("Ports", provisioningParameters);
 							serviceProperties.add(pProp);
 						}
 						myList = myElement.getElementsByTagName("wavelength");
 						for(int i=0; myList.getLength()!=0 && i<myList.getLength(); i++)
 						{
-							provisioningParameters += (myList.item(i).getTextContent()).trim();//+";";
+							provisioningParameters = getAttributes(myList, "value", i);
 							pProp = new ProvisioningProperty("Wavelength", provisioningParameters);
 							serviceProperties.add(pProp);
 						}
@@ -497,105 +270,43 @@ public class ChoiceNetLibrary {
 					// Service Information
 					myList = doc.getElementsByTagName("service");
 					myNode = myList.item(temp);
-					System.out.println("Robinson look here: "+temp);
 					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
 						myElement = (Element) myNode;
 						serviceName =  myElement.getElementsByTagName("name").item(0).getTextContent();
 						serviceDescription =  myElement.getElementsByTagName("description").item(0).getTextContent();//	
-						System.out.println("Robinson look here: "+serviceName);
 						myList = myElement.getElementsByTagName("details");
 						myNode = myList.item(0);
-						if (myNode.getNodeType() == Node.ELEMENT_NODE) {
 
-							myElement = (Element) myNode;
-							myList = myElement.getElementsByTagName("location");
-							System.out.println(myList.getLength());
+						myList = myElement.getElementsByTagName("source_location");
+						System.out.println(myList.getLength());
 
-							for(int i=0;i<myList.getLength();i++)
-							{
-								attributes = myList.item(i).getAttributes();
-								// only looking at the first element under location and first attribute
-								if (myNode.getNodeType() == Node.ELEMENT_NODE && !attributes.getNamedItem("type").equals("null")) 
-								{
-									myElement = (Element) myNode;
-									addressType = attributes.item(0).getNodeValue();
-									if(myElement.getElementsByTagName("ip").getLength() > 0)
-									{
-										numLoc++;
-										thisList = myElement.getElementsByTagName("ip");
-										attributes = thisList.item(0).getAttributes();
-										location = myElement.getElementsByTagName("ip").item(i).getTextContent().trim();//+";";
-										type = attributes.item(0).getNodeValue();
-										if(type.equals("4"))
-										{
-											if(addressType.equals("source"))
-											{
-												srcAddressScheme = "IPv4";
-												srcAddressValue = location;
-											}
-											if(addressType.equals("destination"))
-											{
-												dstAddressScheme = "IPv4";
-												dstAddressValue = location;
-											}
-											System.out.println(location);
-											System.out.println("IPv4");
-										}
-										if(type.equals("6"))
-										{
-											if(addressType.equals("source"))
-											{
-												srcAddressScheme = "IPv6";
-												srcAddressValue = location;
-											}
-											if(addressType.equals("destination"))
-											{
-												dstAddressScheme = "IPv6";
-												dstAddressValue = location; 
-											}
-											System.out.println("IPv6");
-										}
-									}
-									if(myElement.getElementsByTagName("url").getLength() > 0)
-									{
-										location = myElement.getElementsByTagName("url").item(0).getTextContent().trim();
-									}
-								}
-							}
-
-							myElement = (Element) myNode;
-							myList = myElement.getElementsByTagName("format");
-							System.out.println(myList.getLength());
-
-							for(int i=0;i<myList.getLength();i++)
-							{
-								attributes = myList.item(i).getAttributes();
-								// only looking at the first element under location and first attribute
-								if (myNode.getNodeType() == Node.ELEMENT_NODE && !attributes.getNamedItem("type").equals("null")) 
-								{
-									myElement = (Element) myNode;
-									addressType = attributes.item(0).getNodeValue();
-									srcFormatScheme = "media";
-									dstFormatScheme = "media";
-									if(myElement.getElementsByTagName("media").getLength() > 0)
-									{
-										numFormat++;
-										thisList = myElement.getElementsByTagName("media");
-										location = myElement.getElementsByTagName("media").item(i).getTextContent().trim();//+";";
-
-										if(addressType.equals("source"))
-										{
-											srcFormatValue = location;
-										}
-										if(addressType.equals("destination"))
-										{
-											dstFormatValue = location;
-										}
-										System.out.println(location);
-									}
-								}
-							}
+						for(int i=0;i<myList.getLength();i++)
+						{
+							srcAddressScheme = getAttributes(myList, "scheme", i);
+							srcAddressValue = getAttributes(myList, "value", i);
 						}
+						System.out.println("Scheme "+srcAddressScheme+" Value "+srcAddressValue);
+						myList = myElement.getElementsByTagName("destination_location");
+						for(int i=0;i<myList.getLength();i++)
+						{
+							dstAddressScheme = getAttributes(myList, "scheme", i);
+							dstAddressValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+dstAddressScheme+" Value "+dstAddressValue);
+						myList = myElement.getElementsByTagName("source_format");
+						for(int i=0;i<myList.getLength();i++)
+						{
+							srcFormatScheme = getAttributes(myList, "scheme", i);
+							srcFormatValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+srcFormatScheme+" Value "+srcFormatValue);
+						myList = myElement.getElementsByTagName("destination_format");
+						for(int i=0;i<myList.getLength();i++)
+						{	
+							dstFormatScheme = getAttributes(myList, "scheme", i);
+							dstFormatValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+dstFormatScheme+" Value "+dstFormatValue);
 					}
 					// Print Out
 					String printOut = "Advertisement \n" +
@@ -613,6 +324,11 @@ public class ChoiceNetLibrary {
 					String[] addr = purchasePortal.split(":");
 					advertiserAddress = addr[0];
 					advertiserPortAddress = Integer.parseInt(addr[1]);
+				}
+				else
+				{
+					advertiserAddress = purchasePortal;
+					advertiserPortAddress = 0;
 				}
 
 				ProvisioningProperty sProp[] = new ProvisioningProperty[serviceProperties.size()];
@@ -632,8 +348,21 @@ public class ChoiceNetLibrary {
 			Server.systemMessage = e.getMessage();
 			//e.printStackTrace();
 		}
-		
+
 		return result;
+	}
+	
+	public String getAttributes(NodeList list, String attribute, int index)
+	{
+		String results = "";
+		Element element;
+		Node myNode = list.item(index);
+		if (myNode.getNodeType() == Node.ELEMENT_NODE) {
+
+			element = (Element) myNode;
+			results = element.getAttribute(attribute);
+		}
+		return results;
 	}
 
 	public void storeAdvertisement(ArrayList<Advertisement> advertisements)

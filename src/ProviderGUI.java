@@ -61,7 +61,7 @@ public class ProviderGUI implements ActionListener {
 	private JButton btnRendezvousMenu, btnRendezvousRequest,
 	btnSendConsiderationMenu, btnSendConsiderationRequest, btnKnownEntities,
 	btnSendListingMenu, btnSendListingRequest, btnListingAdvertisementBrowse, btnShowTokenId, 
-	btnClearPlanner,searchBtnPlanner,btnBrowsePlanner,
+	btnClearPlanner,searchBtnPlanner,
 	btnSendUsePlane, btnStoredUsePlane, btnSearchMarketplace, btnAccessUsePlane,
 	btnHomeMenuRendezvous, btnHomeMenuListing, btnHomeMenuConsideration, btnHomeMenuUsePlane, btnHomeMenuPlanner;
 	private JTextField txtListingIPAddr, txtListingFileLocation, txtListingTokenID, txtListingTarget;
@@ -69,7 +69,7 @@ public class ProviderGUI implements ActionListener {
 	private JTextField txtRendezvousIPAddr, txtRendezvousTarget;
 	private JTextField serverIPAddressTxtFldPlanner, txtLocationSourceTypePlanner, textFieldLocationSourcePlanner, txtLocationDestinationTypePlanner, 
 	textFieldLocationDestinationPlanner, txtFormatSourceTypePlanner, textFieldFormatSourcePlanner, txtFormatDestinationTypePlanner, 
-	textFieldFormatDestinationPlanner, txtCostMethodPlanner, textFieldSvcReq, textFieldCostPlanner;
+	textFieldFormatDestinationPlanner, txtCostMethodPlanner, textFieldCostPlanner;
 	private JFileChooser fc =  new JFileChooser();
 	private static JTextArea textAreaRendezvous, textAreaConsideration, textAreaListing, textAreaMktpl, textAreaPlanner, textAreaUsePlane;
 
@@ -103,9 +103,8 @@ public class ProviderGUI implements ActionListener {
 	private JTextField txtFormatSourceTypeMktpl;
 	private JTextField txtFormatDestinationTypeMktpl;
 	private JTextField txtCostMethodMktpl;
-	private JLabel lblServiceRequirementXml;
 	private JButton btnUsePlannerService;
-	private JCheckBox chckbxUseFile;
+	private JLabel lblMarketplacenotifier;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -259,7 +258,7 @@ public class ProviderGUI implements ActionListener {
 			}
 			showTestData();
 		}
-		
+
 		String[] addr;
 		String ipAddr, portStr, target, message;
 		int port = -1;
@@ -283,16 +282,16 @@ public class ProviderGUI implements ActionListener {
 					success = false;
 				}
 				target = txtRendezvousTarget.getText();
-				
+
 				if(success)
 				{
 					server.sendRendevouzMessage(target,ipAddr,port);
 					updateTextArea();
 				}
 			}
-			
+
 		}
-		
+
 		if(e.getSource() == btnSendConsiderationRequest)
 		{
 
@@ -393,11 +392,27 @@ public class ProviderGUI implements ActionListener {
 			String dstFormatType = txtFormatDestinationTypeMktpl.getText().toString();
 			String adID = textFieldAdvID.getText().toString();
 
-			//String result = server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, cost, adID);
 			if(!marketplaceAddr.isEmpty() && marketplaceAddr.contains(":"))
 			{
-//				String result = server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, srcLocType, dstLocType, srcFormatType, dstFormatType, cost, adID);
-				server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, srcLocType, dstLocType, srcFormatType, dstFormatType, cost, adID);
+				String[] srcLocArr = sourceLoc.split(",");
+				String[] dstLocArr = destinationLoc.split(",");
+				String[] srcFormatArr = sourceFormat.split(",");
+				String[] dstFormatArr = destinationFormat.split(",");
+				String[] srcLocTypeArr = srcLocType.split(",");
+				String[] dstLocTypeArr = dstLocType.split(",");
+				String[] srcFormatTypeArr = srcFormatType.split(",");
+				String[] dstFormatTypeArr = dstFormatType.split(",");
+				if(srcLocArr.length==srcLocTypeArr.length && dstLocArr.length == dstLocTypeArr.length &&
+						srcFormatArr.length == srcFormatTypeArr.length && dstFormatArr.length == dstFormatTypeArr.length)
+				{
+					lblMarketplacenotifier.setText("");
+					server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, srcLocType, dstLocType, srcFormatType, dstFormatType, cost, adID);
+				}
+				else
+				{
+					message = "<html>Error: Type should have same number of commas as their corresponding Value</html>";
+					lblMarketplacenotifier.setText(message);
+				}
 			}
 		}
 		// Planner Panel
@@ -414,46 +429,25 @@ public class ProviderGUI implements ActionListener {
 			txtFormatSourceTypePlanner.setText("");
 			textFieldFormatDestinationPlanner.setText("");
 			txtFormatDestinationTypePlanner.setText("");
-			textFieldSvcReq.setText("");
-		}
-		if(e.getSource() == btnBrowsePlanner)
-		{
-			// browse file structure
-			int returnVal = fc.showOpenDialog(plannerPanel);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				textFieldSvcReq.setText(file.getAbsolutePath());
-			}
 		}
 		if(e.getSource() == searchBtnPlanner)
 		{
 			// search the form
 			ServiceRequirement svcReq;
 			String marketplaceAddr = serverIPAddressTxtFldPlanner.getText().toString();
-			if(chckbxUseFile.isSelected())
-			{
-				// read the XML and parse it to the appropriate request
-				// parse the XML ...
-				String filename = textFieldSvcReq.getText().toString();
-				svcReq = cnLibrary.parseServiceRequirementXML(filename);
-			}
-			else
-			{
-				String sourceLoc = textFieldLocationSourcePlanner.getText().toString();
-				String sourceLocType = txtLocationSourceTypePlanner.getText().toString();
-				String destinationLoc = textFieldLocationDestinationPlanner.getText().toString();
-				String destinationLocType = txtLocationDestinationTypePlanner.getText().toString();
-				String method = txtCostMethodPlanner.getText().toString();
-				String amount = textFieldCostPlanner.getText().toString();
-				String sourceFormat = textFieldFormatSourcePlanner.getText().toString();
-				String sourceFormatType = txtFormatSourceTypePlanner.getText().toString();
-				String destinationFormat = textFieldFormatDestinationPlanner.getText().toString();
-				String destinationFormatType = txtFormatDestinationTypePlanner.getText().toString();
-				Cost svcCost = new Cost(method, amount);
-				svcReq = new ServiceRequirement(sourceLoc, sourceLocType, destinationLoc, destinationLocType, sourceFormat, sourceFormatType, destinationFormat, destinationFormatType, svcCost);
+			String sourceLoc = textFieldLocationSourcePlanner.getText().toString();
+			String sourceLocType = txtLocationSourceTypePlanner.getText().toString();
+			String destinationLoc = textFieldLocationDestinationPlanner.getText().toString();
+			String destinationLocType = txtLocationDestinationTypePlanner.getText().toString();
+			String method = txtCostMethodPlanner.getText().toString();
+			String amount = textFieldCostPlanner.getText().toString();
+			String sourceFormat = textFieldFormatSourcePlanner.getText().toString();
+			String sourceFormatType = txtFormatSourceTypePlanner.getText().toString();
+			String destinationFormat = textFieldFormatDestinationPlanner.getText().toString();
+			String destinationFormatType = txtFormatDestinationTypePlanner.getText().toString();
+			Cost svcCost = new Cost(method, amount);
+			svcReq = new ServiceRequirement(sourceLoc, sourceLocType, destinationLoc, destinationLocType, sourceFormat, sourceFormatType, destinationFormat, destinationFormatType, svcCost);
 
-			}
 			if(!marketplaceAddr.isEmpty() && marketplaceAddr.contains(":"))
 			{
 				server.sendPlannerRequest(marketplaceAddr, svcReq);
@@ -1348,6 +1342,8 @@ public class ProviderGUI implements ActionListener {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("20px"),
 				FormFactory.NARROW_LINE_GAP_ROWSPEC,
 				RowSpec.decode("20px"),
@@ -1391,89 +1387,93 @@ public class ProviderGUI implements ActionListener {
 		lblClientDirections.setForeground(Color.BLUE);
 		marketplacePanel.add(lblClientDirections, "3, 7, 11, 1, center, center");
 
+		lblMarketplacenotifier = new JLabel("");
+		lblMarketplacenotifier.setForeground(Color.RED);
+		marketplacePanel.add(lblMarketplacenotifier, "3, 9, 11, 1");
+
 		lblSource = new JLabel("Source");
 		lblSource.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblSource, "5, 9, 3, 1, center, default");
+		marketplacePanel.add(lblSource, "5, 11, 3, 1, center, default");
 
 		lblDestination = new JLabel("Destination");
 		lblDestination.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblDestination, "9, 9, 3, 1, center, default");
+		marketplacePanel.add(lblDestination, "9, 11, 3, 1, center, default");
 
 		lblType = new JLabel("Type");
 		lblType.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblType, "5, 11, center, default");
+		marketplacePanel.add(lblType, "5, 13, center, default");
 
 		lblSourceValue = new JLabel("Value");
 		lblSourceValue.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblSourceValue, "7, 11, center, default");
+		marketplacePanel.add(lblSourceValue, "7, 13, center, default");
 
 		lblType_1 = new JLabel("Type");
 		lblType_1.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblType_1, "9, 11, center, default");
+		marketplacePanel.add(lblType_1, "9, 13, center, default");
 
 		lblValue = new JLabel("Value");
 		lblValue.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblValue, "11, 11, center, default");
+		marketplacePanel.add(lblValue, "11, 13, center, default");
 		JLabel lblLocation = new JLabel("Location");
 		lblLocation.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblLocation, "3, 13, left, default");
+		marketplacePanel.add(lblLocation, "3, 15, left, default");
 
 		txtLocationSourceTypeMktpl = new JTextField();
-		marketplacePanel.add(txtLocationSourceTypeMktpl, "5, 13, fill, default");
+		marketplacePanel.add(txtLocationSourceTypeMktpl, "5, 15, fill, default");
 		txtLocationSourceTypeMktpl.setColumns(10);
 
 		textFieldLocationSourceMktpl = new JTextField();
-		marketplacePanel.add(textFieldLocationSourceMktpl, "7, 13, fill, default");
+		marketplacePanel.add(textFieldLocationSourceMktpl, "7, 15, fill, default");
 		textFieldLocationSourceMktpl.setColumns(10);
 
 		txtLocationDestinationTypeMktpl = new JTextField();
-		marketplacePanel.add(txtLocationDestinationTypeMktpl, "9, 13, fill, default");
+		marketplacePanel.add(txtLocationDestinationTypeMktpl, "9, 15, fill, default");
 		txtLocationDestinationTypeMktpl.setColumns(10);
 
 		textFieldLocationDestinationMktpl = new JTextField();
-		marketplacePanel.add(textFieldLocationDestinationMktpl, "11, 13, fill, default");
+		marketplacePanel.add(textFieldLocationDestinationMktpl, "11, 15, fill, default");
 		textFieldLocationDestinationMktpl.setColumns(10);
 		JLabel lblFormat = new JLabel("Format");
 		lblFormat.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblFormat, "3, 15, left, default");
+		marketplacePanel.add(lblFormat, "3, 17, left, default");
 
 		txtFormatSourceTypeMktpl = new JTextField();
-		marketplacePanel.add(txtFormatSourceTypeMktpl, "5, 15, fill, default");
+		marketplacePanel.add(txtFormatSourceTypeMktpl, "5, 17, fill, default");
 		txtFormatSourceTypeMktpl.setColumns(10);
 		textFieldFormatSourceMktpl = new JTextField();
-		marketplacePanel.add(textFieldFormatSourceMktpl, "7, 15, fill, default");
+		marketplacePanel.add(textFieldFormatSourceMktpl, "7, 17, fill, default");
 		textFieldFormatSourceMktpl.setColumns(10);
 
 		txtFormatDestinationTypeMktpl = new JTextField();
-		marketplacePanel.add(txtFormatDestinationTypeMktpl, "9, 15, fill, default");
+		marketplacePanel.add(txtFormatDestinationTypeMktpl, "9, 17, fill, default");
 		txtFormatDestinationTypeMktpl.setColumns(10);
 		textFieldFormatDestinationMktpl = new JTextField();
-		marketplacePanel.add(textFieldFormatDestinationMktpl, "11, 15, fill, default");
+		marketplacePanel.add(textFieldFormatDestinationMktpl, "11, 17, fill, default");
 		textFieldFormatDestinationMktpl.setColumns(10);
 
 		lblBitsPerSecond = new JLabel("Cost");
 		lblBitsPerSecond.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblBitsPerSecond, "3, 17, left, default");
+		marketplacePanel.add(lblBitsPerSecond, "3, 19, left, default");
 
 		searchBtn = new JButton("Search"); 
 		searchBtn.setFont(new Font("Dialog", Font.BOLD, 12));
 		searchBtn.addActionListener(this);
 
 		txtCostMethodMktpl = new JTextField();
-		marketplacePanel.add(txtCostMethodMktpl, "5, 17, fill, default");
+		marketplacePanel.add(txtCostMethodMktpl, "5, 19, fill, default");
 		txtCostMethodMktpl.setColumns(10);
 
 		textFieldCostMktpl = new JTextField();
-		marketplacePanel.add(textFieldCostMktpl, "7, 17, fill, default");
+		marketplacePanel.add(textFieldCostMktpl, "7, 19, fill, default");
 		textFieldCostMktpl.setColumns(10);
 		JLabel lblAdvertisementId_1 = new JLabel("Advertisement ID");
 		lblAdvertisementId_1.setFont(new Font("Dialog", Font.BOLD, 12));
-		marketplacePanel.add(lblAdvertisementId_1, "3, 19, left, default");
+		marketplacePanel.add(lblAdvertisementId_1, "3, 21, left, default");
 		textFieldAdvID = new JTextField();
-		marketplacePanel.add(textFieldAdvID, "5, 19, 3, 1, fill, default");
+		marketplacePanel.add(textFieldAdvID, "5, 21, 3, 1, fill, default");
 		textFieldAdvID.setColumns(10);
 
-		marketplacePanel.add(searchBtn, "3, 21, fill, center");
+		marketplacePanel.add(searchBtn, "3, 23, fill, center");
 
 		textAreaMktpl = new JTextArea();
 		textAreaMktpl.setLineWrap(true);
@@ -1481,7 +1481,7 @@ public class ProviderGUI implements ActionListener {
 		textAreaMktpl.setEditable(false);
 		JScrollPane scroll = new JScrollPane(textAreaMktpl);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		marketplacePanel.add(scroll, "3, 23, 11, 5, fill, fill");
+		marketplacePanel.add(scroll, "3, 25, 11, 5, fill, fill");
 
 		return marketplacePanel;
 	}
@@ -1496,7 +1496,7 @@ public class ProviderGUI implements ActionListener {
 		plannerPanel.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("6px"),
 				FormFactory.DEFAULT_COLSPEC,
-				ColumnSpec.decode("default:grow"),
+				ColumnSpec.decode("max(59dlu;default):grow"),
 				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 				ColumnSpec.decode("max(41dlu;default):grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
@@ -1558,7 +1558,7 @@ public class ProviderGUI implements ActionListener {
 		plannerPanel.add(serverIPAddressTxtFldPlanner, "5, 5, 7, 1, fill, default");
 		serverIPAddressTxtFldPlanner.setColumns(10);
 
-		lblClientDirections = new JLabel("<html><center>Only supports Planner Address in the form {IPv4 address}:{UDP port}</center><br>\nOptionally trigger the planner service based on a Service Requirement XML instead of the GUI's form</html>");
+		lblClientDirections = new JLabel("<html><center>Only supports Planner Address in the form {IPv4 address}:{UDP port}</center><br>\n</html>");
 		lblClientDirections.setFont(new Font("Dialog", Font.BOLD, 12));
 		lblClientDirections.setForeground(Color.BLUE);
 		plannerPanel.add(lblClientDirections, "3, 7, 11, 1, center, center");
@@ -1635,27 +1635,9 @@ public class ProviderGUI implements ActionListener {
 		plannerPanel.add(textFieldCostPlanner, "7, 17, fill, default");
 		textFieldCostPlanner.setColumns(10);
 
-		lblServiceRequirementXml = new JLabel("Service Requirement");
-		lblServiceRequirementXml.setFont(new Font("Dialog", Font.BOLD, 12));
-		plannerPanel.add(lblServiceRequirementXml, "3, 19, right, default");
-
-		textFieldSvcReq = new JTextField();
-		textFieldSvcReq.setEditable(false);
-		plannerPanel.add(textFieldSvcReq, "5, 19, 3, 1, fill, default");
-		textFieldSvcReq.setColumns(10);
-
-		btnBrowsePlanner = new JButton("Browse");
-		btnBrowsePlanner.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnBrowsePlanner.addActionListener(this);
-		plannerPanel.add(btnBrowsePlanner, "9, 19");
-
 		searchBtnPlanner = new JButton("Search"); 
 		searchBtnPlanner.setFont(new Font("Dialog", Font.BOLD, 12));
 		searchBtnPlanner.addActionListener(this);
-
-		chckbxUseFile = new JCheckBox("<html>Ignore form and use <br>submitted file</html>");
-		chckbxUseFile.setFont(new Font("Dialog", Font.BOLD, 12));
-		plannerPanel.add(chckbxUseFile, "11, 19, 3, 1, fill, fill");
 
 		plannerPanel.add(searchBtnPlanner, "3, 21, fill, center");
 
@@ -1806,9 +1788,9 @@ public class ProviderGUI implements ActionListener {
 			String cMethod = "BitCoin:123456";
 			String cValue = "USD 200";
 			String fileNameAd = "/Users/rudechuk/service.xml";
-			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test5.xml";
-			String fileNameSvcReq = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test/svcRequirement1.xml";
-			String locationType = "IPv4";
+			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test.xml";
+			String srcLocationType = "IPv4,IPv4";
+			String dstLocationType = "IPv4";
 			String srcLocation = "A,B";
 			String dstLocation = "B";
 
@@ -1830,11 +1812,9 @@ public class ProviderGUI implements ActionListener {
 			txtListingTarget.setText(target);
 
 			serverIPAddressTxtFldPlanner.setText(ipAddr);
-			textFieldSvcReq.setText(fileNameSvcReq);
-			chckbxUseFile.setSelected(true);
-			
-			txtLocationSourceTypeMktpl.setText(locationType);
-			txtLocationDestinationTypeMktpl.setText(locationType);
+
+			txtLocationSourceTypeMktpl.setText(srcLocationType);
+			txtLocationDestinationTypeMktpl.setText(dstLocationType);
 			textFieldLocationSourceMktpl.setText(srcLocation);
 			textFieldLocationDestinationMktpl.setText(dstLocation);
 		}
@@ -1857,9 +1837,7 @@ public class ProviderGUI implements ActionListener {
 			txtListingTarget.setText("");
 
 			serverIPAddressTxtFldPlanner.setText("");
-			textFieldSvcReq.setText("");
-			chckbxUseFile.setSelected(false);
-			
+
 			txtLocationSourceTypeMktpl.setText("");
 			txtLocationDestinationTypeMktpl.setText("");
 			textFieldLocationSourceMktpl.setText("");

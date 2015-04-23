@@ -56,6 +56,8 @@ public class AdminGUI implements ActionListener {
 	TokenManager tokenMgr = TokenManager.getInstance();
 	DiscoveredEntitiesManager dEMgr = DiscoveredEntitiesManager.getInstance();
 	private JCheckBox chckbxTurnTestData;
+	private JTextField txtRangehelper;
+	private JLabel lblRangeHelper;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -149,7 +151,9 @@ public class AdminGUI implements ActionListener {
 		if(e.getSource() == btnCreateMarketplace)
 		{
 			String marketplaceAddr = txtSettingsMktAddr.getText();
+			String rangeHelperAddr = txtRangehelper.getText();
 			server.createMarketplaceDatabase(marketplaceAddr);
+			server.createRangeDatabase(rangeHelperAddr);
 		}
 		
 		updateTextArea();
@@ -254,7 +258,7 @@ public class AdminGUI implements ActionListener {
 				ColumnSpec.decode("max(62dlu;default):grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,},
-				new RowSpec[] {
+			new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
@@ -309,6 +313,15 @@ public class AdminGUI implements ActionListener {
 		btnCreateMarketplace.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnCreateMarketplace.addActionListener(this);
 		settingsPanel.add(btnCreateMarketplace, "9, 9");
+		
+		lblRangeHelper = new JLabel("Range Helper");
+		settingsPanel.add(lblRangeHelper, "3, 13, left, default");
+		
+		
+		
+		txtRangehelper = new JTextField();
+		settingsPanel.add(txtRangehelper, "5, 13, fill, default");
+		txtRangehelper.setColumns(10);
 
 		textAreaSettings = new JTextArea();
 		textAreaSettings.setLineWrap(true);
@@ -323,13 +336,26 @@ public class AdminGUI implements ActionListener {
 	{
 		if(testOn)
 		{
+			String addr = "";
+			String[] addrArr = Server.marketplaceRESTAPI.split("/");
+			int size = addrArr.length;
+			for(int i=0;i<size-1;i++)
+			{
+				addr += addrArr[i]+"/";
+			}
+			addr += "rangeHelper";
+			txtSettingsMktAddr.setText(Server.marketplaceRESTAPI);
+			txtRangehelper.setText(addr);
 			System.out.println("Test Data On");
 		}
 		else
 		{
+			txtSettingsMktAddr.setText("");
+			txtRangehelper.setText("");
 			System.out.println("Test Data Off");
 		}
 	}
+	
 	public void updateTextArea()
 	{
 		String message = Logger.display(0);

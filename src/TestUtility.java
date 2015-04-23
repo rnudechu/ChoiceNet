@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,12 +22,206 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 
 public class TestUtility {
 
+	public ArrayList<Advertisement> getAdvertisementsFromXML(String filename, String source)
+	{
+		ArrayList<Advertisement> result = new ArrayList<Advertisement>();
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = null;
+			if(source.equals("File") || source.equals("String"))
+			{
+				if(source.equals("File"))
+				{
+					File fXmlFile = new File(filename);
+					doc = dBuilder.parse(fXmlFile);
+				}
+				if(source.equals("String"))
+				{
+					System.out.println("ChoiceNetLibrary: String parameter given");
+					doc = dBuilder.parse(new InputSource(new StringReader(filename)));
+				}
+			}
+			else
+			{
+				System.out.println("ChoiceNetLibrary: Error getting advertisements from XML (Only String and File are supported)");
+			}
+			doc.getDocumentElement().normalize();
 
+			System.out.println("Root element:" + doc.getDocumentElement().getNodeName());
+
+			NodeList nList = doc.getElementsByTagName("advertisement");
+			int advertisementCount = nList.getLength();
+			System.out.println("Advertisement Count: " + advertisementCount);
+			System.out.println("----------------------------");
+			NodeList myList, thisList = null;
+			Node myNode = null;
+			Element myElement = null;
+			NamedNodeMap attributes = null;
+			System.out.println(">>> XML "+filename);
+			int priceValue = 0;
+			int numLoc = 0;
+			int numFormat = 0;
+			String type, addressType = "", portalType = "", location = "";
+			String priceMethod, pValue, providerID, provisioningParameters, purchasePortal, advertiserName, serviceName, serviceType, 
+			serviceDescription, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
+			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription =  
+					srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
+			ProvisioningProperty pProp;
+			ArrayList<ProvisioningProperty> serviceProperties;
+			for (int temp = 0; temp < advertisementCount; temp++) 
+			{
+				Node nNode = nList.item(temp);
+				serviceProperties = new ArrayList<ProvisioningProperty>();
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+					// Price
+					myList = doc.getElementsByTagName("price");
+					priceMethod = getAttributes(myList, "method",0);
+					pValue = getAttributes(myList, "value",0);
+					priceValue = Integer.parseInt(pValue);
+					System.out.println("Hello "+priceMethod+" "+pValue);
+					// Provider ID
+					providerID = doc.getElementsByTagName("providerID").item(0).getTextContent();
+					providerID = providerID.trim();
+					System.out.println("Hello "+providerID);
+					// Purchase Portal
+					myList = doc.getElementsByTagName("purchasePortal");
+					myNode = myList.item(temp);
+					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
+						myElement = (Element) myNode;
+						//						myList = myElement.getElementsByTagName("source_location");
+						myList = myElement.getElementsByTagName("destination_location");
+						portalType = getAttributes(myList, "scheme", 0);
+						purchasePortal = getAttributes(myList, "value", 0);
+						System.out.println("My list "+portalType+" "+purchasePortal+"<<<");
+						purchasePortal = purchasePortal.trim();
+					}
+					System.out.println("Hello "+purchasePortal);
+					// Provisioning Parameters
+					myList = doc.getElementsByTagName("provisioningParameters");
+					myNode = myList.item(temp);
+					provisioningParameters = "";
+					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
+						myElement = (Element) myNode;
+						myList = myElement.getElementsByTagName("ports");
+						for(int i=0; myList.getLength()>0 && i<myList.getLength(); i++)
+						{
+							provisioningParameters = getAttributes(myList, "value", i);
+							pProp = new ProvisioningProperty("Ports", provisioningParameters);
+							serviceProperties.add(pProp);
+						}
+						myList = myElement.getElementsByTagName("wavelength");
+						for(int i=0; myList.getLength()!=0 && i<myList.getLength(); i++)
+						{
+							provisioningParameters = getAttributes(myList, "value", i);
+							pProp = new ProvisioningProperty("Wavelength", provisioningParameters);
+							serviceProperties.add(pProp);
+						}
+					}
+					System.out.println("Hello "+provisioningParameters);
+					// Service Information
+					myList = doc.getElementsByTagName("service");
+					myNode = myList.item(temp);
+					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
+						myElement = (Element) myNode;
+						serviceName =  myElement.getElementsByTagName("name").item(0).getTextContent();
+						serviceDescription =  myElement.getElementsByTagName("description").item(0).getTextContent();//	
+						myList = myElement.getElementsByTagName("details");
+						myNode = myList.item(0);
+
+						myList = myElement.getElementsByTagName("source_location");
+						System.out.println(myList.getLength());
+
+						for(int i=0;i<myList.getLength();i++)
+						{
+							srcAddressScheme = getAttributes(myList, "scheme", i);
+							srcAddressValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+srcAddressScheme+" Value "+srcAddressValue);
+						myList = myElement.getElementsByTagName("destination_location");
+						for(int i=0;i<myList.getLength();i++)
+						{
+							dstAddressScheme = getAttributes(myList, "scheme", i);
+							dstAddressValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+dstAddressScheme+" Value "+dstAddressValue);
+						myList = myElement.getElementsByTagName("source_format");
+						for(int i=0;i<myList.getLength();i++)
+						{
+							srcFormatScheme = getAttributes(myList, "scheme", i);
+							srcFormatValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+srcFormatScheme+" Value "+srcFormatValue);
+						myList = myElement.getElementsByTagName("destination_format");
+						for(int i=0;i<myList.getLength();i++)
+						{	
+							dstFormatScheme = getAttributes(myList, "scheme", i);
+							dstFormatValue = getAttributes(myList, "value", i);
+						}
+						System.out.println("Scheme "+dstFormatScheme+" Value "+dstFormatValue);
+					}
+					// Print Out
+					String printOut = "Advertisement \n" +
+							"Provider ID: "+providerID+"\n" +
+							"Provisioning Parameters: "+provisioningParameters+"\n" +
+							"Service Name: "+serviceName+"\n";
+					System.out.println(printOut);
+
+				}
+				// Assume 
+				int advertiserPortAddress = -1;
+				String advertiserAddress = "";
+				if(portalType.equals("UDPv4") || portalType.equals("TCPv4"))
+				{
+					String[] addr = purchasePortal.split(":");
+					advertiserAddress = addr[0];
+					advertiserPortAddress = Integer.parseInt(addr[1]);
+				}
+				else
+				{
+					advertiserAddress = purchasePortal;
+					advertiserPortAddress = 0;
+				}
+
+				ProvisioningProperty sProp[] = new ProvisioningProperty[serviceProperties.size()];
+				for(int i = 0; i<serviceProperties.size();i++)
+				{
+					sProp[i] = serviceProperties.get(i);
+				}
+				System.out.println(srcFormatValue);
+				Cost myCost = new Cost(priceMethod, pValue);
+
+				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
+				System.out.println(myService);
+				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, advertiserPortAddress, portalType, 0,"UNKNOWN","UNKNOWN");
+				result.add(myAd);
+			}
+		} catch (Exception e) {
+			Server.systemMessage = e.getMessage();
+			//e.printStackTrace();
+		}
+
+		return result;
+	}
+
+	public String getAttributes(NodeList list, String attribute, int index)
+	{
+		String results = "";
+		Element element;
+		Node myNode = list.item(index);
+		if (myNode.getNodeType() == Node.ELEMENT_NODE) {
+
+			element = (Element) myNode;
+			results = element.getAttribute(attribute);
+		}
+		return results;
+	}
 
 	public void parseAdvertisementXML(String filename)
 	{
@@ -369,7 +564,7 @@ public class TestUtility {
 		}
 		return parentElement;
 	}
-	
+
 	public ChoiceNetMessageField getChoiceNetMessage (String packetXML, String attributeName)
 	{
 		ChoiceNetMessageField message = new ChoiceNetMessageField(attributeName, "", "");
@@ -383,7 +578,7 @@ public class TestUtility {
 			doc.getDocumentElement().normalize();
 			NodeList nList = doc.getElementsByTagName("field");
 			int fieldPresence = 0;
-			
+
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 				Node nNode = nList.item(temp);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -400,7 +595,7 @@ public class TestUtility {
 						}
 						else
 						{
-							
+
 						}
 
 						return message;
@@ -412,7 +607,7 @@ public class TestUtility {
 		}
 		return null;
 	}
-	
+
 	public ChoiceNetMessageField[] getChoiceNetMessageArray (String packetXML, String attributeName)
 	{
 		ArrayList<ChoiceNetMessageField> storage = new ArrayList<ChoiceNetMessageField>();
@@ -427,7 +622,7 @@ public class TestUtility {
 			Document doc = dBuilder.parse(xml);
 			doc.getDocumentElement().normalize();
 			NodeList nList = doc.getElementsByTagName("field");
-			
+
 			for (int temp = 0; temp < nList.getLength(); temp++) {
 				Node nNode = nList.item(temp);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -445,7 +640,7 @@ public class TestUtility {
 						}
 						else
 						{
-							
+
 						}
 
 					}
@@ -454,7 +649,7 @@ public class TestUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		payload = new ChoiceNetMessageField[storage.size()];
 		int i = 0;
 		for(ChoiceNetMessageField msg: storage)
@@ -464,69 +659,69 @@ public class TestUtility {
 		}
 		return payload;
 	}
-	
-//	public ChoiceNetMessageField getChoiceNetMessage (String packetXML, String attributeName)
-//	{
-//		ChoiceNetMessageField message = new ChoiceNetMessageField(attributeName, "", "");
-//		try
-//		{
-//			File xml = new File(packetXML);
-//			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-//
-//			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-//			Document doc = dBuilder.parse(xml);
-//			doc.getDocumentElement().normalize();
-//			NodeList nList = doc.getElementsByTagName("field");
-//			int fieldPresence = 0;
-//			for (int temp = 0; temp < nList.getLength(); temp++) {
-//				Node nNode = nList.item(temp);
-//				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-//					Element eElement = (Element) nNode;
-//					if(eElement.getAttribute("attributeName").equals(attributeName))
-//					{
-//						String url = eElement.getAttribute("url");
-//						message.setUrl(url);
-//						if(!attributeName.equals("Message Specific"))
-//						{
-//							String value = eElement.getElementsByTagName("value").item(0).getTextContent();
-//							message.setValue(value);
-//						}
-//						else
-//						{
-//							NodeList myList = eElement.getElementsByTagName("value");
-//							createChoiceNetMessagePayload(myList, myList.getLength()-1);
-//							int size = eElement.getElementsByTagName("value").getLength();
-//							for(int i=1;i<size;i++)
-//							{
-//								nNode = myList.item(i);
-//								if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-//									eElement = (Element) nNode;
-//									fieldPresence = eElement.getElementsByTagName("field").getLength();
-//									System.out.println("R==> ++R "+eElement.getElementsByTagName("field").getLength());
-//								}
-//								//								eElement.getElementsByTagName("value").item(i).getTextContent();
-//								//								System.out.println("==> Node child "+eElement.getElementsByTagName("value").item(i).getChildNodes().getLength());
-//								//								System.out.println("==> Node child "+eElement.getElementsByTagName("value").item(i).getChildNodes(). );
-//							}
-//							System.out.println("==>"+eElement.getChildNodes().getLength());
-//							System.out.println("==>"+eElement.getElementsByTagName("value").getLength());
-//							System.out.println("==>"+eElement.getElementsByTagName("value").toString());
-//						}
-//
-//						return message;
-//					}
-//				}
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
+
+	//	public ChoiceNetMessageField getChoiceNetMessage (String packetXML, String attributeName)
+	//	{
+	//		ChoiceNetMessageField message = new ChoiceNetMessageField(attributeName, "", "");
+	//		try
+	//		{
+	//			File xml = new File(packetXML);
+	//			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	//
+	//			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	//			Document doc = dBuilder.parse(xml);
+	//			doc.getDocumentElement().normalize();
+	//			NodeList nList = doc.getElementsByTagName("field");
+	//			int fieldPresence = 0;
+	//			for (int temp = 0; temp < nList.getLength(); temp++) {
+	//				Node nNode = nList.item(temp);
+	//				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	//					Element eElement = (Element) nNode;
+	//					if(eElement.getAttribute("attributeName").equals(attributeName))
+	//					{
+	//						String url = eElement.getAttribute("url");
+	//						message.setUrl(url);
+	//						if(!attributeName.equals("Message Specific"))
+	//						{
+	//							String value = eElement.getElementsByTagName("value").item(0).getTextContent();
+	//							message.setValue(value);
+	//						}
+	//						else
+	//						{
+	//							NodeList myList = eElement.getElementsByTagName("value");
+	//							createChoiceNetMessagePayload(myList, myList.getLength()-1);
+	//							int size = eElement.getElementsByTagName("value").getLength();
+	//							for(int i=1;i<size;i++)
+	//							{
+	//								nNode = myList.item(i);
+	//								if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+	//									eElement = (Element) nNode;
+	//									fieldPresence = eElement.getElementsByTagName("field").getLength();
+	//									System.out.println("R==> ++R "+eElement.getElementsByTagName("field").getLength());
+	//								}
+	//								//								eElement.getElementsByTagName("value").item(i).getTextContent();
+	//								//								System.out.println("==> Node child "+eElement.getElementsByTagName("value").item(i).getChildNodes().getLength());
+	//								//								System.out.println("==> Node child "+eElement.getElementsByTagName("value").item(i).getChildNodes(). );
+	//							}
+	//							System.out.println("==>"+eElement.getChildNodes().getLength());
+	//							System.out.println("==>"+eElement.getElementsByTagName("value").getLength());
+	//							System.out.println("==>"+eElement.getElementsByTagName("value").toString());
+	//						}
+	//
+	//						return message;
+	//					}
+	//				}
+	//			}
+	//		} catch (Exception e) {
+	//			e.printStackTrace();
+	//		}
+	//		return null;
+	//	}
 
 	private ChoiceNetMessageField[] createChoiceNetMessagePayload (NodeList nList, int iniSize)
 	{
 		int numFields = 0;
-//		int size = nList.getLength(); // number of values in the value
+		//		int size = nList.getLength(); // number of values in the value
 		int size = iniSize;
 		System.out.println(size);
 		// I should count the number fields .. but why
@@ -607,16 +802,21 @@ public class TestUtility {
 		//		ChoiceNetMessageField[] payload = {transactionNumber,considerationTarget,serviceName,considerationExchMethod,considerationExchValue};
 		//		Packet packet = new Packet(PacketType.TRANSFER_CONSIDERATION,Server.myName,"",Server.myType, Server.providerType,payload);
 		//		tu.createPacketXML(packet);
-//		ChoiceNetMessageField oName = tu.getChoiceNetMessage("packet1.xml","Originator Name");
-//		ChoiceNetMessageField oSign = tu.getChoiceNetMessage("packet1.xml","Originator Signature");
-//		ChoiceNetMessageField oType = tu.getChoiceNetMessage("packet1.xml","Originator Type");
-//		ChoiceNetMessageField oProviderType = tu.getChoiceNetMessage("packet1.xml","Originator Provider Type");
-//		ChoiceNetMessageField messageType = tu.getChoiceNetMessage("packet1.xml","Message Type");
-//		ChoiceNetMessageField messageSpecific = tu.getChoiceNetMessage("packet1.xml","Message Specific");
-		ChoiceNetMessageField[] x = tu.getChoiceNetMessageArray("packet1.xml","Advertisement ID");
-		System.out.println(x.length);
-		System.out.println(x[0].getValue());
-		System.out.println(x[1].getValue());
+		//		ChoiceNetMessageField oName = tu.getChoiceNetMessage("packet1.xml","Originator Name");
+		//		ChoiceNetMessageField oSign = tu.getChoiceNetMessage("packet1.xml","Originator Signature");
+		//		ChoiceNetMessageField oType = tu.getChoiceNetMessage("packet1.xml","Originator Type");
+		//		ChoiceNetMessageField oProviderType = tu.getChoiceNetMessage("packet1.xml","Originator Provider Type");
+		//		ChoiceNetMessageField messageType = tu.getChoiceNetMessage("packet1.xml","Message Type");
+		//		ChoiceNetMessageField messageSpecific = tu.getChoiceNetMessage("packet1.xml","Message Specific");
+		//		ChoiceNetMessageField[] x = tu.getChoiceNetMessageArray("packet1.xml","Advertisement ID");
+		//		System.out.println(x.length);
+		//		System.out.println(x[0].getValue());
+		//		System.out.println(x[1].getValue());
+		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test.xml", "File");
+		for(Advertisement ad: adArray)
+		{
+			System.out.println(ad);
+		}
 		//		String property = System.getProperty("java.library.path");
 		//		StringTokenizer parser = new StringTokenizer(property, ";");
 		//		while (parser.hasMoreTokens()) {
