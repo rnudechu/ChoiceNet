@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 
 import javax.naming.directory.AttributeModificationException;
 import javax.xml.parsers.DocumentBuilder;
@@ -70,11 +71,13 @@ public class TestUtility {
 			int numFormat = 0;
 			String type, addressType = "", portalType = "", location = "";
 			String priceMethod, pValue, providerID, provisioningParameters, purchasePortal, advertiserName, serviceName, serviceType, 
-			serviceDescription, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
-			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription =  
-					srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
+			serviceDescription;
+			String[] srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
+			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription = null;  
+			srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
 			ProvisioningProperty pProp;
 			ArrayList<ProvisioningProperty> serviceProperties;
+			int size = 0;
 			for (int temp = 0; temp < advertisementCount; temp++) 
 			{
 				Node nNode = nList.item(temp);
@@ -85,7 +88,7 @@ public class TestUtility {
 					priceMethod = getAttributes(myList, "method",0);
 					pValue = getAttributes(myList, "value",0);
 					priceValue = Integer.parseInt(pValue);
-					System.out.println("Hello "+priceMethod+" "+pValue);
+					System.out.println("Hello "+priceMethod);
 					// Provider ID
 					providerID = doc.getElementsByTagName("providerID").item(0).getTextContent();
 					providerID = providerID.trim();
@@ -136,35 +139,53 @@ public class TestUtility {
 						myNode = myList.item(0);
 
 						myList = myElement.getElementsByTagName("source_location");
-						System.out.println(myList.getLength());
-
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						srcAddressScheme = new String[size];
+						srcAddressValue = new String[size];
+						System.out.println("Source Location");
+						for(int i=0;i<size;i++)
 						{
-							srcAddressScheme = getAttributes(myList, "scheme", i);
-							srcAddressValue = getAttributes(myList, "value", i);
+							srcAddressScheme[i] = getAttributes(myList, "scheme", i);
+							srcAddressValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+srcAddressScheme[i]+" Value "+srcAddressValue[i]);
 						}
-						System.out.println("Scheme "+srcAddressScheme+" Value "+srcAddressValue);
+						
 						myList = myElement.getElementsByTagName("destination_location");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						dstAddressScheme = new String[size];
+						dstAddressValue = new String[size];
+						System.out.println("Destination Location");
+						for(int i=0;i<size;i++)
 						{
-							dstAddressScheme = getAttributes(myList, "scheme", i);
-							dstAddressValue = getAttributes(myList, "value", i);
+							dstAddressScheme[i] = getAttributes(myList, "scheme", i);
+							dstAddressValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+dstAddressScheme[i]+" Value "+dstAddressValue[i]);
 						}
-						System.out.println("Scheme "+dstAddressScheme+" Value "+dstAddressValue);
+						
 						myList = myElement.getElementsByTagName("source_format");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						srcFormatScheme = new String[size];
+						srcFormatValue = new String[size];
+						System.out.println("Source Format");
+						for(int i=0;i<size;i++)
 						{
-							srcFormatScheme = getAttributes(myList, "scheme", i);
-							srcFormatValue = getAttributes(myList, "value", i);
+							srcFormatScheme[i] = getAttributes(myList, "scheme", i);
+							srcFormatValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+srcFormatScheme[i]+" Value "+srcFormatValue[i]);
 						}
-						System.out.println("Scheme "+srcFormatScheme+" Value "+srcFormatValue);
+						
 						myList = myElement.getElementsByTagName("destination_format");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						dstFormatScheme = new String[size];
+						dstFormatValue = new String[size];
+						System.out.println("Destination Format");
+						for(int i=0;i<size;i++)
 						{	
-							dstFormatScheme = getAttributes(myList, "scheme", i);
-							dstFormatValue = getAttributes(myList, "value", i);
+							dstFormatScheme[i] = getAttributes(myList, "scheme", i);
+							dstFormatValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+dstFormatScheme[i]+" Value "+dstFormatValue[i]);
 						}
-						System.out.println("Scheme "+dstFormatScheme+" Value "+dstFormatValue);
+						
 					}
 					// Print Out
 					String printOut = "Advertisement \n" +
@@ -195,7 +216,6 @@ public class TestUtility {
 					sProp[i] = serviceProperties.get(i);
 				}
 				System.out.println(srcFormatValue);
-				Cost myCost = new Cost(priceMethod, pValue);
 
 				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
 				System.out.println(myService);
@@ -812,11 +832,24 @@ public class TestUtility {
 		//		System.out.println(x.length);
 		//		System.out.println(x[0].getValue());
 		//		System.out.println(x[1].getValue());
-		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test.xml", "File");
+		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test3.xml", "File");
 		for(Advertisement ad: adArray)
 		{
 			System.out.println(ad);
 		}
+		// Turn IP address to binary string
+		String ipAddr = "127.0.0.1";
+		int value = 0xffffffff << (32 - 24);
+		byte[] bytes = new byte[]{ 
+	            (byte)(value >>> 24), (byte)(value >> 16 & 0xff), (byte)(value >> 8 & 0xff), (byte)(value & 0xff) };
+
+		String val = String.format("%32s", Integer.toBinaryString(192)).replace(' ', '0');
+		String val0 = String.format("%8s", Integer.toBinaryString(192)).replace(' ', '0');
+		String val1 = String.format("%8s", Integer.toBinaryString(168)).replace(' ', '0');
+		String val2 = String.format("%8s", Integer.toBinaryString(2)).replace(' ', '0');
+		String val3 = String.format("%8s", Integer.toBinaryString(1)).replace(' ', '0');
+		System.out.println(val);
+		System.out.println(val0+val1+val2+val3);
 		//		String property = System.getProperty("java.library.path");
 		//		StringTokenizer parser = new StringTokenizer(property, ";");
 		//		while (parser.hasMoreTokens()) {

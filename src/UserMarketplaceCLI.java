@@ -16,6 +16,7 @@ public class UserMarketplaceCLI {
 			String sourceLoc = "";
 			String destinationLoc = "";
 			String cost = "";
+			String cMethod = "";
 			String sourceFormat = "";
 			String destinationFormat = "";
 			String sourceLocType = "";
@@ -67,6 +68,10 @@ public class UserMarketplaceCLI {
 					if(argument.equals("cost"))
 					{
 						cost = parseContent[1];
+					}  
+					if(argument.equals("costMethod"))
+					{
+						cMethod = parseContent[1];
 					} 
 					if(argument.equals("adID"))
 					{
@@ -74,13 +79,13 @@ public class UserMarketplaceCLI {
 					}
 				}
 			}
-			server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat,  sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, cost, adID);
+			server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat,  sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, cost, cMethod, adID);
 			server.startServer();
 		}
 		else
 		{
 			String warning = "Program requires a marketplace address and atleast one key/value pair\n" +
-					"Available keys={srcLoc, srcLocType, dstLoc, dstLocType, srcFormat, srcFormatType, dstFormat, dstFormatType, cost, adID}\n" +
+					"Available keys={srcLoc, srcLocType, dstLoc, dstLocType, srcFormat, srcFormatType, dstFormat, dstFormatType, cost, costMethod, adID}\n" +
 					"Search value is separated from keys with an equal (=) sign\n" +
 					"Search values containing a space should be replaced with an underscore.\n" +
 					"Results will be saved in a marketplace.response file\n\n" +

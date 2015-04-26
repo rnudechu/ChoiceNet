@@ -286,7 +286,6 @@ public class ProviderGUI implements ActionListener {
 				if(success)
 				{
 					server.sendRendevouzMessage(target,ipAddr,port);
-					updateTextArea();
 				}
 			}
 
@@ -322,7 +321,6 @@ public class ProviderGUI implements ActionListener {
 				if(success)
 				{
 					server.transferConsiderationMessage(serviceName, target, exchangeType, exchangeAmount, ipAddr, port);
-					updateTextArea();
 				}
 			}
 
@@ -367,7 +365,6 @@ public class ProviderGUI implements ActionListener {
 				if(success)
 				{
 					server.transferListingMessage(fileName, target, tokenID, ipAddr, port);
-					updateTextArea();
 				}
 			}
 		}
@@ -386,6 +383,7 @@ public class ProviderGUI implements ActionListener {
 			String destinationLoc = textFieldLocationDestinationMktpl.getText().toString();
 			String dstLocType = txtLocationDestinationTypeMktpl.getText().toString();
 			String cost = textFieldCostMktpl.getText().toString();
+			String method = txtCostMethodMktpl.getText().toString();
 			String sourceFormat = textFieldFormatSourceMktpl.getText().toString();
 			String srcFormatType = txtFormatSourceTypeMktpl.getText().toString();
 			String destinationFormat = textFieldFormatDestinationMktpl.getText().toString();
@@ -406,11 +404,11 @@ public class ProviderGUI implements ActionListener {
 						srcFormatArr.length == srcFormatTypeArr.length && dstFormatArr.length == dstFormatTypeArr.length)
 				{
 					lblMarketplacenotifier.setText("");
-					server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, srcLocType, dstLocType, srcFormatType, dstFormatType, cost, adID);
+					server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, srcLocType, dstLocType, srcFormatType, dstFormatType, cost, method, adID);
 				}
 				else
 				{
-					message = "<html>Error: Type should have same number of commas as their corresponding Value</html>";
+					message = "<html><center>Error: Type should have same number of commas as their corresponding Value</center></html>";
 					lblMarketplacenotifier.setText(message);
 				}
 			}
@@ -433,7 +431,6 @@ public class ProviderGUI implements ActionListener {
 		if(e.getSource() == searchBtnPlanner)
 		{
 			// search the form
-			ServiceRequirement svcReq;
 			String marketplaceAddr = serverIPAddressTxtFldPlanner.getText().toString();
 			String sourceLoc = textFieldLocationSourcePlanner.getText().toString();
 			String sourceLocType = txtLocationSourceTypePlanner.getText().toString();
@@ -445,12 +442,10 @@ public class ProviderGUI implements ActionListener {
 			String sourceFormatType = txtFormatSourceTypePlanner.getText().toString();
 			String destinationFormat = textFieldFormatDestinationPlanner.getText().toString();
 			String destinationFormatType = txtFormatDestinationTypePlanner.getText().toString();
-			Cost svcCost = new Cost(method, amount);
-			svcReq = new ServiceRequirement(sourceLoc, sourceLocType, destinationLoc, destinationLocType, sourceFormat, sourceFormatType, destinationFormat, destinationFormatType, svcCost);
 
 			if(!marketplaceAddr.isEmpty() && marketplaceAddr.contains(":"))
 			{
-				server.sendPlannerRequest(marketplaceAddr, svcReq);
+				server.sendPlannerRequest(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, amount, method, "");
 			}
 		}
 		// Use Plane Panel
@@ -1788,7 +1783,7 @@ public class ProviderGUI implements ActionListener {
 			String cMethod = "BitCoin:123456";
 			String cValue = "USD 200";
 			String fileNameAd = "/Users/rudechuk/service.xml";
-			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test.xml";
+			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test3.xml";
 			String srcLocationType = "IPv4,IPv4";
 			String dstLocationType = "IPv4";
 			String srcLocation = "A,B";
@@ -1844,7 +1839,7 @@ public class ProviderGUI implements ActionListener {
 			textFieldLocationDestinationMktpl.setText("");
 		}
 	}
-	public static void updateTextArea()
+	public static void updateTextArea(String systemMessage)
 	{
 		String message = Logger.display(0);
 		System.out.println(activeCard);
@@ -1861,26 +1856,26 @@ public class ProviderGUI implements ActionListener {
 			if(activeCard.equals("Rendezvous"))
 			{
 				textAreaRendezvous.setText(message);
-				lblRendezvousMessage.setText(Server.systemMessage);
+				lblRendezvousMessage.setText(systemMessage);
 			}
 			if(activeCard.equals("Consideration"))
 			{
 				textAreaConsideration.setText(message);
-				System.out.println("Consideration: "+Server.systemMessage);
-				lblConsiderationMessage.setText(Server.systemMessage);
+				System.out.println("Consideration: "+systemMessage);
+				lblConsiderationMessage.setText(systemMessage);
 			}
 			if(activeCard.equals("Listing"))
 			{
 				textAreaListing.setText(message);
-				lblListingMessage.setText(Server.systemMessage);
+				lblListingMessage.setText(systemMessage);
 			}
 			if(activeCard.equals("Marketplace"))
 			{
-				textAreaMktpl.setText(Server.systemMessage);
+				textAreaMktpl.setText(systemMessage);
 			}
 			if(activeCard.equals("Planner"))
 			{
-				textAreaPlanner.setText(Server.systemMessage);
+				textAreaPlanner.setText(systemMessage);
 			}
 		}
 	}

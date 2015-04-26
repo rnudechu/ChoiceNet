@@ -106,49 +106,7 @@ public class ProviderCLI  extends Thread {
 		}
 	}
 
-	public void createDatabase()
-	{
-		Scanner sc;
-		String response = "";
-		// load couchdb view
-		String content = "";
-		try {
-			sc = new Scanner(new FileReader("marketplace_view.json"));
-			while (sc.hasNextLine()) {
-				content += sc.nextLine();
-			}
-			sc.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		response = couchDBsocket.getRestInterface(Server.marketplaceRESTAPI);
-		if(response.equals("404"))
-		{
-			// insert the table
-			couchDBsocket.putRestInterface(Server.marketplaceRESTAPI,"");
-			//server.loadCouchDBView("/_design/marketplace", content);
-			// load the View
-			couchDBsocket.postRestInterface(Server.marketplaceRESTAPI,content);
-		}
-		// flows created for Advertisement purpose must have negative integer for demandID
-		// to prevent inadvervant flow installation
-		String entityName = Server.myName;
-		ProvisioningProperty sProp = new ProvisioningProperty("Bandwidth", "500 Mbps");
-		ProvisioningProperty serviceProps[] = {sProp};
-		Service service  = new Service("Service Name", "Transit", "UDPv4", "10.1.0.1", "UDPv4", "10.2.0.1", serviceProps, "From RENCI to NCSU");
-		String advertiserAddr = server.getLocalIpAddress("IP");
-		int advertiserPort = Integer.parseInt(server.getLocalIpAddress("Port"));
-		Advertisement ad1 = new Advertisement("Dollars",200,entityName,service,advertiserAddr,advertiserPort,"UDPv4",System.currentTimeMillis()+600000, null, null);
-
-		adMgr.flush();
-		adMgr.addAdvertisement(ad1);
-
-		// Load the marketplace with advertisements
-		for(Advertisement myAd : adMgr.getSingleInstance())
-		{
-			couchDBsocket.postRestInterface(Server.marketplaceRESTAPI, myAd);
-		}
-	}
+	
 
 	class ExtraServer extends Thread {
 		@Override
@@ -170,7 +128,6 @@ public class ProviderCLI  extends Thread {
 	 */
 	public static void main(String[] args) {
 		ProviderCLI cli = new ProviderCLI();
-		cli.createDatabase();
 		System.out.println(Server.CONFIG_FILE);
 		server.printServerProperties();
 	

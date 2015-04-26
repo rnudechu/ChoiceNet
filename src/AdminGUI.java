@@ -233,6 +233,7 @@ public class AdminGUI implements ActionListener {
 		menuPanel.add(btnSettings, "9, 3, right, default");
 
 		chckbxTurnTestData = new JCheckBox("Turn Test Data On");
+		chckbxTurnTestData.setFont(new Font("Dialog", Font.BOLD, 12));
 		chckbxTurnTestData.addActionListener(this);
 		menuPanel.add(chckbxTurnTestData, "3, 17");
 
@@ -315,6 +316,7 @@ public class AdminGUI implements ActionListener {
 		settingsPanel.add(btnCreateMarketplace, "9, 9");
 		
 		lblRangeHelper = new JLabel("Range Helper");
+		lblRangeHelper.setFont(new Font("Dialog", Font.BOLD, 12));
 		settingsPanel.add(lblRangeHelper, "3, 13, left, default");
 		
 		
@@ -336,16 +338,8 @@ public class AdminGUI implements ActionListener {
 	{
 		if(testOn)
 		{
-			String addr = "";
-			String[] addrArr = Server.marketplaceRESTAPI.split("/");
-			int size = addrArr.length;
-			for(int i=0;i<size-1;i++)
-			{
-				addr += addrArr[i]+"/";
-			}
-			addr += "rangeHelper";
 			txtSettingsMktAddr.setText(Server.marketplaceRESTAPI);
-			txtRangehelper.setText(addr);
+			txtRangehelper.setText(Server.marketplaceRESTAPI+"-rangehelper");
 			System.out.println("Test Data On");
 		}
 		else

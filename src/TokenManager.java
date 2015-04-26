@@ -99,7 +99,7 @@ public class TokenManager {
 	
 	public String printAvailableTokens()
 	{
-		String result = "#\tToken ID\tIssued By\tService Name\n";
+		String result = "#\tToken ID\tIssued By\t\tToken Service\n";
 		int count = 1;
 		for (Map.Entry<Long, Token> entry : map.entrySet())
 		{

@@ -142,19 +142,17 @@ public class Server {
 	}
 
 
-	public String sendPlannerRequest(String marketplaceAddr, ServiceRequirement svcReq) {
+	public String sendPlannerRequest(String marketplaceAddr, String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID) {
 		String[] parsedContent;
 
 		// parse the marketplace address
 		parsedContent = marketplaceAddr.split(":");
 		String marketplaceAddress = parsedContent[0];
 		int marketplacePort = Integer.parseInt(parsedContent[1]);
-
-		Gson gson = new Gson();
-		String json =  gson.toJson(svcReq);
-		System.out.println(json);
-
-		ChoiceNetMessageField data =  new ChoiceNetMessageField("Planner Service Request", json, "");
+		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
+				 destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
+		ChoiceNetMessageField data =  new ChoiceNetMessageField("Service Requirement", dataPayload, "");
 		ChoiceNetMessageField payload[] = {data};
 		// send the payload
 		Packet packet = new Packet(PacketType.PLANNER_REQUEST,myName,"",myType, providerType,payload);
@@ -165,7 +163,7 @@ public class Server {
 	}
 
 	public String sendMarketplaceQuery(String marketplaceAddr, String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
-			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String adID) {
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID) {
 		String[] parsedContent;
 		// parse the marketplace address
 		parsedContent = marketplaceAddr.split(":");
@@ -173,8 +171,22 @@ public class Server {
 		int marketplacePort = Integer.parseInt(parsedContent[1]);
 
 		// create search parameter for each valid field
-
 		Packet packet;
+		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
+				 destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
+		ChoiceNetMessageField data = new ChoiceNetMessageField("Search Parameter", dataPayload, "");
+		ChoiceNetMessageField payload[] = {data};
+		// send the payload
+		packet = new Packet(PacketType.MARKETPLACE_QUERY,myName,"",myType, providerType,payload);
+		System.out.println(packet);
+		new ServerThread(serverSocket, marketplaceAddress, marketplacePort).sendRequest(packet);
+
+		return null;
+	}
+
+	public ChoiceNetMessageField[] createGeneralRequestPayload(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID)
+	{
 		ArrayList<ChoiceNetMessageField> list = new ArrayList<ChoiceNetMessageField>();
 		// determine the query property by content submitted in the location/format source/destination
 		ChoiceNetMessageField searchedContent;
@@ -220,16 +232,21 @@ public class Server {
 			list.add(searchedContent);
 		}
 
-		// decode the source field
+		// decode the cost type field
+		if(!cMethod.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.COST_TYPE, cMethod, "");
+			list.add(searchedContent);
+		}
 		if(!cost.isEmpty())
 		{
-			searchedContent = new ChoiceNetMessageField(""+RequestType.COST, "[\""+cost+"\"]", "");
+			searchedContent = new ChoiceNetMessageField(""+RequestType.COST, cost, "");
 			list.add(searchedContent);
 		}
 		// decode the advertisement ID field
 		if(!adID.isEmpty())
 		{
-			searchedContent = new ChoiceNetMessageField(""+RequestType.ADVERTISEMENT_ID, "[\""+adID+"\"]", "");
+			searchedContent = new ChoiceNetMessageField(""+RequestType.ADVERTISEMENT_ID, adID, "");
 			list.add(searchedContent);
 		}
 		System.out.println(sourceLoc);
@@ -239,17 +256,8 @@ public class Server {
 		{
 			dataPayload[i] = list.get(i);
 		}
-		ChoiceNetMessageField data = new ChoiceNetMessageField("Search Parameter", dataPayload, "");
-		ChoiceNetMessageField payload[] = {data};
-		// send the payload
-		packet = new Packet(PacketType.MARKETPLACE_QUERY,myName,"",myType, providerType,payload);
-		System.out.println(packet);
-		new ServerThread(serverSocket, marketplaceAddress, marketplacePort).sendRequest(packet);
-
-		return null;
+		return dataPayload;
 	}
-
-
 	
 
 	public void createMarketplaceDatabase(String marketplaceAddr)

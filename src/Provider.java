@@ -9,49 +9,6 @@ public class Provider {
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
 	
 
-	public void createDatabase(Server server)
-	{
-		Scanner sc;
-		String response = "";
-		// load couchdb view
-		String content = "";
-		try {
-			sc = new Scanner(new FileReader("marketplace_view.json"));
-			while (sc.hasNextLine()) {
-				content += sc.nextLine();
-			}
-			sc.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		response = couchDBsocket.getRestInterface(Server.marketplaceRESTAPI);
-		if(response.equals("404"))
-		{
-			// insert the table
-			couchDBsocket.putRestInterface(Server.marketplaceRESTAPI,"");
-			//server.loadCouchDBView("/_design/marketplace", content);
-			// load the View
-			couchDBsocket.postRestInterface(Server.marketplaceRESTAPI,content);
-		}
-		// Install a default listing service
-		String entityName = Server.myName;
-		ProvisioningProperty sProp = new ProvisioningProperty("Time Length", "10 minutes");
-		ProvisioningProperty serviceProps[] = {sProp};
-		Service service  = new Service("Advertisement Listing", "Listing", "UDPv4", "10.1.0.1:80", "UDPv4", "10.1.0.1:80", serviceProps, "List Service");
-		String advertiserAddr = server.getLocalIpAddress("IP");
-		int advertiserPort = Integer.parseInt(server.getLocalIpAddress("Port"));
-		long moreTime = 600000*2;// 10 minutes * 2
-		Advertisement ad1 = new Advertisement("BitCoin",200,entityName,service,advertiserAddr,advertiserPort,"UDPv4",System.currentTimeMillis()+moreTime,"UDPv4","127.0.0.1:9000");
-
-		adMgr.flush();
-		adMgr.addAdvertisement(ad1);
-
-		// Load the marketplace with advertisements
-		for(Advertisement myAd : adMgr.getSingleInstance())
-		{
-			couchDBsocket.postRestInterface(Server.marketplaceRESTAPI, myAd);
-		}
-	}
 
 	/**
 	 * @param args

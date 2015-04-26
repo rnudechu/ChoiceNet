@@ -11,6 +11,7 @@ public enum RequestType {
 	FORMAT_DST_TYPE,
 	
 	COST,
+	COST_TYPE,
 	ADVERTISEMENT_ID,
 	SERVICE_NAME
 }

@@ -3,20 +3,20 @@ public class Service {
 
 	String name;
 	String type;
-	String srcLocationAddrScheme;
-	String srcLocationAddrValue;
-	String dstLocationAddrScheme;
-	String dstLocationAddrValue;
-	String srcFormatScheme;
-	String srcFormatValue;
-	String dstFormatScheme;
-	String dstFormatValue;	
+	String[] srcLocationAddrScheme;
+	String[] srcLocationAddrValue;
+	String[] dstLocationAddrScheme;
+	String[] dstLocationAddrValue;
+	String[] srcFormatScheme;
+	String[] srcFormatValue;
+	String[] dstFormatScheme;
+	String[] dstFormatValue;	
 	ProvisioningProperty[] property;
 	String description;
 	
-	public Service(String name, String type, String srcLocationAddrScheme,
-			String srcLocationAddrValue, String dstLocationAddrScheme,
-			String dstLocationAddrValue, ProvisioningProperty[] property, String description) {
+	public Service(String name, String type, String[] srcLocationAddrScheme,
+			String[] srcLocationAddrValue, String[] dstLocationAddrScheme,
+			String[] dstLocationAddrValue, ProvisioningProperty[] property, String description) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -35,11 +35,11 @@ public class Service {
 		this.description = description;
 	}
 
-	public Service(String name, String type, String srcLocationAddrScheme,
-			String srcLocationAddrValue, String dstLocationAddrScheme,
-			String dstLocationAddrValue, String srcFormatScheme,
-			String srcFormatValue, String dstFormatScheme,
-			String dstFormatValue, ProvisioningProperty[] property, String description) {
+	public Service(String name, String type, String[] srcLocationAddrScheme,
+			String[] srcLocationAddrValue, String[] dstLocationAddrScheme,
+			String[] dstLocationAddrValue, String[] srcFormatScheme,
+			String[] srcFormatValue, String[] dstFormatScheme,
+			String[] dstFormatValue, ProvisioningProperty[] property, String description) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -55,35 +55,35 @@ public class Service {
 		this.description = description;
 	}
 
-	public String getSrcFormatScheme() {
+	public String[] getSrcFormatScheme() {
 		return srcFormatScheme;
 	}
 
-	public void setSrcFormatScheme(String srcFormatScheme) {
+	public void setSrcFormatScheme(String[] srcFormatScheme) {
 		this.srcFormatScheme = srcFormatScheme;
 	}
 
-	public String getSrcFormatValue() {
+	public String[] getSrcFormatValue() {
 		return srcFormatValue;
 	}
 
-	public void setSrcFormatValue(String srcFormatValue) {
+	public void setSrcFormatValue(String[] srcFormatValue) {
 		this.srcFormatValue = srcFormatValue;
 	}
 
-	public String getDstFormatScheme() {
+	public String[] getDstFormatScheme() {
 		return dstFormatScheme;
 	}
 
-	public void setDstFormatScheme(String dstFormatScheme) {
+	public void setDstFormatScheme(String[] dstFormatScheme) {
 		this.dstFormatScheme = dstFormatScheme;
 	}
 
-	public String getDstFormatValue() {
+	public String[] getDstFormatValue() {
 		return dstFormatValue;
 	}
 
-	public void setDstFormatValue(String dstFormatValue) {
+	public void setDstFormatValue(String[] dstFormatValue) {
 		this.dstFormatValue = dstFormatValue;
 	}
 
@@ -103,35 +103,35 @@ public class Service {
 		this.type = type;
 	}
 
-	public String getSrcLocationAddrScheme() {
+	public String[] getSrcLocationAddrScheme() {
 		return srcLocationAddrScheme;
 	}
 
-	public void setSrcLocationAddrScheme(String srcLocationAddrScheme) {
+	public void setSrcLocationAddrScheme(String[] srcLocationAddrScheme) {
 		this.srcLocationAddrScheme = srcLocationAddrScheme;
 	}
 
-	public String getSrcLocationAddrValue() {
+	public String[] getSrcLocationAddrValue() {
 		return srcLocationAddrValue;
 	}
 
-	public void setSrcLocationAddrValue(String srcLocationAddrValue) {
+	public void setSrcLocationAddrValue(String[] srcLocationAddrValue) {
 		this.srcLocationAddrValue = srcLocationAddrValue;
 	}
 
-	public String getDstLocationAddrScheme() {
+	public String[] getDstLocationAddrScheme() {
 		return dstLocationAddrScheme;
 	}
 
-	public void setDstLocationAddrScheme(String dstLocationAddrScheme) {
+	public void setDstLocationAddrScheme(String[] dstLocationAddrScheme) {
 		this.dstLocationAddrScheme = dstLocationAddrScheme;
 	}
 
-	public String getDstLocationAddrValue() {
+	public String[] getDstLocationAddrValue() {
 		return dstLocationAddrValue;
 	}
 
-	public void setDstLocationAddrValue(String dstLocationAddrValue) {
+	public void setDstLocationAddrValue(String[] dstLocationAddrValue) {
 		this.dstLocationAddrValue = dstLocationAddrValue;
 	}
 

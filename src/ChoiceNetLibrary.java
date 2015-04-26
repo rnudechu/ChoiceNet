@@ -212,11 +212,13 @@ public class ChoiceNetLibrary {
 			int numFormat = 0;
 			String type, addressType = "", portalType = "", location = "";
 			String priceMethod, pValue, providerID, provisioningParameters, purchasePortal, advertiserName, serviceName, serviceType, 
-			serviceDescription, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
-			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription =  
-					srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
+			serviceDescription;
+			String[] srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
+			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription = null;  
+			srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
 			ProvisioningProperty pProp;
 			ArrayList<ProvisioningProperty> serviceProperties;
+			int size = 0;
 			for (int temp = 0; temp < advertisementCount; temp++) 
 			{
 				Node nNode = nList.item(temp);
@@ -278,35 +280,53 @@ public class ChoiceNetLibrary {
 						myNode = myList.item(0);
 
 						myList = myElement.getElementsByTagName("source_location");
-						System.out.println(myList.getLength());
-
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						srcAddressScheme = new String[size];
+						srcAddressValue = new String[size];
+						System.out.println("Source Location");
+						for(int i=0;i<size;i++)
 						{
-							srcAddressScheme = getAttributes(myList, "scheme", i);
-							srcAddressValue = getAttributes(myList, "value", i);
+							srcAddressScheme[i] = getAttributes(myList, "scheme", i);
+							srcAddressValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+srcAddressScheme[i]+" Value "+srcAddressValue[i]);
 						}
-						System.out.println("Scheme "+srcAddressScheme+" Value "+srcAddressValue);
+						
 						myList = myElement.getElementsByTagName("destination_location");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						dstAddressScheme = new String[size];
+						dstAddressValue = new String[size];
+						System.out.println("Destination Location");
+						for(int i=0;i<size;i++)
 						{
-							dstAddressScheme = getAttributes(myList, "scheme", i);
-							dstAddressValue = getAttributes(myList, "value", i);
+							dstAddressScheme[i] = getAttributes(myList, "scheme", i);
+							dstAddressValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+dstAddressScheme[i]+" Value "+dstAddressValue[i]);
 						}
-						System.out.println("Scheme "+dstAddressScheme+" Value "+dstAddressValue);
+						
 						myList = myElement.getElementsByTagName("source_format");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						srcFormatScheme = new String[size];
+						srcFormatValue = new String[size];
+						System.out.println("Source Format");
+						for(int i=0;i<size;i++)
 						{
-							srcFormatScheme = getAttributes(myList, "scheme", i);
-							srcFormatValue = getAttributes(myList, "value", i);
+							srcFormatScheme[i] = getAttributes(myList, "scheme", i);
+							srcFormatValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+srcFormatScheme[i]+" Value "+srcFormatValue[i]);
 						}
-						System.out.println("Scheme "+srcFormatScheme+" Value "+srcFormatValue);
+						
 						myList = myElement.getElementsByTagName("destination_format");
-						for(int i=0;i<myList.getLength();i++)
+						size = myList.getLength();
+						dstFormatScheme = new String[size];
+						dstFormatValue = new String[size];
+						System.out.println("Destination Format");
+						for(int i=0;i<size;i++)
 						{	
-							dstFormatScheme = getAttributes(myList, "scheme", i);
-							dstFormatValue = getAttributes(myList, "value", i);
+							dstFormatScheme[i] = getAttributes(myList, "scheme", i);
+							dstFormatValue[i] = getAttributes(myList, "value", i);
+							System.out.println("Scheme "+dstFormatScheme[i]+" Value "+dstFormatValue[i]);
 						}
-						System.out.println("Scheme "+dstFormatScheme+" Value "+dstFormatValue);
+						
 					}
 					// Print Out
 					String printOut = "Advertisement \n" +
@@ -337,7 +357,6 @@ public class ChoiceNetLibrary {
 					sProp[i] = serviceProperties.get(i);
 				}
 				System.out.println(srcFormatValue);
-				Cost myCost = new Cost(priceMethod, pValue);
 
 				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
 				System.out.println(myService);
@@ -585,97 +604,6 @@ public class ChoiceNetLibrary {
 
 		ChoiceNetMessageField token = new ChoiceNetMessageField("Token", payload, "");
 		return token;
-	}
-
-	public Advertisement extractAdvertisementContent(ChoiceNetMessageField advertisement, long expirationTime)
-	{
-		ChoiceNetMessageField[] tPayload;
-		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) advertisement.getValue();
-		ChoiceNetMessageField myService = (ChoiceNetMessageField) payload[0];
-		Service service = extractServiceContent(myService); 
-		// Consideration
-		ChoiceNetMessageField consideration = (ChoiceNetMessageField) payload[1];
-		//		tPayload = (ChoiceNetMessageField[]) consideration.getValue();
-		//		String considerationMethod = (String) tPayload[0].getValue();
-		//		int considerationValue = (Integer) tPayload[1].getValue();
-		ChoiceNetMessageField contents = (ChoiceNetMessageField) consideration.getValue();
-		String considerationMethod = (String) contents.getAttributeName();
-		int considerationValue = (Integer) contents.getValue();
-		ChoiceNetMessageField economyAddrProp = (ChoiceNetMessageField) payload[2];
-		tPayload = (ChoiceNetMessageField[]) economyAddrProp.getValue();
-		String advertiserAddressScheme = (String) tPayload[0].getValue();
-		String advertiserAddress = (String) tPayload[1].getValue();
-		int advertiserPortAddress = -1;
-		if(advertiserAddressScheme.equals("UDPv4") || advertiserAddressScheme.equals("TCPv4"))
-		{
-			System.out.println(advertiserAddress);
-			String[] addr = advertiserAddress.split(":");
-			advertiserAddress = addr[0];
-			advertiserPortAddress = Integer.parseInt(addr[1]);
-		}
-		String entityName = (String) tPayload[2].getValue();
-		Advertisement myAd = new Advertisement(considerationMethod, considerationValue, entityName, service, advertiserAddress, advertiserPortAddress, advertiserAddressScheme, expirationTime, null,null);
-
-		return myAd;
-	}
-
-	public Service extractServiceContent(ChoiceNetMessageField service) {
-		ChoiceNetMessageField[] tPayload;
-		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) service.getValue();
-		String name = (String) payload[0].getValue();
-		String type = (String) payload[1].getValue();
-		String description = (String) payload[2].getValue();
-
-		ChoiceNetMessageField property = (ChoiceNetMessageField) payload[3];
-		tPayload = (ChoiceNetMessageField[]) property.getValue();
-		// should loop around as an array
-
-		String propertyType = (String) tPayload[0].getValue();
-		String propertyValue = (String) tPayload[1].getValue();
-		ProvisioningProperty sProp = new ProvisioningProperty(propertyType, propertyValue);
-		ProvisioningProperty serviceProperties[] = {sProp};
-
-		String srcLocationAddrScheme = "";
-		String srcLocationAddrValue = "";
-		String dstLocationAddrScheme = "";
-		String dstLocationAddrValue = "";
-		String srcFormatScheme = "";
-		String srcFormatValue = "";
-		String dstFormatScheme = "";
-		String dstFormatValue = "";
-
-		ChoiceNetMessageField srcLocation = (ChoiceNetMessageField) payload[4];
-		if(srcLocation!=null)
-		{
-			tPayload = (ChoiceNetMessageField[]) srcLocation.getValue();
-			srcLocationAddrScheme = (String) tPayload[0].getValue();
-			srcLocationAddrValue = (String) tPayload[1].getValue();
-		}
-		ChoiceNetMessageField dstLocation = (ChoiceNetMessageField) payload[5];
-		if(dstLocation!=null)
-		{
-			tPayload = (ChoiceNetMessageField[]) dstLocation.getValue();
-			dstLocationAddrScheme = (String) tPayload[0].getValue();
-			dstLocationAddrValue = (String) tPayload[1].getValue();
-		}
-
-		ChoiceNetMessageField srcFormat = (ChoiceNetMessageField) payload[6];
-		if(srcFormat!=null)
-		{
-			tPayload = (ChoiceNetMessageField[]) srcFormat.getValue();
-			srcFormatScheme = (String) tPayload[0].getValue();
-			srcFormatValue = (String) tPayload[1].getValue();
-		}
-		ChoiceNetMessageField dstFormat = (ChoiceNetMessageField) payload[7];
-		if(dstFormat!=null)
-		{
-			tPayload = (ChoiceNetMessageField[]) dstFormat.getValue();
-			dstFormatScheme = (String) tPayload[0].getValue();
-			dstFormatValue = (String) tPayload[1].getValue();
-		}
-		Service myService = new Service(name, type, srcLocationAddrScheme, srcLocationAddrValue, dstLocationAddrScheme, dstLocationAddrValue, 
-				srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, serviceProperties, description);
-		return myService;
 	}
 
 	public Token extractTokenContent (ChoiceNetMessageField token)

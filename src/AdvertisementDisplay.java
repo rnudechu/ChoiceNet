@@ -11,24 +11,24 @@ public class AdvertisementDisplay {
 	private String id;
 	private String _rev;
 	private String description;
-	private String srcLocationAddrScheme;
-	private String srcLocationAddrValue;
-	private String dstLocationAddrScheme;
-	private String dstLocationAddrValue;
-	private String srcFormatScheme;
-	private String srcFormatValue;
-	private String dstFormatScheme;
-	private String dstFormatValue;	
+	private String[] srcLocationAddrScheme;
+	private String[] srcLocationAddrValue;
+	private String[] dstLocationAddrScheme;
+	private String[] dstLocationAddrValue;
+	private String[] srcFormatScheme;
+	private String[] srcFormatValue;
+	private String[] dstFormatScheme;
+	private String[] dstFormatValue;	
 	private static final long serialVersionUID = 2L;
 	
 	public AdvertisementDisplay(String considerationMethod,
 			int considerationValue, String entityName, String serviceName,
 			String advertiserAddress, int advertiserPortAddress,
 			String advertiserAddressScheme, String id, String _rev,
-			String description, String srcLocationAddrScheme,
-			String srcLocationAddrValue, String dstLocationAddrScheme,
-			String dstLocationAddrValue, String srcFormatScheme,
-			String srcFormatValue, String dstFormatScheme, String dstFormatValue) {
+			String description, String[] srcLocationAddrScheme,
+			String[] srcLocationAddrValue, String[] dstLocationAddrScheme,
+			String[] dstLocationAddrValue, String[] srcFormatScheme,
+			String[] srcFormatValue, String[] dstFormatScheme, String[] dstFormatValue) {
 		super();
 		this.considerationMethod = considerationMethod;
 		this.considerationValue = considerationValue;
@@ -139,67 +139,67 @@ public class AdvertisementDisplay {
 		this.description = description;
 	}
 
-	public String getSrcLocationAddrScheme() {
+	public String[] getSrcLocationAddrScheme() {
 		return srcLocationAddrScheme;
 	}
 
-	public void setSrcLocationAddrScheme(String srcLocationAddrScheme) {
+	public void setSrcLocationAddrScheme(String[] srcLocationAddrScheme) {
 		this.srcLocationAddrScheme = srcLocationAddrScheme;
 	}
 
-	public String getSrcLocationAddrValue() {
+	public String[] getSrcLocationAddrValue() {
 		return srcLocationAddrValue;
 	}
 
-	public void setSrcLocationAddrValue(String srcLocationAddrValue) {
+	public void setSrcLocationAddrValue(String[] srcLocationAddrValue) {
 		this.srcLocationAddrValue = srcLocationAddrValue;
 	}
 
-	public String getDstLocationAddrScheme() {
+	public String[] getDstLocationAddrScheme() {
 		return dstLocationAddrScheme;
 	}
 
-	public void setDstLocationAddrScheme(String dstLocationAddrScheme) {
+	public void setDstLocationAddrScheme(String[] dstLocationAddrScheme) {
 		this.dstLocationAddrScheme = dstLocationAddrScheme;
 	}
 
-	public String getDstLocationAddrValue() {
+	public String[] getDstLocationAddrValue() {
 		return dstLocationAddrValue;
 	}
 
-	public void setDstLocationAddrValue(String dstLocationAddrValue) {
+	public void setDstLocationAddrValue(String[] dstLocationAddrValue) {
 		this.dstLocationAddrValue = dstLocationAddrValue;
 	}
 
-	public String getSrcFormatScheme() {
+	public String[] getSrcFormatScheme() {
 		return srcFormatScheme;
 	}
 
-	public void setSrcFormatScheme(String srcFormatScheme) {
+	public void setSrcFormatScheme(String[] srcFormatScheme) {
 		this.srcFormatScheme = srcFormatScheme;
 	}
 
-	public String getSrcFormatValue() {
+	public String[] getSrcFormatValue() {
 		return srcFormatValue;
 	}
 
-	public void setSrcFormatValue(String srcFormatValue) {
+	public void setSrcFormatValue(String[] srcFormatValue) {
 		this.srcFormatValue = srcFormatValue;
 	}
 
-	public String getDstFormatScheme() {
+	public String[] getDstFormatScheme() {
 		return dstFormatScheme;
 	}
 
-	public void setDstFormatScheme(String dstFormatScheme) {
+	public void setDstFormatScheme(String[] dstFormatScheme) {
 		this.dstFormatScheme = dstFormatScheme;
 	}
 
-	public String getDstFormatValue() {
+	public String[] getDstFormatValue() {
 		return dstFormatValue;
 	}
 
-	public void setDstFormatValue(String dstFormatValue) {
+	public void setDstFormatValue(String[] dstFormatValue) {
 		this.dstFormatValue = dstFormatValue;
 	}
 

@@ -117,6 +117,32 @@ public class ChoiceNetMessageParser {
 		return null;
 	}
 
+	public ChoiceNetMessageField[] getRequestElements(String pktXML)
+	{
+		ArrayList<ChoiceNetMessageField> queries = new ArrayList<ChoiceNetMessageField>();
+		ChoiceNetMessageField[] contents;
+		// Loop through all possible QueryTypes and see if XML has any matching fields
+		for(RequestType requestType: RequestType.values())
+		{
+			contents = getChoiceNetMessageArray(pktXML,requestType.toString());
+			if(contents.length>0)
+			{
+				for(ChoiceNetMessageField q: contents)
+				{
+					queries.add(q);
+				}
+			}
+		}
+		// Loop over the stored arrays in Queries and store them inside the queryPayload
+		ChoiceNetMessageField[] payload = new ChoiceNetMessageField[queries.size()];
+		int i = 0;
+		for(ChoiceNetMessageField q: queries)
+		{
+			payload[i] = q;
+			i++;
+		}
+		return payload;
+	}
 
 
 	// Parser functions 
@@ -285,28 +311,7 @@ public class ChoiceNetMessageParser {
 	}
 
 	private ChoiceNetMessageField[] parseMarketplaceQueryMessage(String pktXML) {
-		ArrayList<ChoiceNetMessageField> queries = new ArrayList<ChoiceNetMessageField>();
-		ChoiceNetMessageField[] contents;
-		// Loop through all possible QueryTypes and see if XML has any matching fields
-		for(RequestType queryType: RequestType.values())
-		{
-			contents = getChoiceNetMessageArray(pktXML,queryType.toString());
-			if(contents.length>0)
-			{
-				for(ChoiceNetMessageField q: contents)
-				{
-					queries.add(q);
-				}
-			}
-		}
-		// Loop over the stored arrays in Queries and store them inside the queryPayload
-		ChoiceNetMessageField[] queryPayload = new ChoiceNetMessageField[queries.size()];
-		int i = 0;
-		for(ChoiceNetMessageField q: queries)
-		{
-			queryPayload[i] = q;
-			i++;
-		}
+		ChoiceNetMessageField[] queryPayload = getRequestElements(pktXML);
 		ChoiceNetMessageField searchParameter = new ChoiceNetMessageField("Search Parameter", queryPayload, "");
 		ChoiceNetMessageField[] payload = {searchParameter}; 
 		return payload;
@@ -320,13 +325,15 @@ public class ChoiceNetMessageParser {
 	}
 
 	private ChoiceNetMessageField[] parsePlannerRequestMessage(String pktXML) {
-		// TODO Auto-generated method stub
-		return null;
+		ChoiceNetMessageField[] requestPayload = getRequestElements(pktXML);
+		ChoiceNetMessageField serviceReq = new ChoiceNetMessageField("Service Requirement", requestPayload, "");
+		ChoiceNetMessageField[] payload = {serviceReq}; 
+		return payload;
 	}
 
 	private ChoiceNetMessageField[] parsePlannerResponseMessage(String pktXML) {
-		// TODO Auto-generated method stub
-		return null;
+		ChoiceNetMessageField[] payload = getChoiceNetMessageArray(pktXML,"Advertisement List");
+		return payload;
 	}
 
 	private ChoiceNetMessageField[] parseNACKMessage(String pktXML) {

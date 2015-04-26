@@ -21,10 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 public class ServerThread extends Thread {
 	private DatagramSocket socket = null;
 
@@ -280,9 +276,9 @@ public class ServerThread extends Thread {
 							//System.err.println("No packet received");
 						}
 						// prevent other clients from running this logger
-						if(Server.runningMode.equals("ProviderGUI"))
+						if(!Server.runningMode.equals("standalone"))
 						{
-							ProviderGUI.updateTextArea(); // should be removed for the client
+							//ProviderGUI.updateTextArea(); // should be removed for the client
 						}
 					}
 					catch (ClassNotFoundException e) {
@@ -294,13 +290,6 @@ public class ServerThread extends Thread {
 					catch(ClassCastException e)
 					{
 						System.err.println(e.getMessage());
-						//						String packet;
-						//						try {
-						//							packet = (String) inFromClient.readObject();
-						//							System.out.println("String value="+packet);
-						//						} catch (ClassNotFoundException e1) {
-						//							e1.printStackTrace();
-						//						}
 					}
 				}
 			}
@@ -330,7 +319,6 @@ public class ServerThread extends Thread {
 		try {
 			Process p = Runtime.getRuntime().exec("./localchoicenet");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Content: "+content);
@@ -389,8 +377,7 @@ public class ServerThread extends Thread {
 			//			{
 			//				message = "No results were found";
 			//			}
-			Server.systemMessage = results;
-			ProviderGUI.updateTextArea();
+			ProviderGUI.updateTextArea(results);
 		}
 	}
 
@@ -408,109 +395,15 @@ public class ServerThread extends Thread {
 		InternalMessageField[] queryPayload = determineQueryType(payload);
 
 		System.out.println("payload length is "+payload.length);
-		String attr, queryValue, adID, query, response = "";
-		String queryField = "";
-		boolean isRange = false;
-		int i = 0;
+		String queryValue, adID, query, response = "";
 		CouchDBResponse cResponse;
 
 		Map<String, String> responseCollection = new HashMap<String, String>();
 		for(InternalMessageField searchField : queryPayload)
 		{
-			attr = searchField.getAttributeName();
-			System.out.println("YO => "+attr);
 			queryValue = (String) searchField.getValue();
 			queryValue = queryValue.replaceAll(" ", "%20");
-
-			if(attr.equals(QueryType.ADVERTISEMENT_ID.toString()))
-			{
-				queryField = "byID";
-			}
-			if(attr.equals(QueryType.COST.toString()))
-			{
-				isRange = true;
-				queryField = "byCost?startkey=0&endkey=";
-			}
-			if(attr.equals("Service Type"))
-			{
-				queryField = "byServiceType";
-			}
-			// Single
-			if(attr.equals(QueryType.LOCATION_SRC.toString()))
-			{
-				queryField = "bySrcLocation";
-			}
-			if(attr.equals(QueryType.LOCATION_DST.toString()))
-			{
-				queryField = "byDstLocation";
-			}
-			if(attr.equals(QueryType.FORMAT_SRC.toString()))
-			{
-				queryField = "bySrcFormat";
-			}
-			if(attr.equals(QueryType.FORMAT_DST.toString()))
-			{
-				queryField = "byDstFormat";
-			}
-			// Pair
-			if(attr.equals(QueryType.LOCATION_SRC_DST.toString()))
-			{
-				queryField = "bySrcDstLocation";
-			}
-			if(attr.equals(QueryType.LOCATION_SRC_FORMAT_SRC.toString()))
-			{
-				queryField = "bySrcLocationSrcFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_SRC_FORMAT_DST.toString()))
-			{
-				queryField = "bySrcLocationDstFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_DST_FORMAT_SRC.toString()))
-			{
-				queryField = "byDstLocationSrcFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_DST_FORMAT_DST.toString()))
-			{
-				queryField = "byDstLocationDstFormat";
-			}
-			if(attr.equals(QueryType.FORMAT_SRC_DST.toString()))
-			{
-				queryField = "bySrcDstFormat";
-			}
-			// Triplets
-			if(attr.equals(QueryType.LOCATION_SRC_DST_FORMAT_SRC.toString()))
-			{
-				queryField = "bySrcDstLocationSrcFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_SRC_DST_FORMAT_DST.toString()))
-			{
-				queryField = "bySrcDstLocationDstFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_SRC_FORMAT_SRC_DST.toString()))
-			{
-				queryField = "bySrcLocationSrcDstFormat";
-			}
-			if(attr.equals(QueryType.LOCATION_DST_FORMAT_SRC_DST.toString()))
-			{
-				queryField = "byDstLocationSrcDstFormat";
-			}
-
-			if(attr.equals(QueryType.LOCATION_SRC_DST_FORMAT_SRC_DST.toString()))
-			{
-				queryField = "bySrcDstLocationSrcDstFormat";
-			}
-
-			System.out.println(attr.equals(RequestType.LOCATION_SRC.toString()));
-			System.out.println(queryValue);
-			// make the required calls per query content
-			if(!isRange)
-			{
-				query = "/_design/marketplace/_view/"+queryField+"?key="+queryValue;
-			}
-			else
-			{
-				query = "/_design/marketplace/_view/"+queryField+queryValue;
-			}
+			query = "/_design/marketplace/_view/"+queryValue;
 			// Retrieve CouchDB unique identifier for the document containing its entry to get its document ID, this will be used as an Advertisement ID
 			String url = Server.marketplaceRESTAPI+query;
 			Logger.log(url);
@@ -529,8 +422,6 @@ public class ServerThread extends Thread {
 					System.out.println("Advertisement "+adID+" already retrieved");
 				}
 			}
-			//			results[i] = response;
-			//			i++;
 		}
 		// responseCollection has all unique keys; perform a search based on the keys supply the UNION of the responses as the query result
 		String results = "";
@@ -543,276 +434,17 @@ public class ServerThread extends Thread {
 			results += response+jsonSeparator;
 			//			i++;
 		}
-
-		// loop through unique response
-		//String[] results = new String [responseCollection.size()];
-
-		results = results.substring(0, results.length()-jsonSeparator.length());
+		if(results.length()>0)
+		{
+		 	results = results.substring(0, results.length()-jsonSeparator.length());
+		}
 		results = "<![CDATA["+results.toString()+"\n]]>";
+		System.out.println("Size of payload is "+results.length());
 		ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Results", results, "");
 		ChoiceNetMessageField[] myPayload = {resultsField};
 		packet = new Packet(PacketType.MARKETPLACE_RESPONSE,myName,"",myType, providerType,myPayload);
 		send(packet);
 		// 
-	}
-
-	public InternalMessageField[] determineQueryType(ChoiceNetMessageField[] message)
-	{
-		ArrayList<InternalMessageField> list = new ArrayList<InternalMessageField>();
-		String sourceLoc = "";
-		String destinationLoc = "";
-		String sourceFormat = "";
-		String destinationFormat = "";
-		String sourceLocType = "";
-		String destinationLocType = "";
-		String sourceFormatType = "";
-		String destinationFormatType = "";
-		String adID = "";
-		String cost = "";
-		String attr = "";
-		for(ChoiceNetMessageField msg: message)
-		{
-			attr = msg.getAttributeName();
-			if(attr.equals(RequestType.LOCATION_SRC.toString()))
-			{
-				sourceLoc = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.LOCATION_DST.toString()))
-			{
-				destinationLoc = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.FORMAT_SRC.toString()))
-			{
-				sourceFormat = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.FORMAT_DST.toString()))
-			{
-				destinationFormat = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.LOCATION_SRC_TYPE.toString()))
-			{
-				sourceLocType = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.LOCATION_DST_TYPE.toString()))
-			{
-				destinationLocType = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.FORMAT_SRC_TYPE.toString()))
-			{
-				sourceFormatType = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.FORMAT_DST_TYPE.toString()))
-			{
-				destinationFormatType = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.COST.toString()))
-			{
-				cost = (String) msg.getValue();
-			}
-			if(attr.equals(RequestType.ADVERTISEMENT_ID.toString()))
-			{
-				adID = (String) msg.getValue();
-			}
-		}
-			
-		// determine the query property by content submitted in the location/format source/destination
-		InternalMessageField searchedContent;
-		// determine the query property by content submitted in the location/format source/destination
-		// check if any of the query parameters contain a comma if so multiple searches need to be performed
-		String[] srcLocArr = sourceLoc.split(",");
-		String[] dstLocArr = destinationLoc.split(",");
-		String[] srcFormatArr = sourceFormat.split(",");
-		String[] dstFormatArr = destinationFormat.split(",");
-		String[] srcLocTypeArr = sourceLocType.split(",");
-		String[] dstLocTypeArr = destinationLocType.split(",");
-		String[] srcFormatTypeArr = sourceFormatType.split(",");
-		String[] dstFormatTypeArr = destinationFormatType.split(",");
-
-		int i = 0;
-		int j = 0;
-		int k = 0;
-		int l = 0;
-		boolean operate;
-		// loop through the possible combinations between this four fields
-		while(i<srcLocArr.length)
-		{
-			operate = false;
-			searchedContent = determineQueryParameter(srcLocArr[i],dstLocArr[j],srcFormatArr[k],dstFormatArr[l],srcLocTypeArr[i],dstLocTypeArr[j],srcFormatTypeArr[k],dstFormatTypeArr[l]);
-			if(searchedContent!=null)
-			{
-				list.add(searchedContent);
-			}
-			if(j<dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1 && operate==false)
-			{
-				operate = true;
-				j++;
-				k = 0;
-				l = 0;
-			}
-			if(k<srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
-			{
-				operate = true;
-				k++;
-				l = 0;
-			}
-			if(l<dstFormatArr.length-1  && operate==false)
-			{
-				operate = true;
-				l++;
-			}
-			if(j == dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
-			{
-
-				i++;
-				j = 0;
-				k = 0;
-				l = 0;
-			}
-		}
-		// decode the source field
-		if(!cost.isEmpty())
-		{
-			searchedContent = new InternalMessageField(""+QueryType.COST, "[\""+cost+"\"]", "");
-			list.add(searchedContent);
-		}
-		// decode the advertisement ID field
-		if(!adID.isEmpty())
-		{
-			searchedContent = new InternalMessageField(""+QueryType.ADVERTISEMENT_ID, "[\""+adID+"\"]", "");
-			list.add(searchedContent);
-		}
-		int size = list.size();
-		InternalMessageField payload[] = new InternalMessageField[size];
-		for(i=0;i<size;i++)
-		{
-			payload[i] = list.get(i);
-		}
-		return payload;
-	}
-
-	/**
-	 * 
-	 * @param sourceLoc
-	 * @param destinationLoc
-	 * @param sourceFormat
-	 * @param destinationFormat
-	 * @return
-	 */
-	public InternalMessageField determineQueryParameter(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, 
-			String sourceLocType, String destinationLocType, String sourceFormatType, String destinationFormatType)
-	{
-		// 1: (1,2,3,4)
-		// 2: (1,2,3)
-		// 3: (1,2,4)
-		// 4: (1,3,4)
-		// 5: (2,3,4)
-		// 6: (1,2)
-		// 7: (1,3)
-		// 8: (1,4)
-		// 9: (2,3)
-		// 10: (2,4)
-		// 11: (3,4)
-		// 12: (1)
-		// 13: (2)
-		// 14: (3)
-		// 15: (4)
-		InternalMessageField searchedContent = null;
-		String data = "";
-		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC_DST, data, "");
-			return searchedContent;
-		}
-		// Triplets
-		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC, data, "");
-			return searchedContent;
-		}
-		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_DST, data, "");
-			return searchedContent;
-		}
-		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC_DST, data, "");
-			return searchedContent;
-		}
-		if(!destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC_DST, data, "");
-			return searchedContent;
-		}
-		// Pair Case
-		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+destinationLoc+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST, data, "");
-			return searchedContent;
-		}
-		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+sourceLocType+"\",\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC, data, "");
-			return searchedContent;
-		}
-		if(!sourceLoc.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_DST, data, "");
-			return searchedContent;
-		}
-		if(destinationLoc.isEmpty() && !sourceFormat.isEmpty())
-		{
-			data = "[\""+destinationLoc+"\",\""+sourceFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC, data, "");
-			return searchedContent;
-		}
-		if(!destinationLoc.isEmpty() &&  !destinationFormat.isEmpty())
-		{
-			data = "[\""+destinationLoc+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_DST, data, "");
-			return searchedContent;
-		}
-		if(!sourceFormat.isEmpty() && !destinationFormat.isEmpty())
-		{
-			data = "[\""+sourceFormat+"\",\""+destinationFormat+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC_DST, data, "");
-			return searchedContent;
-		}
-		// Single case
-		if(!sourceLoc.isEmpty())
-		{
-			data = "[\""+sourceLoc+"\",\""+sourceLocType+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC, data, "");
-			return searchedContent;
-		}
-		if(!destinationLoc.isEmpty())
-		{
-			data = "[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST, data, "");
-			return searchedContent;
-		}
-		if(!sourceFormat.isEmpty())
-		{
-			data = "[\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC, data, "");
-			return searchedContent;
-		}
-		if(!destinationFormat.isEmpty())
-		{
-			data = "[\""+destinationFormat+"\",\""+destinationFormatType+"\"]";
-			searchedContent = new InternalMessageField(""+QueryType.FORMAT_DST, data, "");
-			return searchedContent;
-		}
-
-		return searchedContent;
 	}
 
 	/**
@@ -850,25 +482,27 @@ public class ServerThread extends Thread {
 			for(String x: results)
 			{
 				cResponse = CouchDBResponse.parseJson(x);
-				for(CouchDBContainer currentAdv : cResponse.getRows())
+				if(cResponse != null)
 				{
-					myAd = currentAdv.getValue();
-					message += "ID: "+myAd.getId()+"\n";
-					message += "\tDescription: "+myAd.getDescription()+"\n";
-					message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
-					message += "\tLocation Source : "+myAd.getSrcLocationAddrScheme()+":"+myAd.getSrcLocationAddrValue()+"\n";
-					message += "\tLocation Destination: "+myAd.getDstLocationAddrScheme()+":"+myAd.getDstLocationAddrValue()+"\n";
-					message += "\tFormat Source: "+myAd.getSrcFormatScheme()+":"+myAd.getSrcFormatValue()+"\n";
-					message += "\tFormat Destination: "+myAd.getDstFormatScheme()+":"+myAd.getDstFormatValue()+"\n";
-					message += "\n";
+					for(CouchDBContainer currentAdv : cResponse.getRows())
+					{
+						myAd = currentAdv.getValue();
+						message += "ID: "+myAd.getId()+"\n";
+						message += "\tDescription: "+myAd.getDescription()+"\n";
+						message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
+						message += "\tLocation Source : "+myAd.getSrcLocationAddrScheme()+":"+myAd.getSrcLocationAddrValue()+"\n";
+						message += "\tLocation Destination: "+myAd.getDstLocationAddrScheme()+":"+myAd.getDstLocationAddrValue()+"\n";
+						message += "\tFormat Source: "+myAd.getSrcFormatScheme()+":"+myAd.getSrcFormatValue()+"\n";
+						message += "\tFormat Destination: "+myAd.getDstFormatScheme()+":"+myAd.getDstFormatValue()+"\n";
+						message += "\n";
+					}
+				}
+				else
+				{
+					message = "No results were found";
 				}
 			}
-			if(message.equals(""))
-			{
-				message = "No results were found";
-			}
-			Server.systemMessage = message;
-			ProviderGUI.updateTextArea();
+			ProviderGUI.updateTextArea(message);
 		}
 	}
 
@@ -1118,9 +752,10 @@ public class ServerThread extends Thread {
 			Logger.log("Token has been added to the system database.");
 			Logger.log("Token contains:\n"+myToken+"\n==================");
 			// prevent other clients from running this logger
-			if(Server.runningMode.equals("ProviderGUI"))
+			if(!Server.runningMode.equals("standalone"))
 			{
-				Server.systemMessage = "Token "+myToken.getId()+" has been added to the system database"; // should be removed for the client
+				String msg = "Token "+myToken.getId()+" has been added to the system database"; // should be removed for the client
+				ProviderGUI.updateTextArea(msg);
 			}
 		}
 		else
@@ -1164,8 +799,7 @@ public class ServerThread extends Thread {
 			{
 				if(currTime<expirationTime)
 				{
-					// check whether the Ad contains an IPv4 location
-
+					
 					String adServiceName = myAd.getService().getName();
 					String queryValue = adServiceName.replaceAll(" ", "%20");
 					// Store in CouchDB
@@ -1179,6 +813,31 @@ public class ServerThread extends Thread {
 					String adID = cResponse.getRows().getLast().getId();
 					myAd.setId(adID);
 					myAd.setState("Advertised");
+					// check whether the Ad contains an IPv4 location
+					String[] srcAddrType = myAd.getService().getSrcLocationAddrScheme();
+					String[] srcAddrVal = myAd.getService().getSrcLocationAddrValue();
+					int srcAddrSize = srcAddrVal.length;
+					String[] dstAddrType = myAd.getService().getDstLocationAddrScheme();
+					String[] dstAddrVal = myAd.getService().getDstLocationAddrValue();
+					int dstAddrSize = dstAddrVal.length;
+					String value = "";
+					for(int i=0;i<srcAddrSize;i++)
+					{
+						if(srcAddrType[i].equals("IPv4"))
+						{
+							value = getIPv4BinaryString(srcAddrVal[i]);
+							couchDBsocket.postRestInterface(Server.marketplaceRESTAPI+"rangehelper", value);
+						}
+					}
+					for(int i=0;i<dstAddrSize;i++)
+					{
+						if(dstAddrType[i].equals("IPv4"))
+						{
+							value = getIPv4BinaryString(dstAddrVal[i]);
+							couchDBsocket.postRestInterface(Server.marketplaceRESTAPI+"rangehelper", value);
+						}	
+					}
+					
 					// Respond back with an acknowledgment and user handle (advertisement ID)
 					ChoiceNetMessageField advertisementID = new ChoiceNetMessageField("Advertisement ID", adID, "");
 					ChoiceNetMessageField serviceName = new ChoiceNetMessageField("Service Name", adServiceName, "");
@@ -1292,6 +951,306 @@ public class ServerThread extends Thread {
 			// Token ID does not exist in our database
 		}
 	}
+	private InternalMessageField[] determineQueryType(ChoiceNetMessageField[] message)
+	{
+		ArrayList<InternalMessageField> list = new ArrayList<InternalMessageField>();
+		String sourceLoc = "";
+		String destinationLoc = "";
+		String sourceFormat = "";
+		String destinationFormat = "";
+		String sourceLocType = "";
+		String destinationLocType = "";
+		String sourceFormatType = "";
+		String destinationFormatType = "";
+		String adID = "";
+		String cost = "";
+		String costType = "";
+		String attr = "";
+		for(ChoiceNetMessageField msg: message)
+		{
+			attr = msg.getAttributeName();
+			if(attr.equals(RequestType.LOCATION_SRC.toString()))
+			{
+				sourceLoc = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_DST.toString()))
+			{
+				destinationLoc = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_SRC.toString()))
+			{
+				sourceFormat = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_DST.toString()))
+			{
+				destinationFormat = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_SRC_TYPE.toString()))
+			{
+				sourceLocType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.LOCATION_DST_TYPE.toString()))
+			{
+				destinationLocType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_SRC_TYPE.toString()))
+			{
+				sourceFormatType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.FORMAT_DST_TYPE.toString()))
+			{
+				destinationFormatType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.COST.toString()))
+			{
+				cost = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.COST_TYPE.toString()))
+			{
+				costType = (String) msg.getValue();
+			}
+			if(attr.equals(RequestType.ADVERTISEMENT_ID.toString()))
+			{
+				adID = (String) msg.getValue();
+			}
+		}
+	
+		// determine the query property by content submitted in the location/format source/destination
+		InternalMessageField searchedContent;
+		// determine the query property by content submitted in the location/format source/destination
+		// check if any of the query parameters contain a comma if so multiple searches need to be performed
+		String[] srcLocArr = sourceLoc.split(",");
+		String[] dstLocArr = destinationLoc.split(",");
+		String[] srcFormatArr = sourceFormat.split(",");
+		String[] dstFormatArr = destinationFormat.split(",");
+		String[] srcLocTypeArr = sourceLocType.split(",");
+		String[] dstLocTypeArr = destinationLocType.split(",");
+		String[] srcFormatTypeArr = sourceFormatType.split(",");
+		String[] dstFormatTypeArr = destinationFormatType.split(",");
+	
+		int i = 0;
+		int j = 0;
+		int k = 0;
+		int l = 0;
+		boolean operate;
+		// loop through the possible combinations between this four fields
+		while(i<srcLocArr.length)
+		{
+			operate = false;
+			searchedContent = determineQueryParameter(srcLocArr[i],dstLocArr[j],srcFormatArr[k],dstFormatArr[l],srcLocTypeArr[i],dstLocTypeArr[j],srcFormatTypeArr[k],dstFormatTypeArr[l]);
+			if(searchedContent!=null)
+			{
+				list.add(searchedContent);
+			}
+			if(j<dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1 && operate==false)
+			{
+				operate = true;
+				j++;
+				k = 0;
+				l = 0;
+			}
+			if(k<srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
+			{
+				operate = true;
+				k++;
+				l = 0;
+			}
+			if(l<dstFormatArr.length-1  && operate==false)
+			{
+				operate = true;
+				l++;
+			}
+			if(j == dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
+			{
+	
+				i++;
+				j = 0;
+				k = 0;
+				l = 0;
+			}
+		}
+		String data = "";
+		String queryField = "";
+		// decode the source field
+		if(!cost.isEmpty())
+		{
+			queryField = "byCost?startkey=[\""+costType+"\"]&endkey=";
+			data = queryField+"[\""+costType+"\","+cost+"]";
+			searchedContent = new InternalMessageField(""+QueryType.COST, data, "");
+			list.add(searchedContent);
+		}
+		// decode the advertisement ID field
+		if(!adID.isEmpty())
+		{
+			queryField = "byID?key=";
+			data = queryField+"[\""+adID+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.ADVERTISEMENT_ID, data, "");
+			list.add(searchedContent);
+		}
+		int size = list.size();
+		InternalMessageField payload[] = new InternalMessageField[size];
+		for(i=0;i<size;i++)
+		{
+			payload[i] = list.get(i);
+		}
+		return payload;
+	}
+	/**
+	 * 
+	 * @param sourceLoc
+	 * @param destinationLoc
+	 * @param sourceFormat
+	 * @param destinationFormat
+	 * @return
+	 */
+	private InternalMessageField determineQueryParameter(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, 
+			String sourceLocType, String destinationLocType, String sourceFormatType, String destinationFormatType)
+	{
+		// 1: (1,2,3,4)
+		// 2: (1,2,3)
+		// 3: (1,2,4)
+		// 4: (1,3,4)
+		// 5: (2,3,4)
+		// 6: (1,2)
+		// 7: (1,3)
+		// 8: (1,4)
+		// 9: (2,3)
+		// 10: (2,4)
+		// 11: (3,4)
+		// 12: (1)
+		// 13: (2)
+		// 14: (3)
+		// 15: (4)
+		InternalMessageField searchedContent = null;
+		String data = "";
+		String queryField = "";
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "bySrcDstLocationSrcDstFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Triplets
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			queryField = "bySrcDstLocationSrcFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "bySrcDstLocationDstFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "bySrcLocationSrcDstFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "byDstLocationSrcDstFormat?key=";
+			data = queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Pair Case
+		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty())
+		{
+			queryField = "bySrcDstLocation?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			queryField = "bySrcLocationSrcFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\",\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!sourceLoc.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "bySrcLocationDstFormat?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(destinationLoc.isEmpty() && !sourceFormat.isEmpty())
+		{
+			queryField = "byDstLocationSrcFormat?key=";
+			data = queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty() &&  !destinationFormat.isEmpty())
+		{
+			queryField = "byDstLocationDstFormat?key=";
+			data = queryField+"[\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceFormat.isEmpty() && !destinationFormat.isEmpty())
+		{
+			queryField = "bySrcDstFormat?key=";
+			data = queryField+"[\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC_DST, data, "");
+			return searchedContent;
+		}
+		// Single case
+		if(!sourceLoc.isEmpty())
+		{
+			queryField = "bySrcLocation?key=";
+			data = queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationLoc.isEmpty())
+		{
+			queryField = "byDstLocation?=";
+			data = queryField+"[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST, data, "");
+			return searchedContent;
+		}
+		if(!sourceFormat.isEmpty())
+		{
+			queryField = "bySrcFormat?key=";
+			data = queryField+"[\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC, data, "");
+			return searchedContent;
+		}
+		if(!destinationFormat.isEmpty())
+		{
+			queryField = "byDstFormat?key=";
+			data = queryField+"[\""+destinationFormat+"\",\""+destinationFormatType+"\"]";
+			searchedContent = new InternalMessageField(""+QueryType.FORMAT_DST, data, "");
+			return searchedContent;
+		}
+	
+		return searchedContent;
+	}
+	
+	private String getIPv4BinaryString(String ipAddr)
+	{
+		String result = "";
+		String[] ipAddrArr = ipAddr.split("/");
+		String subnet = ipAddrArr[1];
+		ipAddrArr = ipAddrArr[0].split(".");
+		int val = 0;
+		for(String octect: ipAddrArr)
+		{
+			val = Integer.parseInt(octect);
+			result += String.format("%8s", Integer.toBinaryString(val)).replace(' ', '0');
+		}
+		return result;
+	}
+	
 	/**
 	 * Customer
 	 * User driven action
