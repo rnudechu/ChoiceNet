@@ -20,8 +20,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 
-import com.google.gson.Gson;
-
 
 public class Server {
 	private static int DEFAULT_SERVER_PORT = 4445;
@@ -110,7 +108,7 @@ public class Server {
 				//			    while ((line = reader.readLine())!= null) {
 				//				sb.append(line + "\n");
 				//			    }
-				HelloWorld helloWorld = new HelloWorld();
+				//				HelloWorld helloWorld = new HelloWorld();
 			}
 
 			serverSocket = new DatagramSocket(DEFAULT_SERVER_PORT);
@@ -123,9 +121,6 @@ public class Server {
 			System.err.println(CONFIG_FILE+" not found, using default values!");
 		} catch (IOException e) {
 			e.printStackTrace();
-			//		} catch (InterruptedException e) {
-			//			// TODO Auto-generated catch block
-			//			e.printStackTrace();
 		}
 	}
 
@@ -151,7 +146,7 @@ public class Server {
 		String marketplaceAddress = parsedContent[0];
 		int marketplacePort = Integer.parseInt(parsedContent[1]);
 		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
-				 destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
+				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
 		ChoiceNetMessageField data =  new ChoiceNetMessageField("Service Requirement", dataPayload, "");
 		ChoiceNetMessageField payload[] = {data};
 		// send the payload
@@ -173,7 +168,7 @@ public class Server {
 		// create search parameter for each valid field
 		Packet packet;
 		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
-				 destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
+				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
 		ChoiceNetMessageField data = new ChoiceNetMessageField("Search Parameter", dataPayload, "");
 		ChoiceNetMessageField payload[] = {data};
 		// send the payload
@@ -210,7 +205,7 @@ public class Server {
 			searchedContent = new ChoiceNetMessageField(""+RequestType.FORMAT_DST, destinationFormat, "");
 			list.add(searchedContent);
 		}
-		
+
 		if(!sourceLocType.isEmpty())
 		{
 			searchedContent = new ChoiceNetMessageField(""+RequestType.LOCATION_SRC_TYPE, sourceLocType, "");
@@ -258,7 +253,7 @@ public class Server {
 		}
 		return dataPayload;
 	}
-	
+
 
 	public void createMarketplaceDatabase(String marketplaceAddr)
 	{
@@ -299,7 +294,7 @@ public class Server {
 			Logger.log("Included the following advertisement into CouchDB: \n"+myAd);
 		}
 	}
-	
+
 	public void createRangeDatabase(String marketplaceAddr)
 	{
 		String response = "";
@@ -313,8 +308,8 @@ public class Server {
 			Logger.log("Insert CouchDB Database");
 		}
 	}
-	
-	
+
+
 
 	/**
 	 * Default Listing Service
@@ -497,7 +492,6 @@ public class Server {
 		ChoiceNetMessageField considerationExchValue = new ChoiceNetMessageField("Consideration Exchange Value", exchangeValue, "");
 		ChoiceNetMessageField[] payload = {transactionNumber,considerationTarget,serviceName,considerationExchMethod,considerationExchValue};
 		Packet packet = new Packet(PacketType.TRANSFER_CONSIDERATION,myName,"",myType, providerType,payload);
-		String pktXML = cnLibrary.createPacketXML(packet);
 		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
 	}
 
@@ -505,7 +499,7 @@ public class Server {
 	{
 		// Create the Advertisement by parsing an XML file
 		String advertisementXML = readFile(fileName);
-		
+
 		String message = "";
 		if(advertisementXML != null)
 		{
@@ -529,8 +523,8 @@ public class Server {
 				// NOTE: I am making the Expiration time dependent on the TOKEN
 				ArrayList<Advertisement> submittedAds = cnLibrary.getAdvertisementsFromXML(fileName, "File");
 				cnLibrary.storeAdvertisement(submittedAds);
-//				Advertisement myAd = cnLibrary.extractAdvertisementContent(advertisement, eTime);
-//				adMgr.addAdvertisement(myAd);
+				//				Advertisement myAd = cnLibrary.extractAdvertisementContent(advertisement, eTime);
+				//				adMgr.addAdvertisement(myAd);
 
 				Packet packet = new Packet(PacketType.LISTING_REQUEST,myName,"",myType, providerType,payload);
 				new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);

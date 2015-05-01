@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>NCSU-NICT Optical Circuit Transit Service</name>
+			<details>
+				<source_location scheme="IPv4" value="A.A.A.A" />
+				<source_format scheme="transport media" value="optical circuit" />
+				<destination_location scheme="IPv4" value="Z.Z.Z.Z" />
+				<destination_format scheme="transport media" value="optical circuit" />
+			</details>
+			<description> Optical Circuit Transit Service from NCSU to NICT </description>
+		</service>
+		<price method="Bitcoin" value="1200" />
+		<providerID> ACME Systems </providerID>
+		<purchasePortal>
+			<destination_location scheme="UDPv4" value="127.0.0.1:4040" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters>
+				<wavelength unit="nanometer" value="1470, 1490, 1510, 1530, 1550" />
+			</configurableParameters>
+		</provisioningParameters>
+	</advertisement>
+		<advertisement id="2">
+		<service>
+			<name>NCSU-NICT Optical Packet Transit Service</name>
+			<details>
+				<source_location scheme="IPv4" value="A.A.A.A" />
+				<source_format scheme="transport media" value="optical packet" />
+				<destination_location scheme="IPv4" value="Z.Z.Z.Z" />
+				<destination_format scheme="transport media" value="optical packet" />
+			</details>
+			<description> Optical Packet Transit Service from NCSU to NICT </description>
+		</service>
+		<price method="Bitcoin" value="1200" />
+		<providerID> ACME Systems </providerID>
+		<purchasePortal>
+			<destination_location scheme="UDPv4" value="127.0.0.1:4040" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters>
+				<ports value="12000-13000" />
+			</configurableParameters>
+		</provisioningParameters>
+	</advertisement>
+	<advertisement id="2">
+		<service>
+			<name>NCSU-NICT Optical Circuit-Packet Forwarding Service</name>
+			<details>
+				<source_location scheme="IPv4" value="Z.Z.Z.Z" />
+				<source_format scheme="transport media" value="optical circuit" />
+				<destination_location scheme="IPv4" value="A.A.A.A" />
+				<destination_format scheme="transport media" value="optical packet" />
+			</details>
+			<description> Optical Packet Transit Service from NCSU to NICT </description>
+		</service>
+		<price method="Bitcoin" value="1200" />
+		<providerID> ACME Systems </providerID>
+		<purchasePortal>
+			<destination_location scheme="UDPv4" value="127.0.0.1:4040" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters>
+				<ports value="12000-13000" />
+			</configurableParameters>
+		</provisioningParameters>
+	</advertisement>
+	<advertisement id="3">
+		<service>
+			<name>NCSU-NICT Optical Packet-Circuit Forwarding Service</name>
+			<details>
+				<source_location scheme="IPv4" value="Z.Z.Z.Z" />
+				<source_format scheme="transport media" value="optical packet" />
+				<destination_location scheme="IPv4" value="A.A.A.A" />
+				<destination_format scheme="transport media" value="optical circuit" />
+			</details>
+			<description> Optical Packet Transit Service from NCSU to NICT </description>
+		</service>
+		<price method="Bitcoin" value="1200" />
+		<providerID> ACME Systems </providerID>
+		<purchasePortal>
+			<destination_location scheme="UDPv4" value="127.0.0.1:4040" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters>
+				<wavelength unit="nanometer" value="1470, 1490, 1510, 1530, 1550" />
+			</configurableParameters>
+		</provisioningParameters>
+	</advertisement>
+</listings>

@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -29,6 +31,7 @@ import org.xml.sax.SAXException;
 
 public class TestUtility {
 
+	CouchDBOperations couchDB = new CouchDBOperations();
 	public ArrayList<Advertisement> getAdvertisementsFromXML(String filename, String source)
 	{
 		ArrayList<Advertisement> result = new ArrayList<Advertisement>();
@@ -808,8 +811,54 @@ public class TestUtility {
 
 		return payload;
 	}
+	
+	public String[] getIPv4NetworkSpecs(String ipAddr)
+	{
+		String[] result = new String[2];
+		String network = "";
+		int hostMask;
+		String hostAddr = "";
+		String broadcastAddr = "";
+		String[] ipAddrArr = ipAddr.split("/");
+		int mask = Integer.parseInt(ipAddrArr[1]);
+		ipAddr = ipAddrArr[0];
+		ipAddrArr = ipAddrArr[0].split("\\.");
+		int val = 0;
+		int rem = 0;
+		String binaryMask;
+		String remMask;
+		int octectMask = 0;
+		// Network Address
+		for(String octect: ipAddrArr)
+		{
+			val = Integer.parseInt(octect);
+			if(mask<8)
+			{
+				rem = 8-(mask % 8);
+				binaryMask = new String(new char[mask]).replace("\0", "1");
+				remMask = new String(new char[rem]).replace("\0", "0");
+				binaryMask+=remMask;
+				mask = 0;
+			}
+			else
+			{
+				binaryMask = new String(new char[8]).replace("\0", "1");
+				mask -= 8;
+			}
+			broadcastAddr = binaryMask.replace('0', 'x').replace('1', '0').replace('x', '1'); 
+			hostMask = Integer.parseInt(broadcastAddr, 2);
+			octectMask = Integer.parseInt(binaryMask, 2);
+			hostAddr += (val|hostMask)+".";
+			network += (val&octectMask)+".";
+		}
+		// Broadcast Address
+		result[0] = network.substring(0,network.length()-1);
+		result[1] = hostAddr.substring(0,hostAddr.length()-1);
+		return result;
+	}
+	
 
-	public static void main(String[] args) 
+	public static void main(String[] args) throws UnknownHostException 
 	{
 		TestUtility tu = new TestUtility();
 		//tu.parseAdvertisementXML("test.xml"); // <-- working version?
@@ -832,24 +881,61 @@ public class TestUtility {
 		//		System.out.println(x.length);
 		//		System.out.println(x[0].getValue());
 		//		System.out.println(x[1].getValue());
-		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test3.xml", "File");
-		for(Advertisement ad: adArray)
-		{
-			System.out.println(ad);
-		}
+//		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test3.xml", "File");
+//		for(Advertisement ad: adArray)
+//		{
+//			System.out.println(ad);
+//		}
+		String url = "http://152.54.14.45:5984/marketplace-rangehelper";
+		
 		// Turn IP address to binary string
+		
 		String ipAddr = "127.0.0.1";
-		int value = 0xffffffff << (32 - 24);
-		byte[] bytes = new byte[]{ 
-	            (byte)(value >>> 24), (byte)(value >> 16 & 0xff), (byte)(value >> 8 & 0xff), (byte)(value & 0xff) };
-
-		String val = String.format("%32s", Integer.toBinaryString(192)).replace(' ', '0');
+		String mask = new String(new char[31]).replace("\0", "1");
+		mask+="0";
+		InetAddress a1 = InetAddress.getByName("10.1.3.0");
+		InetAddress a2 = InetAddress.getByName("10.1.0.0");
+		byte[] b1 = a1.getAddress();
+		int yo1 = ((b1[0] & 0xFF) << 24) |
+                ((b1[1] & 0xFF) << 16) |
+                ((b1[2] & 0xFF) << 8)  |
+                ((b1[3] & 0xFF) << 0);
+		InetAddress a = InetAddress.getByName("10.1.2.255");
+		byte[] b = a.getAddress();
+		int yo = ((b[0] & 0xFF) << 24) |
+                ((b[1] & 0xFF) << 16) |
+                ((b[2] & 0xFF) << 8)  |
+                ((b[3] & 0xFF) << 0);
+		int mask1 = -1 << (32 - 24);
+//		tu.postThis(url,a.getHostName(),""+mask1,24);
+//		tu.postThis(url,a1.getHostName(),""+mask1,24);
+//		tu.postThis(url,a2.getHostName(),""+mask1,24);
+		System.out.println(yo1);
+		System.out.println(yo);
+		System.out.println(mask1);
+		System.out.println((yo1 & mask1));
+		System.out.println((yo & mask1));
+		System.out.println(mask);
+		String val = String.format("%32s", Integer.toBinaryString(1)).replace(' ', '0');
 		String val0 = String.format("%8s", Integer.toBinaryString(192)).replace(' ', '0');
 		String val1 = String.format("%8s", Integer.toBinaryString(168)).replace(' ', '0');
 		String val2 = String.format("%8s", Integer.toBinaryString(2)).replace(' ', '0');
-		String val3 = String.format("%8s", Integer.toBinaryString(1)).replace(' ', '0');
+		String val3 = String.format("%8s", Integer.toBinaryString(192)).replace(' ', '0');
 		System.out.println(val);
-		System.out.println(val0+val1+val2+val3);
+		String binary = val0+val1+val2+val3;
+		int i1 = Integer.parseInt(val0, 2);
+		int i2 = Integer.parseInt(val1, 2);
+		int i3 = Integer.parseInt(val2, 2);
+		int i4 = Integer.parseInt(val3, 2);
+		int j1 = Integer.parseInt("11111111", 2);
+		int j2 = Integer.parseInt("11110000", 2);
+		System.out.println(binary);
+		System.out.println(i1+" "+j1);
+		System.out.println(i1&j1);
+		System.out.println(i2&j1);
+		System.out.println(i3&j1);
+		System.out.println(i4&j2);
+		String ipAddr1 = "10.0.0.0/25";
 		//		String property = System.getProperty("java.library.path");
 		//		StringTokenizer parser = new StringTokenizer(property, ";");
 		//		while (parser.hasMoreTokens()) {

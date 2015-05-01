@@ -40,7 +40,7 @@ public class CouchDBOperations {
 			{
 				json = payload.toString();
 			}
-	
+			System.out.println(json);
 			// Send post request
 			con.setDoOutput(true);
 			DataOutputStream wr = new DataOutputStream(con.getOutputStream());

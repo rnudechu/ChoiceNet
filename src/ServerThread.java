@@ -5,7 +5,6 @@
  */
 
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +21,7 @@ import java.util.Random;
 
 public class ServerThread extends Thread {
 	private DatagramSocket socket = null;
+
 
 	ObjectOutputStream outToClient;
 	ObjectInputStream inFromClient;
@@ -43,7 +42,7 @@ public class ServerThread extends Thread {
 	String providerType = Server.providerType;
 	String acceptedConsideration = Server.acceptedConsideration;
 	String availableConsideration = Server.availableConsideration;
-	String jsonSeparator = "\n\n";
+	String jsonSeparator = "\n";
 
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
@@ -95,21 +94,15 @@ public class ServerThread extends Thread {
 		try {
 			bos = new ByteArrayOutputStream();
 			outToClient = new ObjectOutputStream(bos);
-			try {
-				clientIPAddress = InetAddress.getByName(ipAddress);
-
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
+			clientIPAddress = InetAddress.getByName(ipAddress);
 			clientPort = port;
 			System.out.println ("**** Client Info Begins****");
 			System.out.println ("To: " + clientIPAddress + ":" + clientPort);
 			System.out.println ("**** Client Info Ends ****");
-		}
-		catch (UnknownHostException e) 
-		{
+		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+
 		catch (IOException e) 
 		{
 			e.printStackTrace();
@@ -124,12 +117,9 @@ public class ServerThread extends Thread {
 	private int send (Packet packet) {
 		try 
 		{
-			//			outToClient.reset();
 			String pktXML = cnLibrary.createPacketXML(packet);
 			System.out.println("Sending XML:\n"+pktXML);
-			outToClient.writeObject(pktXML);
-			outToClient.flush();
-			sendData = bos.toByteArray();
+			sendData = pktXML.getBytes();
 			System.out.println("Size of payload: "+sendData.length);
 			sendPacket = new DatagramPacket(sendData, sendData.length, clientIPAddress, clientPort); 
 			socket.send(sendPacket);
@@ -151,23 +141,23 @@ public class ServerThread extends Thread {
 			{
 				System.out.println("Server Thread begins");
 				// should be removed for the client ... 
-				bos = new ByteArrayOutputStream();
-				outToClient = new ObjectOutputStream(bos);
-				//outToClient.flush();
-				//bis = new ByteArrayInputStream(receivePacket.getData());
-				bis = new ByteArrayInputStream(receivePacket.getData(), receivePacket.getOffset(),receivePacket.getLength());
-				inFromClient = new ObjectInputStream(new BufferedInputStream(bis));
-
-				while(!socket.isClosed())
+				//				ByteArrayInputStream bis = new ByteArrayInputStream(receivePacket.getData(), receivePacket.getOffset(),receivePacket.getLength());
+				while(!socket.isClosed() && receivePacket != null)
 				{
+
 					try
 					{
+						//outToClient.flush();
+						//bis = new ByteArrayInputStream(receivePacket.getData());
+						System.out.println("Byte Array Input Stream :\n"+bis);
+
 						// I can convert it to a XML object at this step 
 						// Depending on the packet type received the server attempts to process that packet 
-						String pktXML = (String) inFromClient.readObject();
+						String pktXML = new String(receivePacket.getData(), receivePacket.getOffset(),receivePacket.getLength(), "UTF-8");
+						System.out.println("XML size :\n"+pktXML.length()+" byte array length: "+receivePacket.getLength());
 						System.out.println("XML received :\n"+pktXML);
 						Packet packet = cnLibrary.convertXMLtoPacket(pktXML);
-
+						receivePacket = null;
 						if(packet != null)
 						{
 							PacketType packetType = packet.getActionCode();
@@ -212,7 +202,14 @@ public class ServerThread extends Thread {
 							// Marketplace Query
 							if(packetType == PacketType.MARKETPLACE_QUERY)
 							{
-								respondToMarketplaceQuery(packet);
+								if(providerType.equals("Marketplace"))
+								{
+									respondToMarketplaceQuery(packet);
+								}
+								else
+								{
+									System.out.println("ERROR: "+providerType+" requested "+PacketType.MARKETPLACE_QUERY);
+								}
 							}
 							// Marketplace Query
 							if(packetType == PacketType.MARKETPLACE_RESPONSE)
@@ -222,7 +219,14 @@ public class ServerThread extends Thread {
 							// Marketplace Query
 							if(packetType == PacketType.PLANNER_REQUEST)
 							{
-								respondToPlannerRequest(packet);
+								if(providerType.equals("Planner"))
+								{
+									respondToPlannerRequest(packet);
+								}
+								else
+								{
+									System.out.println("ERROR: "+providerType+" requested "+PacketType.PLANNER_REQUEST);
+								}
 							}
 							// Marketplace Query
 							if(packetType == PacketType.PLANNER_RESPONSE)
@@ -270,27 +274,17 @@ public class ServerThread extends Thread {
 							{
 								System.out.println("Updating purchase status");
 							}
+
 						}
 						else
 						{
 							//System.err.println("No packet received");
 						}
-						// prevent other clients from running this logger
-						if(!Server.runningMode.equals("standalone"))
-						{
-							//ProviderGUI.updateTextArea(); // should be removed for the client
-						}
-					}
-					catch (ClassNotFoundException e) {
-						System.err.println("Class Not found Exception was thrown while reading the client socket");
-					} 
-					catch (SocketTimeoutException e) {
-						System.err.println("Currently no object to read from new client socket!");
 					}
 					catch(ClassCastException e)
 					{
 						System.err.println(e.getMessage());
-					}
+					} 
 				}
 			}
 			catch (IOException e) {
@@ -314,20 +308,27 @@ public class ServerThread extends Thread {
 		// Send response back for testing
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		ChoiceNetMessageField reqParameters = payload[0];
-		System.out.println("Parameter: "+reqParameters);
-		String content = (String) reqParameters.getValue();
-		try {
-			Process p = Runtime.getRuntime().exec("./localchoicenet");
-		} catch (IOException e) {
-			e.printStackTrace();
+		payload = (ChoiceNetMessageField[]) reqParameters.getValue();
+		System.out.println("Payload Length: "+payload.length);
+		System.out.println("Parameter: "+payload[0].getValue());
+		int size = payload.length;
+		String content = "";
+		String attr = "";
+		String value = "";
+		for(int i=0; i<size; i++)
+		{
+			attr = (String) payload[i].getAttributeName();
+			value = (String) payload[i].getValue();
+			content += attr+": "+value+", "; 
 		}
+		content = content.substring(0, content.length()-2);
 		System.out.println("Content: "+content);
 		String message = "";
 		boolean testing = true;
 		if(testing)
 		{
 			message = "Dummy Response sent to client requesting planner service\n\nContent: "+content;
-			ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Results", message, "");
+			ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Advertisement List", message, "");
 			ChoiceNetMessageField[] myPayload = {resultsField};
 			packet = new Packet(PacketType.PLANNER_RESPONSE,myName,"",myType, providerType,myPayload);
 		}
@@ -355,28 +356,8 @@ public class ServerThread extends Thread {
 		// Print the content to GUI
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		String results = (String) payload[0].getValue();
-		String message = "";
 		if(!Server.runningMode.equals("standalone"))
 		{
-			//			CouchDBResponse cResponse;
-			//			AdvertisementDisplay myAd;
-			//			cResponse = CouchDBResponse.parseJson(results);
-			//			for(CouchDBContainer currentAdv : cResponse.getRows())
-			//			{
-			//				myAd = currentAdv.getValue();
-			//				message += "ID: "+myAd.getId()+"\n";
-			//				message += "\tDescription: "+myAd.getDescription()+"\n";
-			//				message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
-			//				message += "\tLocation Source : "+myAd.getSrcLocationAddrScheme()+":"+myAd.getSrcLocationAddrValue()+"\n";
-			//				message += "\tLocation Destination: "+myAd.getDstLocationAddrScheme()+":"+myAd.getDstLocationAddrValue()+"\n";
-			//				message += "\tFormat Source: "+myAd.getSrcFormatScheme()+":"+myAd.getSrcFormatValue()+"\n";
-			//				message += "\tFormat Destination: "+myAd.getDstFormatScheme()+":"+myAd.getDstFormatValue()+"\n";
-			//				message += "\n";
-			//			}
-			//			if(message.equals(""))
-			//			{
-			//				message = "No results were found";
-			//			}
 			ProviderGUI.updateTextArea(results);
 		}
 	}
@@ -436,7 +417,7 @@ public class ServerThread extends Thread {
 		}
 		if(results.length()>0)
 		{
-		 	results = results.substring(0, results.length()-jsonSeparator.length());
+			results = results.substring(0, results.length()-jsonSeparator.length());
 		}
 		results = "<![CDATA["+results.toString()+"\n]]>";
 		System.out.println("Size of payload is "+results.length());
@@ -593,9 +574,9 @@ public class ServerThread extends Thread {
 			String message = "Entity: "+originatorName+" has been included in the Known Entity list";
 			Logger.log(message);
 			// prevent other clients from running this logger
-			if(Server.runningMode.equals("ProviderGUI"))
+			if(!Server.runningMode.equals("standalone"))
 			{
-				Server.systemMessage = message; // should be removed for the client
+				ProviderGUI.updateTextArea(message);
 			}
 		}
 	}
@@ -799,7 +780,7 @@ public class ServerThread extends Thread {
 			{
 				if(currTime<expirationTime)
 				{
-					
+
 					String adServiceName = myAd.getService().getName();
 					String queryValue = adServiceName.replaceAll(" ", "%20");
 					// Store in CouchDB
@@ -813,31 +794,7 @@ public class ServerThread extends Thread {
 					String adID = cResponse.getRows().getLast().getId();
 					myAd.setId(adID);
 					myAd.setState("Advertised");
-					// check whether the Ad contains an IPv4 location
-					String[] srcAddrType = myAd.getService().getSrcLocationAddrScheme();
-					String[] srcAddrVal = myAd.getService().getSrcLocationAddrValue();
-					int srcAddrSize = srcAddrVal.length;
-					String[] dstAddrType = myAd.getService().getDstLocationAddrScheme();
-					String[] dstAddrVal = myAd.getService().getDstLocationAddrValue();
-					int dstAddrSize = dstAddrVal.length;
-					String value = "";
-					for(int i=0;i<srcAddrSize;i++)
-					{
-						if(srcAddrType[i].equals("IPv4"))
-						{
-							value = getIPv4BinaryString(srcAddrVal[i]);
-							couchDBsocket.postRestInterface(Server.marketplaceRESTAPI+"rangehelper", value);
-						}
-					}
-					for(int i=0;i<dstAddrSize;i++)
-					{
-						if(dstAddrType[i].equals("IPv4"))
-						{
-							value = getIPv4BinaryString(dstAddrVal[i]);
-							couchDBsocket.postRestInterface(Server.marketplaceRESTAPI+"rangehelper", value);
-						}	
-					}
-					
+
 					// Respond back with an acknowledgment and user handle (advertisement ID)
 					ChoiceNetMessageField advertisementID = new ChoiceNetMessageField("Advertisement ID", adID, "");
 					ChoiceNetMessageField serviceName = new ChoiceNetMessageField("Service Name", adServiceName, "");
@@ -873,9 +830,9 @@ public class ServerThread extends Thread {
 		Logger.log("Received Listing Confirmation");
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		int size = payload.length;
+		String msg = "<html>";
 		for(int i=0;i<size;i++)
 		{
-			ChoiceNetMessageField advertisedService = payload[i];
 			ChoiceNetMessageField[] value = (ChoiceNetMessageField[]) payload[i].getValue();
 			String sName = (String) value[1].getValue();
 			String adID = (String) value[0].getValue();
@@ -884,7 +841,12 @@ public class ServerThread extends Thread {
 			Advertisement myAd = adMgr.getAdvertisementByName(sName);
 			myAd.setId(adID);
 			myAd.setState("Advertised");
-			Server.systemMessage = "<html>Success service "+sName+" is being listed with an <br>Advertisement ID: "+adID+"</html>";
+			msg += "Success service "+sName+" is being listed with an <br>Advertisement ID: "+adID+"<br>";
+		}
+		msg += "</html>";
+		if(!Server.runningMode.equals("standalone"))
+		{
+			ProviderGUI.updateTextArea(msg);
 		}
 	}
 
@@ -1014,7 +976,7 @@ public class ServerThread extends Thread {
 				adID = (String) msg.getValue();
 			}
 		}
-	
+
 		// determine the query property by content submitted in the location/format source/destination
 		InternalMessageField searchedContent;
 		// determine the query property by content submitted in the location/format source/destination
@@ -1027,7 +989,7 @@ public class ServerThread extends Thread {
 		String[] dstLocTypeArr = destinationLocType.split(",");
 		String[] srcFormatTypeArr = sourceFormatType.split(",");
 		String[] dstFormatTypeArr = destinationFormatType.split(",");
-	
+
 		int i = 0;
 		int j = 0;
 		int k = 0;
@@ -1062,7 +1024,7 @@ public class ServerThread extends Thread {
 			}
 			if(j == dstLocArr.length-1 && k == srcFormatArr.length-1 && l == dstFormatArr.length-1  && operate==false)
 			{
-	
+
 				i++;
 				j = 0;
 				k = 0;
@@ -1232,25 +1194,10 @@ public class ServerThread extends Thread {
 			searchedContent = new InternalMessageField(""+QueryType.FORMAT_DST, data, "");
 			return searchedContent;
 		}
-	
+
 		return searchedContent;
 	}
-	
-	private String getIPv4BinaryString(String ipAddr)
-	{
-		String result = "";
-		String[] ipAddrArr = ipAddr.split("/");
-		String subnet = ipAddrArr[1];
-		ipAddrArr = ipAddrArr[0].split(".");
-		int val = 0;
-		for(String octect: ipAddrArr)
-		{
-			val = Integer.parseInt(octect);
-			result += String.format("%8s", Integer.toBinaryString(val)).replace(' ', '0');
-		}
-		return result;
-	}
-	
+
 	/**
 	 * Customer
 	 * User driven action
