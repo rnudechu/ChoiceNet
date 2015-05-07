@@ -617,7 +617,7 @@ public class ServerThread extends Thread {
 				{
 					if(providerType.equals("Marketplace"))
 					{
-						tokenType = "Listing:5";
+						tokenType = "Listing:1";
 					}
 					if(providerType.equals("Planner"))
 					{

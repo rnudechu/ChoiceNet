@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,16 @@ public class TokenManager {
 	public Collection<Token> getToken()
 	{
 		return Collections.unmodifiableCollection(items.values());
+	}
+	
+	public Token getFirstTokenFromMapping()
+	{
+		for (Map.Entry<Long, Token> entry : map.entrySet())
+		{
+			Token myToken = entry.getValue();
+			return myToken;
+		}
+		return null;
 	}
 	
 	public int getToken (String id)

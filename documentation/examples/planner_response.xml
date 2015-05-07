@@ -10,22 +10,21 @@
 		<value>Provider</value>
 	</field>
 	<field attributeName="Originator Provider Type" url="">
-		<value>Marketplace</value>
+		<value>Planner</value>
 	</field>
 	<field attributeName="Message Type" url="">
-		<value>NACK</value>
+		<value>PLANNER_RESPONSE</value>
 	</field>
 	<field attributeName="Message Specific" url="">
 		<value>
-			<field attributeName="NACK Type" url="">
-				<value>Transfer Consideration</value>
-			</field>
-			<field attributeName="Operation Code" url="">
-				<value>1</value>
-			</field>
-			<field attributeName="Reason" url="">
-				<value>Consideration Method: {BitCoin} is not accepted</value>
+			<field attributeName="Advertisement List" url="">
+				<value>Dummy Response sent to client requesting planner service
+
+					Content: LOCATION_SRC: A,B, LOCATION_DST: B, LOCATION_SRC_TYPE:
+					IPv4,IPv4, LOCATION_DST_TYPE: IPv4
+				</value>
 			</field>
 		</value>
 	</field>
 </choicenetmessage>
+				

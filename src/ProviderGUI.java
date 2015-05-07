@@ -63,7 +63,7 @@ public class ProviderGUI implements ActionListener {
 	btnSendListingMenu, btnSendListingRequest, btnListingAdvertisementBrowse, btnShowTokenId, 
 	btnClearPlanner,searchBtnPlanner,
 	btnSendUsePlane, btnStoredUsePlane, btnSearchMarketplace, btnAccessUsePlane,
-	btnHomeMenuRendezvous, btnHomeMenuListing, btnHomeMenuConsideration, btnHomeMenuUsePlane, btnHomeMenuPlanner;
+	btnHomeMenuRendezvous, btnHomeMenuListing, btnHomeMenuConsideration, btnHomeMenuUsePlane, btnHomeMenuPlanner, btnPopulateMarketPl;
 	private JTextField txtListingIPAddr, txtListingFileLocation, txtListingTokenID, txtListingTarget;
 	private JTextField txtConsiderationServiceName, txtConsiderationTarget, txtConsiderationMethod, txtConsiderationValue, txtConsiderationIPAddr, txtConsiderationAddrType;
 	private JTextField txtRendezvousIPAddr, txtRendezvousTarget;
@@ -257,6 +257,11 @@ public class ProviderGUI implements ActionListener {
 				testOn = false;
 			}
 			showTestData();
+		}
+		if(e.getSource() == btnPopulateMarketPl)
+		{
+			System.out.println("Populate Marketplace");
+			populateMarketplace();
 		}
 
 		String[] addr;
@@ -576,6 +581,7 @@ public class ProviderGUI implements ActionListener {
 		providerHomeMenuPanel.add(btnSendListingMenu, "9, 9, center, default");
 
 		chckbxTurnTestData = new JCheckBox("Turn Test Data On");
+		chckbxTurnTestData.setFont(new Font("Dialog", Font.BOLD, 12));
 		chckbxTurnTestData.addActionListener(this);
 
 		providerHomeMenuPanel.add(chckbxTurnTestData, "3, 17");
@@ -928,6 +934,9 @@ public class ProviderGUI implements ActionListener {
 		btnAccessUsePlane.setEnabled(false);
 		btnAccessUsePlane.addActionListener(this);
 
+		btnPopulateMarketPl = new JButton("Access Use Plane");
+		btnPopulateMarketPl.addActionListener(this);
+
 		btnUsePlannerService = new JButton("Use Planner Service");
 		btnUsePlannerService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlannerService.addActionListener(this);
@@ -936,6 +945,7 @@ public class ProviderGUI implements ActionListener {
 
 		menuPanel.add(btnAccessUsePlane, "9, 13, center, default");
 		menuPanel.add(chckbxTurnTestData, "3, 17");
+		menuPanel.add(btnPopulateMarketPl, "3, 19");
 
 		return menuPanel;
 	}
@@ -1780,7 +1790,7 @@ public class ProviderGUI implements ActionListener {
 			String target = "ABC Marketplace";
 			String targetService = "Marketplace";
 			String targetServiceName = "Advertisement Listing";
-			String cMethod = "BitCoin:123456";
+			String cMethod = "Bitcoin:123456";
 			String cValue = "USD 200";
 			String fileNameAd = "/Users/rudechuk/service.xml";
 			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test3.xml";
@@ -1806,12 +1816,17 @@ public class ProviderGUI implements ActionListener {
 			txtListingFileLocation.setText(fileNameAd);
 			txtListingTarget.setText(target);
 
-			serverIPAddressTxtFldPlanner.setText(ipAddr);
-
+			serverIPAddressTxtFldMktpl.setText(ipAddr);
 			txtLocationSourceTypeMktpl.setText(srcLocationType);
 			txtLocationDestinationTypeMktpl.setText(dstLocationType);
 			textFieldLocationSourceMktpl.setText(srcLocation);
 			textFieldLocationDestinationMktpl.setText(dstLocation);
+
+			serverIPAddressTxtFldPlanner.setText(ipAddr);
+			txtLocationSourceTypePlanner.setText(srcLocationType);
+			txtLocationDestinationTypePlanner.setText(dstLocationType);
+			textFieldLocationSourcePlanner.setText(srcLocation);
+			textFieldLocationDestinationPlanner.setText(dstLocation);
 		}
 		else
 		{
@@ -1841,6 +1856,7 @@ public class ProviderGUI implements ActionListener {
 	}
 	public static void updateTextArea(String systemMessage)
 	{
+
 		String message = Logger.display(0);
 		System.out.println(activeCard);
 		if(activeCard != null)
@@ -1878,6 +1894,30 @@ public class ProviderGUI implements ActionListener {
 				textAreaPlanner.setText(systemMessage);
 			}
 		}
+	}
+
+	private void populateMarketplace()
+	{
+		boolean setting = testOn;
+		testOn = true;
+		showTestData();
+		File folder = new File("generated/");
+		String fileName;
+		for (File fileEntry : folder.listFiles()) {
+			fileName = fileEntry.getPath();
+			btnSendConsiderationRequest.doClick();
+			Token token = server.tokenMgr.getFirstTokenFromMapping();
+			if(token != null)
+			{
+				String tokenID = ""+token.getId();
+				txtListingTokenID.setText(tokenID);
+				txtListingFileLocation.setText(fileName);
+				btnSendListingRequest.doClick();
+				System.out.println( "Filename: "+fileName+"\n"+
+						"Token ID: "+tokenID);
+			}
+		}
+		testOn = setting;
 	}
 
 	public static void main(String[] args) {
@@ -1924,6 +1964,7 @@ public class ProviderGUI implements ActionListener {
 		});
 
 		int loopCount = 0;
+		server.printServerProperties();
 		while(true)
 		{
 			// update the display text area

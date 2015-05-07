@@ -1,13 +1,10 @@
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Scanner;
 
 
 public class Provider {
 
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
-	
+
 
 
 	/**
@@ -32,7 +29,7 @@ public class Provider {
 			server = new Server (argument);
 		}
 		System.out.println(System.currentTimeMillis());
-//		ServiceManager serviceMgr = ServiceManager.getInstance();
+		//		ServiceManager serviceMgr = ServiceManager.getInstance();
 		AdvertisementManager adMgr = AdvertisementManager.getInstance();
 		// Insert a default service into provider database ... we should do check with CouchDB but what good will that good if Admin tool wipes the database
 		if(Server.providerType.equals("Marketplace"))
