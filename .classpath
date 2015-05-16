@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="libs/forms-1.3.0.jar"/>
 	<classpathentry kind="lib" path="libs/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="libs/cplanner.jar"/>
+	<classpathentry kind="lib" path="libs/javax.mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

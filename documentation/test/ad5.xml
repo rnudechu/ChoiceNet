@@ -2,25 +2,26 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 0</name>
+			<name>Ad 5</name>
 			<details>
-				<source_location scheme="IPv4" value="2.10.1.8" />
-				<destination_location scheme="IPv4" value="2.3.4.10" />
-				<source_format scheme="transport media" value="8" />
+				<source_location scheme="IPv4" value="7.1.8.0/24" />
+				<destination_location scheme="IPv4" value="7.1.8.0/24" />
+				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
-					value="8" />
+					value="optical circuit" />
 			</details>
-			<description>Generated Transit Service Advertisement</description>
+			<description>Generated Transformation Service Advertisement</description>
 		</service>
-		<price method="Bitcoin" value="2" />
+		<price method="Bitcoin" value="1" />
 		<providerID>ACME Systems</providerID>
 		<purchasePortal>
 			<destination_location scheme="UDPv4" value="127.0.0.1:4040" />
 		</purchasePortal>
 		<provisioningParameters>
 			<configurableParameters>
-				<ports value="8080" />
+				<wavelength unit="color" value="green, blue" />
 			</configurableParameters>
 		</provisioningParameters>
 	</advertisement>
 </listings>
+

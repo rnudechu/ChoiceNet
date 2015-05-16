@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<choicenetmessage>
+	<field attributeName="Originator Name" url="">
+		<value>ABC Marketplace</value>
+	</field>
+	<field attributeName="Originator Signature" url="">
+		<value />
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Provider</value>
+	</field>
+	<field attributeName="Originator Provider Type" url="">
+		<value>Marketplace</value>
+	</field>
+	<field attributeName="Message Type" url="">
+		<value>ACK_AND_SEND_TOKEN</value>
+	</field>
+	<field attributeName="Message Specific" url="">
+		<value>
+			<field attributeName="Transaction Number" url="">
+				<value>713528</value>
+			</field>
+			<field attributeName="Token" url="">
+				<value>
+					<field attributeName="Token ID" url="">
+						<value>339022</value>
+					</field>
+					<field attributeName="Issued To" url="">
+						<value>ACME Transport Network</value>
+					</field>
+					<field attributeName="Issued By" url="">
+						<value>ABC Marketplace</value>
+					</field>
+					<field attributeName="Service Name" url="">
+						<value>Listing:1</value>
+					</field>
+					<field attributeName="Expiration Time" url="">
+						<value>1431099428628</value>
+					</field>
+				</value>
+			</field>
+			<field attributeName="ChoiceNet Gateway Credentials" url="">
+				<value />
+			</field>
+		</value>
+	</field>
+</choicenetmessage>

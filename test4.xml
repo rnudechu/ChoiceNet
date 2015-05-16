@@ -13,9 +13,15 @@
 		<value>Marketplace</value>
 	</field>
 	<field attributeName="Message Type" url="">
-		<value>PLANNER_RESPONSE</value>
+		<value>MARKETPLACE_RESPONSE</value>
 	</field>
 	<field attributeName="Message Specific" url="">
 		<value>
 			<field attributeName="Results" url="">
-				<value>Dummy Response sent to client requesting planner service
+				<value><![CDATA[{"total_rows":24,"offset":22,"rows":[{"id":"100b6bbae4897e28bf08dab787027845","key":["100b6bbae4897e28bf08dab787027845"],
+				"value":{"id":"100b6bbae4897e28bf08dab787027845","serviceName":"Ad 9","description":"Generated Transit Service Advertisement","entityName":"ACME Systems","advertiserAddressScheme":"UDPv4","advertiserAddress":"127.0.0.1","advertiserPortAddress":4040,"_rev":"1-7c9728306b0c3705568094f6529d840c","considerationMethod":"Bitcoin","considerationValue":97,"srcLocationAddrScheme":["IPv4"],"srcLocationAddrValue":["6.6.8.0/24"],"dstLocationAddrScheme":["IPv4"],"dstLocationAddrValue":["9.10.3.0/24"],"srcFormatScheme":["transport media"],"srcFormatValue":["6"],"dstFormatScheme":["transport media"],"dstFormatValue":["6"]}}]}
+]]></value>
+			</field>
+		</value>
+	</field>
+</choicenetmessage>

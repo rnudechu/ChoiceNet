@@ -29,6 +29,8 @@ public class Server {
 	byte[] receiveData = new byte[8192]; 
 	static String providerAddress = "127.0.0.1";
 	static String marketplaceRESTAPI = "";
+	static String purchasePortal = "";
+	
 	static String CONFIG_FILE = "server.properties";
 	static String myName = "Unknown";
 	static String myType = "Unknown";
@@ -74,6 +76,11 @@ public class Server {
 			String clientIPAddress = prop.getProperty("providerAddress");
 			providerAddress = clientIPAddress;
 			marketplaceRESTAPI = prop.getProperty("marketplaceRESTAPI");
+			purchasePortal = prop.getProperty("purchasePortal");
+			if(purchasePortal == null)
+			{
+				purchasePortal = "http://127.0.0.1/purchasePortal/processPayment.php"; 
+			}
 			String configmyName  = prop.getProperty("myName");
 			if(!configmyName.isEmpty())
 			{

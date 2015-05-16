@@ -886,6 +886,8 @@ public class TestUtility {
 //		{
 //			System.out.println(ad);
 //		}
+		
+		/*
 		String url = "http://152.54.14.45:5984/marketplace-rangehelper";
 		
 		// Turn IP address to binary string
@@ -941,7 +943,9 @@ public class TestUtility {
 		//		while (parser.hasMoreTokens()) {
 		//		    System.err.println(parser.nextToken());
 		//		    }
-
+	*/
+		String text = tu.couchDB.getRestInterface("http://192.168.1.10/bitcoin/processPayment.php?unit=Bitcoin&currency=USD&amount=1&account=mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp&reason=3");
+		System.out.println(text);
 	}
 
 }

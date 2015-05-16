@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
 
@@ -189,7 +188,8 @@ public class ChoiceNetMessageParser {
 		{
 			payload = parseTransferConsiderationMessage(pktXML);
 		}
-		if(pktType == PacketType.ACK_AND_SEND_TOKEN)
+		//if(pktType == PacketType.ACK_AND_SEND_TOKEN)CONSIDERATION_ACK
+		if(pktType == PacketType.CONSIDERATION_ACK)
 		{
 			payload = parseConsiderationAcknowledgementMessage(pktXML);
 		}
@@ -332,7 +332,10 @@ public class ChoiceNetMessageParser {
 	}
 
 	private ChoiceNetMessageField[] parsePlannerResponseMessage(String pktXML) {
-		ChoiceNetMessageField[] payload = getChoiceNetMessageArray(pktXML,"Advertisement List");
+		ChoiceNetMessageField adList = getChoiceNetMessage(pktXML,"Advertisement List");
+		ChoiceNetMessageField costType = getChoiceNetMessage(pktXML,"COST_TYPE");
+		ChoiceNetMessageField costValue = getChoiceNetMessage(pktXML,"COST");
+		ChoiceNetMessageField[] payload = {adList, costType, costValue}; 
 		return payload;
 	}
 

@@ -317,15 +317,15 @@ public class ProviderGUI implements ActionListener {
 				}
 				target = txtConsiderationTarget.getText();
 				String exchangeMethod = txtConsiderationMethod.getText();
-				addr = exchangeMethod.split(":");
-				String exchangeType = addr[0];
-				String exchangeValue = addr[1];
-				System.out.println(exchangeValue+" not being used");
+//				addr = exchangeMethod.split(":");
+//				String exchangeType = addr[0];
+//				String exchangeValue = addr[1];
+//				System.out.println(exchangeValue+" not being used");
 				String exchangeAmount = txtConsiderationValue.getText();
 				String serviceName = txtConsiderationServiceName.getText();
 				if(success)
 				{
-					server.transferConsiderationMessage(serviceName, target, exchangeType, exchangeAmount, ipAddr, port);
+					server.transferConsiderationMessage(serviceName, target, exchangeMethod, exchangeAmount, ipAddr, port);
 				}
 			}
 
@@ -1257,7 +1257,7 @@ public class ProviderGUI implements ActionListener {
 		considerationPanel.add(lblProviderEconomyPlane, "3, 9");
 
 		txtConsiderationAddrType = new JTextField();
-		considerationPanel.add(txtConsiderationAddrType, "5, 9, fill, default");
+		considerationPanel.add(txtConsiderationAddrType, "5, 9, 3, 1, fill, default");
 		txtConsiderationAddrType.setColumns(10);
 
 		JLabel lblProviderIpAddress = new JLabel("Provider Economy Plane Agent Address");
@@ -1265,21 +1265,21 @@ public class ProviderGUI implements ActionListener {
 		considerationPanel.add(lblProviderIpAddress, "3, 11");
 
 		txtConsiderationIPAddr = new JTextField();
-		considerationPanel.add(txtConsiderationIPAddr, "5, 11, fill, default");
+		considerationPanel.add(txtConsiderationIPAddr, "5, 11, 3, 1, fill, default");
 		txtConsiderationIPAddr.setColumns(10);
 
 		JLabel lblConsiderationTarget = new JLabel("Consideration Target");
 		lblConsiderationTarget.setFont(new Font("Dialog", Font.BOLD, 12));
 		considerationPanel.add(lblConsiderationTarget, "3, 13");
 		txtConsiderationTarget = new JTextField();
-		considerationPanel.add(txtConsiderationTarget, "5, 13, fill, default");
+		considerationPanel.add(txtConsiderationTarget, "5, 13, 3, 1, fill, default");
 		txtConsiderationTarget.setColumns(10);
 
 		JLabel lblServiceAdvertisementName = new JLabel("Service Name");
 		lblServiceAdvertisementName.setFont(new Font("Dialog", Font.BOLD, 12));
 		considerationPanel.add(lblServiceAdvertisementName, "3, 15");
 		txtConsiderationServiceName = new JTextField();
-		considerationPanel.add(txtConsiderationServiceName, "5, 15, fill, default");
+		considerationPanel.add(txtConsiderationServiceName, "5, 15, 3, 1, fill, default");
 		txtConsiderationServiceName.setColumns(10);
 
 		JLabel lblConsiderationMethod = new JLabel("Consideration Method");
@@ -1287,7 +1287,7 @@ public class ProviderGUI implements ActionListener {
 		considerationPanel.add(lblConsiderationMethod, "3, 17");
 
 		txtConsiderationMethod = new JTextField();
-		considerationPanel.add(txtConsiderationMethod, "5, 17, fill, default");
+		considerationPanel.add(txtConsiderationMethod, "5, 17, 3, 1, fill, default");
 		txtConsiderationMethod.setColumns(10);
 
 		JLabel lblConsiderationValue = new JLabel("Consideration Amount");
@@ -1295,7 +1295,7 @@ public class ProviderGUI implements ActionListener {
 		considerationPanel.add(lblConsiderationValue, "3, 19");
 
 		txtConsiderationValue = new JTextField();
-		considerationPanel.add(txtConsiderationValue, "5, 19, fill, default");
+		considerationPanel.add(txtConsiderationValue, "5, 19, 3, 1, fill, default");
 		txtConsiderationValue.setColumns(10);
 		considerationPanel.add(btnSendConsiderationRequest, "3, 21, center, default");
 
@@ -1790,10 +1790,9 @@ public class ProviderGUI implements ActionListener {
 			String target = "ABC Marketplace";
 			String targetService = "Marketplace";
 			String targetServiceName = "Advertisement Listing";
-			String cMethod = "Bitcoin:123456";
-			String cValue = "USD 200";
-			String fileNameAd = "/Users/rudechuk/service.xml";
-			fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test3.xml";
+			String cMethod = "Bitcoin:mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp";
+			String cValue = "20 USD";
+			String fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test3.xml";
 			String srcLocationType = "IPv4,IPv4";
 			String dstLocationType = "IPv4";
 			String srcLocation = "A,B";

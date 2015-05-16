@@ -1,0 +1,7 @@
+A = 3.5.4.0/24
+B = 7.1.8.0/24
+C = 9.2.6.0/24
+D = 10.0.10.0/24
+
+1 - optical packet
+2 - optical circuit
