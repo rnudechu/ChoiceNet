@@ -337,10 +337,8 @@ public class ServerThread extends Thread {
 		else
 		{
 			message = "No Planner to handle request";
-			ChoiceNetMessageField type = new ChoiceNetMessageField("NACK Type", "Planner Request", "");
-			ChoiceNetMessageField opCode = new ChoiceNetMessageField("Operation Code", 1, "");
-			ChoiceNetMessageField reason = new ChoiceNetMessageField("Reason", message, "");
-			ChoiceNetMessageField[] myPayload = {type,opCode,reason};
+			
+			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.PLANNER_REQUEST.toString(), 1, message);
 			packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
 		}
 		System.out.println(message);
@@ -519,8 +517,8 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField nackType = payload[0];
 		ChoiceNetMessageField opCode = payload[1];
 		ChoiceNetMessageField reason = payload[2];
-		String message = (String) nackType.getValue()+": Operation Code="+(Integer)opCode.getValue()+" due to: "+(String) reason.getValue();
-		message = "Failed: "+(String) reason.getValue();
+		//String message = (String) nackType.getValue()+": Operation Code="+(opCodeValue)+" due to: "+(String) reason.getValue();
+		String message = "Failed: "+(String) reason.getValue();
 		Server.systemMessage = message;
 		Logger.log(message);
 	}
@@ -614,15 +612,16 @@ public class ServerThread extends Thread {
 				consideration = targetConsiderationContent.split(" ");
 				String targetConsiderationAmount = consideration[0];
 				String targetConsiderationCurrency = consideration[1]; 
-				String reason = "ChoiceNet "+myType+" Provider: "+myName+" purchased Service: "+sName;
+				
+				String reason = "ChoiceNet Entity: "+packet.getOriginatorName()+" purchased "+myName+": "+sName;
 				reason = reason.replace(" ", "%20");
 				System.out.println("Reason: "+reason);
-				String url = Server.purchasePortal+"?paymentMethod="+targetConsiderationMethod+"&currency="+targetConsiderationCurrency+
-						"&amount="+targetConsiderationAmount+"&account="+targetConsiderationAccount+"&reason="+reason;
+				String url = Server.purchasePortalValidator+"?paymentMethod="+targetConsiderationMethod+"&currency="+targetConsiderationCurrency+
+						"&amount="+targetConsiderationAmount+"&transactionID="+targetConsiderationAccount+"&reason="+reason;
 				System.out.println("Purchase Portal: "+url);
 				String considerationConfirmation = couchDBsocket.getRestInterface(url);
 				System.out.println("Consideration Confirmation: "+considerationConfirmation);
-				if(considerationConfirmation.contains("successful"))
+				if(considerationConfirmation.contains("success"))
 				{
 					// Internal DB operations to check that the service ID and the value equate
 					// Assuming nothing is the value equate
@@ -638,15 +637,15 @@ public class ServerThread extends Thread {
 					{
 						if(providerType.equals("Marketplace"))
 						{
-							tokenType = "Listing:1";
+							tokenType = "Listing";
 						}
 						if(providerType.equals("Planner"))
 						{
-							tokenType = "Planner:50";
+							tokenType = "Planner";
 						}
 						if(providerType.equals("Transport"))
 						{
-							tokenType = "Service:500";
+							tokenType = "Transport";
 						}
 					}
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
@@ -702,21 +701,17 @@ public class ServerThread extends Thread {
 				}
 				else
 				{
-					ChoiceNetMessageField type, opCode, nackReason;
 					String reasonVal;
-					int opCodeVal = 3;
-					reasonVal = considerationConfirmation;
+					int opCodeVal = 4;
+					reasonVal = "Consideration Confirmation: "+considerationConfirmation+" for account "+targetConsiderationAccount;
 					Logger.log(reasonVal);
-					type = new ChoiceNetMessageField("NACK Type", "Transfer Consideration", "");
-					opCode = new ChoiceNetMessageField("Operation Code", opCodeVal, "");
-					nackReason = new ChoiceNetMessageField("Reason", reasonVal, "");
-					ChoiceNetMessageField[] newPayload = {type,opCode,nackReason}; 
+					
+					ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal); 
 					newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 				}
 			}
 			else
 			{
-				ChoiceNetMessageField type, opCode, reason;
 				String reasonVal;
 				int opCodeVal;
 				if(!targetConsiderationMethod.equals(acceptedConsideration))
@@ -730,22 +725,17 @@ public class ServerThread extends Thread {
 					opCodeVal = 2;
 				}
 				Logger.log(reasonVal);
-				type = new ChoiceNetMessageField("NACK Type", "Transfer Consideration", "");
-				opCode = new ChoiceNetMessageField("Operation Code", opCodeVal, "");
-				reason = new ChoiceNetMessageField("Reason", reasonVal, "");
-				ChoiceNetMessageField[] newPayload = {type,opCode,reason}; 
+				ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal);
 				newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 			}
 
 		}
 		else
 		{
+			int opCodeVal = 3;
 			String reasonVal = "Consideration Target: {"+intendedEntityName+"} does not match this entity's name";
 			Logger.log(reasonVal);
-			ChoiceNetMessageField type = new ChoiceNetMessageField("NACK Type", "Transfer Consideration", "");
-			ChoiceNetMessageField opCode = new ChoiceNetMessageField("Operation Code", 3, "");
-			ChoiceNetMessageField reason = new ChoiceNetMessageField("Reason", reasonVal, "");
-			ChoiceNetMessageField[] newPayload = {type,opCode,reason}; 
+			ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal);
 			newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 		}
 		send(newPacket);
@@ -1232,6 +1222,15 @@ public class ServerThread extends Thread {
 		}
 
 		return searchedContent;
+	}
+	
+	private ChoiceNetMessageField[] createNACKPayload (String nackType, int operationCode, String reasonVal)
+	{
+		ChoiceNetMessageField type = new ChoiceNetMessageField("NACK Type", nackType, "");
+		ChoiceNetMessageField opCode = new ChoiceNetMessageField("Operation Code", operationCode, "");
+		ChoiceNetMessageField reason = new ChoiceNetMessageField("Reason", reasonVal, "");
+		ChoiceNetMessageField[] payload = {type,opCode,reason};
+		return payload;
 	}
 
 	/**

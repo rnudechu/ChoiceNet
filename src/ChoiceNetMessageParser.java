@@ -340,8 +340,8 @@ public class ChoiceNetMessageParser {
 	}
 
 	private ChoiceNetMessageField[] parseNACKMessage(String pktXML) {
-		ChoiceNetMessageField operationCode = getChoiceNetMessage(pktXML,"Operation Code");
 		ChoiceNetMessageField nackType = getChoiceNetMessage(pktXML,"NACK Type");
+		ChoiceNetMessageField operationCode = getChoiceNetMessage(pktXML,"Operation Code");
 		ChoiceNetMessageField reason = getChoiceNetMessage(pktXML,"Reason");
 		String value = (String) operationCode.getValue();
 		operationCode.setValue(Integer.parseInt(value));

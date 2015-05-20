@@ -30,7 +30,7 @@ public class Server {
 	static String providerAddress = "127.0.0.1";
 	static String marketplaceRESTAPI = "";
 	static String purchasePortal = "";
-	
+	static String purchasePortalValidator = "";
 	static String CONFIG_FILE = "server.properties";
 	static String myName = "Unknown";
 	static String myType = "Unknown";
@@ -47,6 +47,7 @@ public class Server {
 	ChoiceNetLibrary cnLibrary = ChoiceNetLibrary.getInstance();
 	TokenManager tokenMgr = TokenManager.getInstance();
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
+	ConsiderationManager considerationMgr = ConsiderationManager.getInstance();
 
 	public Server ()
 	{
@@ -80,6 +81,11 @@ public class Server {
 			if(purchasePortal == null)
 			{
 				purchasePortal = "http://127.0.0.1/purchasePortal/processPayment.php"; 
+			}
+			purchasePortalValidator = prop.getProperty("purchasePortalValidator");
+			if(purchasePortalValidator == null)
+			{
+				purchasePortalValidator = "http://127.0.0.1/purchasePortal/checkTransaction.php"; 
 			}
 			String configmyName  = prop.getProperty("myName");
 			if(!configmyName.isEmpty())
@@ -491,6 +497,7 @@ public class Server {
 			String exchangeMethod, String exchangeValue, String ipAddr, int port)
 	{
 		System.out.println("Discovered Service Name:"+sName);
+		// Check box to internally make purchase 
 		int transcactionNum = transcactionMgr.createAndSaveTransaction(cTarget, sName);
 		ChoiceNetMessageField transactionNumber = new ChoiceNetMessageField("Transaction Number", transcactionNum, "");
 		ChoiceNetMessageField considerationTarget = new ChoiceNetMessageField("Consideration Target", cTarget, "");
@@ -578,6 +585,28 @@ public class Server {
 		}
 		return result;
 	}
+	
+	public String makePayment(String url, String paymentMethod, String account, String amount, String currency, String service)
+	{
+		String considerationConfirmation = "";
+		String reason = "ChoiceNet Entity: "+myName+" purchased service: "+service;
+		reason = reason.replaceAll(" ", "%20");
+		url = url+"?paymentMethod="+paymentMethod+"&currency="+currency+"&amount="+amount+"&account="+account+"&reason="+reason;
+		System.out.println("Purchase Portal: "+url);
+		considerationConfirmation = couchDBsocket.getRestInterface(url);
+		if(considerationConfirmation.contains("success"))
+		{
+			String[] temp = considerationConfirmation.split("Confirmation: ");
+			String confirmationID = temp[1];
+			reason = reason.replaceAll("%20"," ");
+			long id = System.currentTimeMillis();
+			Consideration consideration = new Consideration(id, paymentMethod, account, amount, reason, confirmationID, service);
+			considerationMgr.addConsideration(id, consideration);
+		}
+		System.out.println("Consideration Confirmation: "+considerationConfirmation);
+		
+		return considerationConfirmation;
+	}
 
 	public void fireUsePlaneSignaling(String gwType, String gwAddr,	String clientType, String clientAddr, String myToken, String ipAddr, int port) 
 	{
@@ -615,6 +644,8 @@ public class Server {
 		System.out.println("Provider Type: "+providerType);
 		System.out.println("Accepted Consideration: "+acceptedConsideration);
 		System.out.println("Available Consideration: "+availableConsideration);
+		System.out.println("Purchase Portal: "+purchasePortal);
+		System.out.println("Purchase Portal Validator: "+purchasePortalValidator);
 		System.out.println();
 	}
 

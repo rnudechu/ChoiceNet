@@ -16,7 +16,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Enumeration;
 
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -35,6 +38,8 @@ import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+import javax.swing.JRadioButton;
+import javax.swing.JTextPane;
 
 public class ProviderGUI implements ActionListener {
 	static Server server;
@@ -53,11 +58,12 @@ public class ProviderGUI implements ActionListener {
 	final static String SEARCHMARKETPLACEPANEL = "Card with Marketplace Panel";
 	final static String PLANNERPANEL = "Card with Planner Panel";
 	final static String USEPLANEPANEL = "Card with Access Use Plane Panel";
+	final static String PAYMENTPANEL = "Card with Payment Panel";
 
 	public static int deviceDatabaseSize = 0;
 
 	static JFrame providerServer;
-	static JPanel menuPanel, rendezvousPanel, considerationPanel, purchasePanel, settingsPanel, marketplacePanel, plannerPanel, usePlanePanel;
+	static JPanel menuPanel, rendezvousPanel, considerationPanel, purchasePanel, settingsPanel, marketplacePanel, plannerPanel, paymentPanel, usePlanePanel;
 	private JButton btnRendezvousMenu, btnRendezvousRequest,
 	btnSendConsiderationMenu, btnSendConsiderationRequest, btnKnownEntities,
 	btnSendListingMenu, btnSendListingRequest, btnListingAdvertisementBrowse, btnShowTokenId, 
@@ -72,6 +78,7 @@ public class ProviderGUI implements ActionListener {
 	textFieldFormatDestinationPlanner, txtCostMethodPlanner, textFieldCostPlanner;
 	private JFileChooser fc =  new JFileChooser();
 	private static JTextArea textAreaRendezvous, textAreaConsideration, textAreaListing, textAreaMktpl, textAreaPlanner, textAreaUsePlane;
+	ButtonGroup group;
 
 	TokenManager tokenMgr = TokenManager.getInstance();
 	DiscoveredEntitiesManager dEMgr = DiscoveredEntitiesManager.getInstance();
@@ -105,6 +112,24 @@ public class ProviderGUI implements ActionListener {
 	private JTextField txtCostMethodMktpl;
 	private JButton btnUsePlannerService;
 	private JLabel lblMarketplacenotifier;
+	private JRadioButton rdbtnBitcoin;
+	private JRadioButton rdbtnPaypal;
+	private JRadioButton rdbtnCreditCard;
+	private JLabel lblAccount;
+	private JLabel lblPaymentMethod;
+	private JTextField accountTextField;
+	private JTextField amountTextField;
+	private JLabel lblAmount;
+	private JLabel lblUsd;
+	private static JTextArea textAreaPayment;
+	private JTextField paymentServiceNameTextField;
+	private JLabel lblServiceName;
+	private JTextField paymentURLTextField;
+	private JLabel lblPaymentUrl;
+	private JButton btnMakePayment;
+	private JButton btnPaymentHistory;
+	private JButton btnBackToSendConsideration;
+	private JButton btnGoPaymentPanel;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -181,7 +206,7 @@ public class ProviderGUI implements ActionListener {
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
 		cards.add(panelHome, HOMEPANEL);
-		pane.setPreferredSize(new Dimension(650, 380));
+		pane.setPreferredSize(new Dimension(700, 380));
 		pane.add(cards, BorderLayout.CENTER);
 
 		rendezvousPanel = createRendezvousPanel();
@@ -201,6 +226,9 @@ public class ProviderGUI implements ActionListener {
 
 		usePlanePanel = createUsePlanePanel();
 		cards.add(usePlanePanel, USEPLANEPANEL);
+		
+		paymentPanel = createPaymentPanel();
+		cards.add(paymentPanel, PAYMENTPANEL);
 
 		// load test case
 		showTestData();
@@ -215,7 +243,7 @@ public class ProviderGUI implements ActionListener {
 			activeCard = "Rendezvous";
 			actionStateChanged(RENDEZVOUSPANEL);
 		}
-		if(e.getSource() == btnSendConsiderationMenu)
+		if(e.getSource() == btnSendConsiderationMenu || e.getSource() == btnBackToSendConsideration)
 		{
 			activeCard = "Consideration";
 			actionStateChanged(SENDCONSIDERATIONPANEL);
@@ -234,6 +262,11 @@ public class ProviderGUI implements ActionListener {
 		{
 			activeCard = "Planner";
 			actionStateChanged(PLANNERPANEL);
+		}
+		if(e.getSource() == btnGoPaymentPanel)
+		{
+			activeCard = "Payment";
+			actionStateChanged(PAYMENTPANEL);
 		}
 		if(e.getSource() == btnAccessUsePlane)
 		{
@@ -452,6 +485,25 @@ public class ProviderGUI implements ActionListener {
 			{
 				server.sendPlannerRequest(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, amount, method, "");
 			}
+		}
+		// Payment Panel
+		if(e.getSource() == btnMakePayment)
+		{
+			String url = paymentURLTextField.getText();
+			String paymentMethod = getSelectedButtonText(group); 
+			String account = accountTextField.getText();
+			String amount = amountTextField.getText();
+			String currency = "USD";
+			String service = paymentServiceNameTextField.getText();
+			String considerationConfirmation = server.makePayment(url, paymentMethod, account, amount, currency, service);
+			message = considerationConfirmation;
+			textAreaPayment.setText(message);
+		}
+		if(e.getSource() == btnPaymentHistory)
+		{
+			
+			message = server.considerationMgr.printAvailableConsiderations();
+			textAreaPayment.setText(message);
 		}
 		// Use Plane Panel
 		if(e.getSource() == btnSendUsePlane)
@@ -934,7 +986,8 @@ public class ProviderGUI implements ActionListener {
 		btnAccessUsePlane.setEnabled(false);
 		btnAccessUsePlane.addActionListener(this);
 
-		btnPopulateMarketPl = new JButton("Access Use Plane");
+		btnPopulateMarketPl = new JButton("Populate Marketplace");
+		btnPopulateMarketPl.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnPopulateMarketPl.addActionListener(this);
 
 		btnUsePlannerService = new JButton("Use Planner Service");
@@ -1303,6 +1356,11 @@ public class ProviderGUI implements ActionListener {
 		btnKnownEntities.addActionListener(this);
 		btnKnownEntities.setFont(new Font("Dialog", Font.BOLD, 12));
 		considerationPanel.add(btnKnownEntities, "5, 21, center, default");
+		
+		btnGoPaymentPanel = new JButton("Make Payment");
+		btnGoPaymentPanel.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnGoPaymentPanel.addActionListener(this);
+		considerationPanel.add(btnGoPaymentPanel, "7, 21, center, default");
 
 		textAreaConsideration = new JTextArea();
 		textAreaConsideration.setLineWrap(true);
@@ -1661,6 +1719,160 @@ public class ProviderGUI implements ActionListener {
 
 		return plannerPanel;
 	}
+	
+	/**
+	 *  Returns a JPanel of the Login screen
+	 * @return JPanel
+	 */
+	public JPanel createPaymentPanel ()
+	{
+		JPanel paymentPanel = new JPanel();
+		paymentPanel.setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("6px"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("max(35dlu;min):grow"),
+				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
+				FormFactory.MIN_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("max(66dlu;pref):grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("max(77dlu;default):grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("20px"),
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				RowSpec.decode("20px"),
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				RowSpec.decode("24px"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("26px"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.UNRELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("bottom:default"),}));
+
+		JLabel title = new JLabel("Trigger: Make Payment Plane");
+		title.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(title, "4, 3, 8, 1, center, default");
+		
+		btnBackToSendConsideration = new JButton("Previous Panel");
+		btnBackToSendConsideration.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnBackToSendConsideration.addActionListener(this);
+		paymentPanel.add(btnBackToSendConsideration, "12, 3, right, default");
+		
+		lblPaymentUrl = new JLabel("Payment URL:");
+		paymentPanel.add(lblPaymentUrl, "4, 7, left, default");
+		
+		paymentURLTextField = new JTextField( Server.purchasePortal);
+		paymentPanel.add(paymentURLTextField, "6, 7, 7, 1, fill, default");
+		paymentURLTextField.setColumns(10);
+		
+		lblPaymentMethod = new JLabel("Payment Method:");
+		lblPaymentMethod.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(lblPaymentMethod, "4, 11");
+		
+		rdbtnBitcoin = new JRadioButton("Bitcoin");
+		rdbtnBitcoin.setSelected(true);
+		rdbtnBitcoin.setFont(new Font("Dialog", Font.BOLD, 12));
+		rdbtnBitcoin.addActionListener(this);
+		paymentPanel.add(rdbtnBitcoin, "6, 11");
+		
+		rdbtnCreditCard = new JRadioButton("Credit Card");
+		rdbtnCreditCard.setEnabled(false);
+		rdbtnCreditCard.setFont(new Font("Dialog", Font.BOLD, 12));
+		rdbtnCreditCard.addActionListener(this);
+		paymentPanel.add(rdbtnCreditCard, "10, 11");
+		
+		rdbtnPaypal = new JRadioButton("Paypal");
+		rdbtnPaypal.setEnabled(false);
+		rdbtnPaypal.setFont(new Font("Dialog", Font.BOLD, 12));
+		rdbtnPaypal.addActionListener(this);
+		paymentPanel.add(rdbtnPaypal, "12, 11");
+		
+		group = new ButtonGroup();
+		group.add(rdbtnBitcoin);
+		group.add(rdbtnCreditCard);
+		group.add(rdbtnPaypal);
+		
+		lblAccount = new JLabel("Account:");
+		lblAccount.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(lblAccount, "4, 13, left, default");
+		
+		accountTextField = new JTextField();
+		paymentPanel.add(accountTextField, "6, 13, 7, 1, fill, default");
+		accountTextField.setColumns(10);
+		
+		lblAmount = new JLabel("Amount:");
+		lblAmount.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(lblAmount, "4, 15, left, default");
+		
+		amountTextField = new JTextField();
+		paymentPanel.add(amountTextField, "6, 15, 3, 1, fill, default");
+		amountTextField.setColumns(10);
+		
+		lblUsd = new JLabel("USD");
+		lblUsd.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(lblUsd, "10, 15, left, default");
+		
+		lblServiceName = new JLabel("Service Name:");
+		lblServiceName.setFont(new Font("Dialog", Font.BOLD, 12));
+		paymentPanel.add(lblServiceName, "4, 17, left, default");
+		
+		paymentServiceNameTextField = new JTextField();
+		paymentPanel.add(paymentServiceNameTextField, "6, 17, 3, 1, fill, default");
+		paymentServiceNameTextField.setColumns(10);
+		
+		btnMakePayment = new JButton("Make Payment");
+		btnMakePayment.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnMakePayment.addActionListener(this);
+		paymentPanel.add(btnMakePayment, "4, 19");
+		
+		btnPaymentHistory = new JButton("Payment History");
+		btnPaymentHistory.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnPaymentHistory.addActionListener(this);
+		paymentPanel.add(btnPaymentHistory, "6, 19");
+		
+		textAreaPayment = new JTextArea();
+		
+		textAreaPayment.setLineWrap(true);
+		textAreaPayment.setWrapStyleWord(true);
+		textAreaPayment.setEditable(false);
+		JScrollPane scroll = new JScrollPane(textAreaPayment);
+		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		paymentPanel.add(scroll, "4, 21, 9, 12, fill, fill");
+
+		return paymentPanel;
+	}
+
 
 	/**
 	 *  Returns a JPanel of the Login screen
@@ -1790,13 +2002,15 @@ public class ProviderGUI implements ActionListener {
 			String target = "ABC Marketplace";
 			String targetService = "Marketplace";
 			String targetServiceName = "Advertisement Listing";
-			String cMethod = "Bitcoin:mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp";
-			String cValue = "20 USD";
+			String cMethod = "Bitcoin:555acf41a0c013059d00001b";
+			String cValue = "20";
+			String cUnit = "USD";
 			String fileNameAd = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/test3.xml";
 			String srcLocationType = "IPv4,IPv4";
 			String dstLocationType = "IPv4";
 			String srcLocation = "A,B";
 			String dstLocation = "B";
+			String reason = targetServiceName;
 
 
 			txtRendezvousIPAddr.setText(ipAddr);
@@ -1808,7 +2022,7 @@ public class ProviderGUI implements ActionListener {
 			txtConsiderationTarget.setText(target);
 			txtConsiderationServiceName.setText(targetServiceName);
 			txtConsiderationMethod.setText(cMethod);
-			txtConsiderationValue.setText(cValue);
+			txtConsiderationValue.setText(cValue+" "+cUnit);
 
 			txtListingAddrType.setText(addrType);
 			txtListingIPAddr.setText(ipAddr);
@@ -1826,6 +2040,11 @@ public class ProviderGUI implements ActionListener {
 			txtLocationDestinationTypePlanner.setText(dstLocationType);
 			textFieldLocationSourcePlanner.setText(srcLocation);
 			textFieldLocationDestinationPlanner.setText(dstLocation);
+			
+			paymentURLTextField.setText(Server.purchasePortal);
+			accountTextField.setText("mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxF");
+			amountTextField.setText(cValue);
+			paymentServiceNameTextField.setText(reason);
 		}
 		else
 		{
@@ -1851,6 +2070,11 @@ public class ProviderGUI implements ActionListener {
 			txtLocationDestinationTypeMktpl.setText("");
 			textFieldLocationSourceMktpl.setText("");
 			textFieldLocationDestinationMktpl.setText("");
+			
+			paymentURLTextField.setText("");
+			accountTextField.setText("");
+			amountTextField.setText("");
+			paymentServiceNameTextField.setText("");
 		}
 	}
 	public static void updateTextArea(String systemMessage)
@@ -1892,6 +2116,10 @@ public class ProviderGUI implements ActionListener {
 			{
 				textAreaPlanner.setText(systemMessage);
 			}
+			if(activeCard.equals("Payment"))
+			{
+				textAreaPayment.setText(systemMessage);
+			}
 		}
 	}
 
@@ -1918,6 +2146,18 @@ public class ProviderGUI implements ActionListener {
 		}
 		testOn = setting;
 	}
+	
+	public String getSelectedButtonText(ButtonGroup buttonGroup) {
+        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+            AbstractButton button = buttons.nextElement();
+
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+
+        return null;
+    }
 
 	public static void main(String[] args) {
 		/* Use an appropriate Look and Feel */
