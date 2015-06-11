@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -28,6 +29,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 public class TestUtility {
 
@@ -152,7 +157,7 @@ public class TestUtility {
 							srcAddressValue[i] = getAttributes(myList, "value", i);
 							System.out.println("Scheme "+srcAddressScheme[i]+" Value "+srcAddressValue[i]);
 						}
-						
+
 						myList = myElement.getElementsByTagName("destination_location");
 						size = myList.getLength();
 						dstAddressScheme = new String[size];
@@ -164,7 +169,7 @@ public class TestUtility {
 							dstAddressValue[i] = getAttributes(myList, "value", i);
 							System.out.println("Scheme "+dstAddressScheme[i]+" Value "+dstAddressValue[i]);
 						}
-						
+
 						myList = myElement.getElementsByTagName("source_format");
 						size = myList.getLength();
 						srcFormatScheme = new String[size];
@@ -176,7 +181,7 @@ public class TestUtility {
 							srcFormatValue[i] = getAttributes(myList, "value", i);
 							System.out.println("Scheme "+srcFormatScheme[i]+" Value "+srcFormatValue[i]);
 						}
-						
+
 						myList = myElement.getElementsByTagName("destination_format");
 						size = myList.getLength();
 						dstFormatScheme = new String[size];
@@ -188,7 +193,7 @@ public class TestUtility {
 							dstFormatValue[i] = getAttributes(myList, "value", i);
 							System.out.println("Scheme "+dstFormatScheme[i]+" Value "+dstFormatValue[i]);
 						}
-						
+
 					}
 					// Print Out
 					String printOut = "Advertisement \n" +
@@ -811,7 +816,7 @@ public class TestUtility {
 
 		return payload;
 	}
-	
+
 	public String[] getIPv4NetworkSpecs(String ipAddr)
 	{
 		String[] result = new String[2];
@@ -856,7 +861,47 @@ public class TestUtility {
 		result[1] = hostAddr.substring(0,hostAddr.length()-1);
 		return result;
 	}
+
+	public String testXMLWriter()
+	{
+		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
+		StringWriter writer = new StringWriter();
+		try {
+
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+			// output pretty printed
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			jaxbMarshaller.marshal(request, writer);
+			jaxbMarshaller.marshal(request, System.out);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return writer.toString();
+	}
+
 	
+	public OpenFlowFirewallMessage convertXMLtoObj(String xml)
+	{
+		OpenFlowFirewallMessage openflowFirewallMsg = null;
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+	 
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			openflowFirewallMsg = (OpenFlowFirewallMessage) jaxbUnmarshaller.unmarshal(new StringReader(xml));
+			System.out.println(openflowFirewallMsg);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return openflowFirewallMsg;
+	}
 
 	public static void main(String[] args) throws UnknownHostException 
 	{
@@ -881,17 +926,17 @@ public class TestUtility {
 		//		System.out.println(x.length);
 		//		System.out.println(x[0].getValue());
 		//		System.out.println(x[1].getValue());
-//		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test3.xml", "File");
-//		for(Advertisement ad: adArray)
-//		{
-//			System.out.println(ad);
-//		}
-		
+		//		ArrayList<Advertisement> adArray = tu.getAdvertisementsFromXML("test3.xml", "File");
+		//		for(Advertisement ad: adArray)
+		//		{
+		//			System.out.println(ad);
+		//		}
+
 		/*
 		String url = "http://152.54.14.45:5984/marketplace-rangehelper";
-		
+
 		// Turn IP address to binary string
-		
+
 		String ipAddr = "127.0.0.1";
 		String mask = new String(new char[31]).replace("\0", "1");
 		mask+="0";
@@ -943,9 +988,13 @@ public class TestUtility {
 		//		while (parser.hasMoreTokens()) {
 		//		    System.err.println(parser.nextToken());
 		//		    }
-	*/
-		String text = tu.couchDB.getRestInterface("http://192.168.1.10/bitcoin/processPayment.php?unit=Bitcoin&currency=USD&amount=1&account=mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp&reason=3");
+		 */
+		//String text = tu.couchDB.getRestInterface("http://192.168.1.10/bitcoin/processPayment.php?unit=Bitcoin&currency=USD&amount=1&account=mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp&reason=3");
+		//System.out.println(text);
+		
+		String text = tu.testXMLWriter();
 		System.out.println(text);
+		tu.convertXMLtoObj(text);
 	}
 
 }

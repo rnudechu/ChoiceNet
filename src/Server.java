@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -19,6 +21,11 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 
 public class Server {
@@ -40,6 +47,15 @@ public class Server {
 	static String acceptedConsideration = "None";
 	static String availableConsideration = "None";
 	static String runningMode = "Unknown";
+	
+	static String firewallAction = "Unknown";
+	static String firewallAddressVersion = "Unknown";
+	static String firewallProtocol = "Unknown";
+	static String firewallSourceAddress = "Unknown";
+	static String firewallDestinationAddress = "Unknown";
+	static String firewallSourcePort = "Unknown";
+	static String firewallDestinationPort = "Unknown";
+	
 	static String systemMessage;
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
@@ -100,7 +116,16 @@ public class Server {
 			}
 			// myType
 			myType = prop.getProperty("myType");
-
+			if(myType.equals("Client"))
+			{
+				firewallAction = prop.getProperty("firewallAction");
+				firewallAddressVersion = prop.getProperty("firewallAddressVersion");
+				firewallProtocol = prop.getProperty("firewallProtocol");
+				firewallSourceAddress = prop.getProperty("firewallSourceAddress");
+				firewallDestinationAddress = prop.getProperty("firewallDestinationAddress");
+				firewallSourcePort = prop.getProperty("firewallSourcePort");
+				firewallDestinationPort = prop.getProperty("firewallDestinationPort");
+			}
 			// nodeAcceptableConsideration
 			acceptedConsideration  = prop.getProperty("acceptedConsideration");
 
@@ -110,19 +135,9 @@ public class Server {
 			runningMode =  prop.getProperty("mode");
 			if(providerType.equals("Planner"))
 			{
-				System.out.println("HERE WE ARE");
-				//				Process p = Runtime.getRuntime().exec("java HelloWorld");
-				//				p.waitFor();
-				//				StringBuffer sb = new StringBuffer(); 
-				//			    BufferedReader reader = 
-				//			         new BufferedReader(new InputStreamReader(p.getInputStream()));
-				//			 
-				//			    String line = "";			
-				//			    while ((line = reader.readLine())!= null) {
-				//				sb.append(line + "\n");
-				//			    }
-				//				HelloWorld helloWorld = new HelloWorld();
+				
 			}
+			
 
 			serverSocket = new DatagramSocket(DEFAULT_SERVER_PORT);
 			serverSocket.setReuseAddress(false);
@@ -504,7 +519,17 @@ public class Server {
 		ChoiceNetMessageField serviceName = new ChoiceNetMessageField("Service Name", sName, "");
 		ChoiceNetMessageField considerationExchMethod = new ChoiceNetMessageField("Consideration Exchange Method", exchangeMethod, "");
 		ChoiceNetMessageField considerationExchValue = new ChoiceNetMessageField("Consideration Exchange Value", exchangeValue, "");
-		ChoiceNetMessageField[] payload = {transactionNumber,considerationTarget,serviceName,considerationExchMethod,considerationExchValue};
+		/*
+		String openflowXML = "";
+		if(myType.equals("Client"))
+		{
+			OpenFlowFirewallMessage firewallMsg = new OpenFlowFirewallMessage(System.currentTimeMillis(),firewallAction,firewallAddressVersion,firewallProtocol,firewallSourceAddress,firewallDestinationAddress,firewallSourcePort,firewallDestinationPort);
+			openflowXML = getOpenFlowFireWallMessageXML(firewallMsg);
+		}
+		
+		ChoiceNetMessageField trafficProp = new ChoiceNetMessageField("Traffic Properties", openflowXML, "");
+		*/
+		ChoiceNetMessageField[] payload = {transactionNumber,considerationTarget,serviceName,considerationExchMethod,considerationExchValue};//,trafficProp};
 		Packet packet = new Packet(PacketType.TRANSFER_CONSIDERATION,myName,"",myType, providerType,payload);
 		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
 	}
@@ -608,13 +633,62 @@ public class Server {
 		return considerationConfirmation;
 	}
 
-	public void fireUsePlaneSignaling(String gwType, String gwAddr,	String clientType, String clientAddr, String myToken, String ipAddr, int port) 
+	public void fireUsePlaneSignaling(String trafficPropFile, String myToken, String ipAddr, int port) 
 	{
-		ChoiceNetMessageField userInfo = new ChoiceNetMessageField(clientType, clientAddr, "");
+		String trafficProp = "";
+		try {
+			Scanner sc = new Scanner(new FileReader(trafficPropFile));
+			while (sc.hasNextLine()) {
+				trafficProp += sc.nextLine();
+			}
+			sc.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		ChoiceNetMessageField properties = new ChoiceNetMessageField("Traffic Prop", trafficProp, "");
 		ChoiceNetMessageField token = new ChoiceNetMessageField("Token", myToken, "");
-		ChoiceNetMessageField[] payload = {userInfo,token};
+		ChoiceNetMessageField[] payload = {properties,token};
 		Packet packet = new Packet(PacketType.USE_ATTEMPT ,myName,"",myType, providerType,payload);
 		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
+	}
+	
+	public String getOpenFlowFireWallMessageXML(OpenFlowFirewallMessage msg)
+	{
+//		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
+		StringWriter writer = new StringWriter();
+		try {
+
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+			// output pretty printed
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			jaxbMarshaller.marshal(msg, writer);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return writer.toString();
+	}
+	
+	public OpenFlowFirewallMessage convertXMLtoOpenFlowFireWallMessage(String xml)
+	{
+		OpenFlowFirewallMessage openflowFirewallMsg = null;
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+	 
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			openflowFirewallMsg = (OpenFlowFirewallMessage) jaxbUnmarshaller.unmarshal(new StringReader(xml));
+			System.out.println(openflowFirewallMsg);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return openflowFirewallMsg;
 	}
 
 	public String getLocalIpAddress(String value) 

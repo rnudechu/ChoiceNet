@@ -134,6 +134,32 @@ public class ServerThread extends Thread {
 
 		return 0;
 	}
+	
+	/**
+	 * 	Send
+	 * This function simply takes in a Packet object to be sent across the network.  Its destination is encoded into the Packet object.
+	 * This function will send the Packet out the relevant socket.
+	 */
+	private int sendFirewallMsg (String firewallXML) {
+		try 
+		{
+			System.out.println("Sending XML:\n"+firewallXML);
+			sendData = firewallXML.getBytes();
+			System.out.println("Size of payload: "+sendData.length);
+			// as of now the IP Address and port are being ignored
+			// all packets from the Provider address is treated as control
+			sendPacket = new DatagramPacket(sendData, sendData.length, clientIPAddress, clientPort); 
+			socket.send(sendPacket);
+			Logger.log("Following information is being to sent to "+clientIPAddress+":"+clientPort+"\n"+firewallXML);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+			Logger.log("Failed to send message!");
+			System.exit(1);
+		}
+
+		return 0;
+	}
 
 	public void run() {
 		if(socket!=null)
@@ -235,7 +261,6 @@ public class ServerThread extends Thread {
 							{
 								respondToPlannerResponse(packet);
 							}
-
 
 							// Received a purchase request
 							if(packetType == PacketType.USE_ATTEMPT)
@@ -649,7 +674,15 @@ public class ServerThread extends Thread {
 						}
 					}
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
-	
+					/*
+					// retrieve the Traffic Properties field ... if not empty send it to your (OpenFlow-enabled) firewall
+					String firewallXML = (String) payload[5].getValue();
+					if(!firewallXML.equals(""))
+					{
+						System.out.println(firewallXML);
+						sendFirewallMsg(firewallXML);
+					}
+					*/
 					// Send ACK with Token
 					ChoiceNetMessageField transactionNum = new ChoiceNetMessageField("Transaction Number", tNumber, "");
 					// TODO: Empty gateway credentials: Marketplace should provide something here
@@ -895,26 +928,14 @@ public class ServerThread extends Thread {
 			if(myToken.getExpirationTime() >= System.currentTimeMillis())
 			{
 				// Valid Token
-				try {
 					String addrType = userAddrInfo.getAttributeName();
 					String addrName = (String) userAddrInfo.getValue();
 					String command = "";
-					// Generate a random port to open
-					Random generator = new Random();
-					int low = 49152;
-					int high = 65536;// include 65535 in the running by making max+1
-					int generatedPort = generator.nextInt(high-low) + low;
 
-					if(addrType.equals("TCPv4") || addrType.equals("UDPv4"))
-					{
-						// TODO: Enter the correct fire wall rule
-						command = "stuff"+addrName;
-					}
-					// Use useAddrInfo to open context ... (open a port and translate traffic to another addr scheme)					
-					Runtime.getRuntime().exec(command);
+					
 					// Send an ACK when everything is completed
 					// hard coded 
-					String portal = "rtsp://"+Server.providerAddress+":"+generatedPort+"/";
+					String portal = "rtsp://"+Server.providerAddress;
 					String portalHelpURL = "http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/VLC/help.html";
 					String plugInHelpURL = "http://www.vlc.com";
 					ChoiceNetMessageField handleID = new ChoiceNetMessageField("Handle ID", System.currentTimeMillis(), "");
@@ -923,20 +944,19 @@ public class ServerThread extends Thread {
 					ChoiceNetMessageField[] newPayload = {handleID,usePlanePortal,usePlanePlugIn}; 
 					Packet newPacket = new Packet(PacketType.ACK_USE_ATTEMPT,myName,"",myType,providerType,newPayload);
 					send(newPacket);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 			}
 			else
 			{
 				//TODO: 
 				// a once valid Token is expired
+				System.out.println("Expired Token has been used. Can not provide Use ATTEMPT ACK");
 			}
 		}
 		else
 		{
 			//TODO:
 			// Token ID does not exist in our database
+			System.out.println("Token ID does not exist in the database. Can not provide Use ATTEMPT ACK");
 		}
 	}
 	private InternalMessageField[] determineQueryType(ChoiceNetMessageField[] message)
@@ -1232,6 +1252,8 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField[] payload = {type,opCode,reason};
 		return payload;
 	}
+	
+	
 
 	/**
 	 * Customer

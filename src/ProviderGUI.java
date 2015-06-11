@@ -86,7 +86,7 @@ public class ProviderGUI implements ActionListener {
 	private JTextField txtRendezvousAddrType;
 	private JTextField txtListingAddrType;
 	private static JLabel lblRendezvousMessage, lblConsiderationMessage, lblListingMessage, lblUsePlaneMessage;
-	private JTextField txtUsePlaneGWType, txtUsePlaneGWAddr, txtUsePlaneClientType, txtUsePlaneClientAddr, txtUsePlaneToken;
+	private JTextField txtUsePlaneGWType, txtUsePlaneGWAddr, txtUsePlaneTrafficProp, txtUsePlaneToken;
 
 
 	private JLabel lblServerIpAddress;
@@ -130,6 +130,7 @@ public class ProviderGUI implements ActionListener {
 	private JButton btnPaymentHistory;
 	private JButton btnBackToSendConsideration;
 	private JButton btnGoPaymentPanel;
+	private JButton btnUsePlaneBrowse;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -178,6 +179,7 @@ public class ProviderGUI implements ActionListener {
 	 */
 	public void addComponentToPane(Container pane ) {
 		JPanel panelHome = createProviderHomeMenuPanel();
+		panelHome = createCustomerHomeMenuPanel();
 		if(Server.runningMode.equals("UserMarketplaceGUI"))
 		{
 			panelHome = createMarketplaceMenuPanel();
@@ -506,12 +508,20 @@ public class ProviderGUI implements ActionListener {
 			textAreaPayment.setText(message);
 		}
 		// Use Plane Panel
+		if(e.getSource() ==  btnUsePlaneBrowse)
+		{
+			int returnVal = fc.showOpenDialog(usePlanePanel);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				txtUsePlaneTrafficProp.setText(file.getAbsolutePath());
+			}
+		}
 		if(e.getSource() == btnSendUsePlane)
 		{
 			String gwType = txtUsePlaneGWType.getText();
 			String gwAddr = txtUsePlaneGWAddr.getText();
-			String clientType = txtUsePlaneClientType.getText();
-			String clientAddr = txtUsePlaneClientAddr.getText();
+			String trafficPropFile = txtUsePlaneTrafficProp.getText();
 			String token = txtUsePlaneToken.getText();
 			if(gwType.equals("TCPv4") || gwType.equals("UDPv4"))
 			{
@@ -529,7 +539,7 @@ public class ProviderGUI implements ActionListener {
 				}
 				if(success)
 				{
-					server.fireUsePlaneSignaling(gwType, gwAddr, clientType, clientAddr, token, ipAddr, port);
+					server.fireUsePlaneSignaling(trafficPropFile, token, ipAddr, port);
 				}
 			}
 			else
@@ -726,12 +736,16 @@ public class ProviderGUI implements ActionListener {
 		customerHomeMenuPanel.add(btnSearchMarketplace, "3, 13");
 		btnSearchMarketplace.addActionListener(this);
 
+		btnAccessUsePlane = new JButton("Access Use Plane");
+//		btnAccessUsePlane.setEnabled(false);
+		btnAccessUsePlane.addActionListener(this);
+		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 
 		btnUsePlannerService = new JButton("Use Planner Service");
 		btnUsePlannerService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlannerService.addActionListener(this);
 		customerHomeMenuPanel.add(btnUsePlannerService, "7, 13");
-
+		customerHomeMenuPanel.add(btnAccessUsePlane, "9, 13, center, default");
 		customerHomeMenuPanel.add(chckbxTurnTestData, "3, 17");
 
 		return customerHomeMenuPanel;
@@ -983,8 +997,9 @@ public class ProviderGUI implements ActionListener {
 		btnSearchMarketplace.addActionListener(this);
 
 		btnAccessUsePlane = new JButton("Access Use Plane");
-		btnAccessUsePlane.setEnabled(false);
+//		btnAccessUsePlane.setEnabled(false);
 		btnAccessUsePlane.addActionListener(this);
+		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 
 		btnPopulateMarketPl = new JButton("Populate Marketplace");
 		btnPopulateMarketPl.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -994,7 +1009,7 @@ public class ProviderGUI implements ActionListener {
 		btnUsePlannerService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlannerService.addActionListener(this);
 		menuPanel.add(btnUsePlannerService, "7, 13");
-		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		
 
 		menuPanel.add(btnAccessUsePlane, "9, 13, center, default");
 		menuPanel.add(chckbxTurnTestData, "3, 17");
@@ -1954,30 +1969,28 @@ public class ProviderGUI implements ActionListener {
 		txtUsePlaneGWAddr = new JTextField();
 		usePlanePanel.add(txtUsePlaneGWAddr, "8, 9, fill, default");
 		txtUsePlaneGWAddr.setColumns(10);
+				
+						JLabel lblToken = new JLabel("Token");
+						usePlanePanel.add(lblToken, "4, 11");
+		
+				txtUsePlaneToken = new JTextField();
+				usePlanePanel.add(txtUsePlaneToken, "8, 11, fill, default");
+				txtUsePlaneToken.setColumns(10);
 
-		JLabel lblChuserAddressType = new JLabel("Chuser Use Plane Agent Type");
-		usePlanePanel.add(lblChuserAddressType, "4, 11");
-
-		txtUsePlaneClientType = new JTextField();
-		usePlanePanel.add(txtUsePlaneClientType, "8, 11, fill, default");
-		txtUsePlaneClientType.setColumns(10);
-
-		JLabel lblChuserUsePlane = new JLabel("Chuser Use Plane Agent Address");
+		JLabel lblChuserUsePlane = new JLabel("Traffic Properties");
 		usePlanePanel.add(lblChuserUsePlane, "4, 13");
 
-		txtUsePlaneClientAddr = new JTextField();
-		usePlanePanel.add(txtUsePlaneClientAddr, "8, 13, fill, default");
-		txtUsePlaneClientAddr.setColumns(10);
-
-		JLabel lblToken = new JLabel("Token");
-		usePlanePanel.add(lblToken, "4, 15");
-
-		txtUsePlaneToken = new JTextField();
-		usePlanePanel.add(txtUsePlaneToken, "8, 15, fill, default");
-		txtUsePlaneToken.setColumns(10);
+		txtUsePlaneTrafficProp = new JTextField();
+		txtUsePlaneTrafficProp.setEditable(false);
+		usePlanePanel.add(txtUsePlaneTrafficProp, "8, 13, fill, default");
+		txtUsePlaneTrafficProp.setColumns(10);
 
 		btnSendUsePlane = new JButton("Send Use Plane Signal");
 		btnSendUsePlane.addActionListener(this);
+		
+		btnUsePlaneBrowse = new JButton("Browse");
+		btnUsePlaneBrowse.addActionListener(this);
+		usePlanePanel.add(btnUsePlaneBrowse, "10, 13");
 		usePlanePanel.add(btnSendUsePlane, "4, 19, center, default");
 
 		btnStoredUsePlane = new JButton("Stored Use Plane Information");

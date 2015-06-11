@@ -221,6 +221,10 @@ public class ChoiceNetMessageParser {
 		{
 			payload = parseNACKMessage(pktXML);
 		}
+		if(pktType == PacketType.USE_PLANE_SIGNAL)
+		{
+			payload = parseUsePlaneMessage(pktXML);
+		}
 
 		return payload;
 	}
@@ -346,6 +350,13 @@ public class ChoiceNetMessageParser {
 		String value = (String) operationCode.getValue();
 		operationCode.setValue(Integer.parseInt(value));
 		ChoiceNetMessageField[] payload = {operationCode,nackType,reason};
+		return payload;
+	}
+	
+	private ChoiceNetMessageField[] parseUsePlaneMessage(String pktXML) {
+		ChoiceNetMessageField trafficProp = getChoiceNetMessage(pktXML,"Traffic Properties");
+		ChoiceNetMessageField token = parseTokenMessage(pktXML);
+		ChoiceNetMessageField[] payload = {trafficProp,token};
 		return payload;
 	}
 
