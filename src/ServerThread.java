@@ -691,42 +691,42 @@ public class ServerThread extends Thread {
 					InetAddress providerIPAddress = clientIPAddress;
 					int providerPort = clientPort;
 					// TODO: Note: Depending on the Provider Type more operations may be necessary
-					if(myType.equals("Provider") && !providerType.equals("Marketplace"))
-					{
-						// Contact the service's ChoiceNet Gateway for given service advertisement
-						Advertisement myAd = adMgr.getAdvertisementByName(sName);
-						if(myAd != null)
-						{
-							String usePlaneAddrType = myAd.getUsePlaneType();
-							String usePlaneAddr = myAd.getUsePlaneAddress();
-							ChoiceNetMessageField gatewayAddrType = new ChoiceNetMessageField("Addressing Scheme", usePlaneAddrType, "");
-							ChoiceNetMessageField gatewayAddr = new ChoiceNetMessageField("Addressing Value", usePlaneAddr, "");
-							ChoiceNetMessageField[] info = {gatewayAddrType,gatewayAddr}; 
-							gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", info, "");
-							newPayload[2] = gatewayCredentials;
-							if(usePlaneAddrType.equals("TCPv4") || usePlaneAddrType.equals("UDPv4"))
-							{
-								String[] addr = usePlaneAddr.split(":");
-								try {
-									clientIPAddress = InetAddress.getByName(addr[0]);
-									clientPort = Integer.parseInt(addr[1]);
-									ChoiceNetMessageField[] signalingPayload = {token};
-									newPacket = new Packet(PacketType.USE_PLANE_SIGNAL,myName,"",myType,providerType,signalingPayload);
-									send(newPacket);
-								} catch (UnknownHostException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (NumberFormatException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-							}
-						}
-						else
-						{
-							Logger.log("Warning no ChoiceNet Gateway Credentials found for this service: "+sName+"\nNo advertisement recorded for that service.");
-						}
-					}
+//					if(myType.equals("Provider") && !providerType.equals("Marketplace"))
+//					{
+//						// Contact the service's ChoiceNet Gateway for given service advertisement
+//						Advertisement myAd = adMgr.getAdvertisementByName(sName);
+//						if(myAd != null)
+//						{
+//							String usePlaneAddrType = myAd.getUsePlaneType();
+//							String usePlaneAddr = myAd.getUsePlaneAddress();
+//							ChoiceNetMessageField gatewayAddrType = new ChoiceNetMessageField("Addressing Scheme", usePlaneAddrType, "");
+//							ChoiceNetMessageField gatewayAddr = new ChoiceNetMessageField("Addressing Value", usePlaneAddr, "");
+//							ChoiceNetMessageField[] info = {gatewayAddrType,gatewayAddr}; 
+//							gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", info, "");
+//							newPayload[2] = gatewayCredentials;
+//							if(usePlaneAddrType.equals("TCPv4") || usePlaneAddrType.equals("UDPv4"))
+//							{
+//								String[] addr = usePlaneAddr.split(":");
+//								try {
+//									clientIPAddress = InetAddress.getByName(addr[0]);
+//									clientPort = Integer.parseInt(addr[1]);
+//									ChoiceNetMessageField[] signalingPayload = {token};
+//									newPacket = new Packet(PacketType.USE_PLANE_SIGNAL,myName,"",myType,providerType,signalingPayload);
+//									send(newPacket);
+//								} catch (UnknownHostException e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								} catch (NumberFormatException e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								}
+//							}
+//						}
+//						else
+//						{
+//							Logger.log("Warning no ChoiceNet Gateway Credentials found for this service: "+sName+"\nNo advertisement recorded for that service.");
+//						}
+//					}
 					clientIPAddress = providerIPAddress;
 					clientPort = providerPort;
 					//newPacket = new Packet(PacketType.ACK_AND_SEND_TOKEN,myName,"",myType,providerType,newPayload);CONSIDERATION_ACK

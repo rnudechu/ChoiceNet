@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -38,8 +39,6 @@ import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
-import javax.swing.JRadioButton;
-import javax.swing.JTextPane;
 
 public class ProviderGUI implements ActionListener {
 	static Server server;
@@ -54,22 +53,24 @@ public class ProviderGUI implements ActionListener {
 	final static String RENDEZVOUSPANEL = "Card with Rendezvous Panel";
 	final static String SETTINGSPANEL = "Card with Settings Panel";
 	final static String SENDCONSIDERATIONPANEL = "Card with Send Consideration Panel";
-	final static String PURCHASEPANEL = "Card with Purchase Panel";
+	final static String LISTINGPANEL = "Card with Listing Panel";
 	final static String SEARCHMARKETPLACEPANEL = "Card with Marketplace Panel";
 	final static String PLANNERPANEL = "Card with Planner Panel";
 	final static String USEPLANEPANEL = "Card with Access Use Plane Panel";
+	final static String USEPLANEMENUPANEL = "Card with Use Plane Menu Panel";
 	final static String PAYMENTPANEL = "Card with Payment Panel";
 
 	public static int deviceDatabaseSize = 0;
 
 	static JFrame providerServer;
-	static JPanel menuPanel, rendezvousPanel, considerationPanel, purchasePanel, settingsPanel, marketplacePanel, plannerPanel, paymentPanel, usePlanePanel;
+	static JPanel menuPanel, rendezvousPanel, considerationPanel, listingPanel, usePlaneMenuPanel, settingsPanel, marketplacePanel, plannerPanel, paymentPanel, usePlanePanel;
 	private JButton btnRendezvousMenu, btnRendezvousRequest,
 	btnSendConsiderationMenu, btnSendConsiderationRequest, btnKnownEntities,
-	btnSendListingMenu, btnSendListingRequest, btnListingAdvertisementBrowse, btnShowTokenId, 
+	btnUsePlaneMenu, btnSendListingRequest, btnListingAdvertisementBrowse, btnShowTokenId, 
 	btnClearPlanner,searchBtnPlanner,
 	btnSendUsePlane, btnStoredUsePlane, btnSearchMarketplace, btnAccessUsePlane,
-	btnHomeMenuRendezvous, btnHomeMenuListing, btnHomeMenuConsideration, btnHomeMenuUsePlane, btnHomeMenuPlanner, btnPopulateMarketPl;
+	btnHomeMenuRendezvous, btnUsePlaneMenuListing, btnHomeMenuConsideration, btnUsePlaneMenuUsePlane, btnHomeMenuPlanner, btnHomeMenuUsePlaneMenu,
+	btnPopulateMarketPl;
 	private JTextField txtListingIPAddr, txtListingFileLocation, txtListingTokenID, txtListingTarget;
 	private JTextField txtConsiderationServiceName, txtConsiderationTarget, txtConsiderationMethod, txtConsiderationValue, txtConsiderationIPAddr, txtConsiderationAddrType;
 	private JTextField txtRendezvousIPAddr, txtRendezvousTarget;
@@ -131,6 +132,9 @@ public class ProviderGUI implements ActionListener {
 	private JButton btnBackToSendConsideration;
 	private JButton btnGoPaymentPanel;
 	private JButton btnUsePlaneBrowse;
+	private JButton btnUsePlaneShowTokenId;
+	private JButton btnUsePlaneListing;
+	private JButton btnUsePlaneService;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -217,8 +221,12 @@ public class ProviderGUI implements ActionListener {
 		considerationPanel = createSendConsiderationPanel();
 		cards.add(considerationPanel, SENDCONSIDERATIONPANEL);
 
-		purchasePanel = createPurchasePanel();
-		cards.add(purchasePanel, PURCHASEPANEL);
+		// TODO: Here
+		usePlaneMenuPanel = createPurchasePanel();
+		cards.add(usePlaneMenuPanel, USEPLANEMENUPANEL);
+
+		listingPanel = createListingPanel();
+		cards.add(listingPanel, LISTINGPANEL);
 
 		marketplacePanel = createMarketplacePanel();
 		cards.add(marketplacePanel, SEARCHMARKETPLACEPANEL);
@@ -228,7 +236,7 @@ public class ProviderGUI implements ActionListener {
 
 		usePlanePanel = createUsePlanePanel();
 		cards.add(usePlanePanel, USEPLANEPANEL);
-		
+
 		paymentPanel = createPaymentPanel();
 		cards.add(paymentPanel, PAYMENTPANEL);
 
@@ -250,11 +258,22 @@ public class ProviderGUI implements ActionListener {
 			activeCard = "Consideration";
 			actionStateChanged(SENDCONSIDERATIONPANEL);
 		}
-		if(e.getSource() == btnSendListingMenu)
+		if(e.getSource() == btnUsePlaneMenu || e.getSource() == btnUsePlaneMenuListing || e.getSource() == btnUsePlaneMenuUsePlane)
+		{
+			activeCard = "UsePlane";
+			actionStateChanged(USEPLANEMENUPANEL);
+		}
+		if(e.getSource() == btnUsePlaneListing)
 		{
 			activeCard = "Listing";
-			actionStateChanged(PURCHASEPANEL);
+			actionStateChanged(LISTINGPANEL);
 		}
+		if(e.getSource() == btnUsePlaneService)
+		{
+			activeCard = "UsePlane";
+			actionStateChanged(USEPLANEPANEL);
+		}
+
 		if(e.getSource() == btnSearchMarketplace)
 		{
 			activeCard = "Marketplace";
@@ -275,8 +294,8 @@ public class ProviderGUI implements ActionListener {
 			activeCard = "UsePlane";
 			actionStateChanged(USEPLANEPANEL);
 		}
-		if(e.getSource() == btnHomeMenuRendezvous || e.getSource() == btnHomeMenuConsideration || e.getSource() == btnHomeMenuListing || e.getSource() == btnHomeMenuUsePlane
-				|| e.getSource() == btnHomeMenuSearchMarketplace || e.getSource() ==  btnHomeMenuPlanner)
+		if(e.getSource() == btnHomeMenuRendezvous || e.getSource() == btnHomeMenuConsideration || e.getSource() == btnHomeMenuSearchMarketplace || e.getSource() ==  btnHomeMenuPlanner
+				|| e.getSource() == btnHomeMenuUsePlaneMenu)
 		{
 			actionStateChanged(HOMEPANEL);
 		}
@@ -352,10 +371,10 @@ public class ProviderGUI implements ActionListener {
 				}
 				target = txtConsiderationTarget.getText();
 				String exchangeMethod = txtConsiderationMethod.getText();
-//				addr = exchangeMethod.split(":");
-//				String exchangeType = addr[0];
-//				String exchangeValue = addr[1];
-//				System.out.println(exchangeValue+" not being used");
+				//				addr = exchangeMethod.split(":");
+				//				String exchangeType = addr[0];
+				//				String exchangeValue = addr[1];
+				//				System.out.println(exchangeValue+" not being used");
 				String exchangeAmount = txtConsiderationValue.getText();
 				String serviceName = txtConsiderationServiceName.getText();
 				if(success)
@@ -370,10 +389,11 @@ public class ProviderGUI implements ActionListener {
 			message = dEMgr.printDiscoveredEntities();
 			textAreaConsideration.setText(message);
 		}
+
 		// Send Listing Request
 		if(e.getSource() ==  btnListingAdvertisementBrowse)
 		{
-			int returnVal = fc.showOpenDialog(purchasePanel);
+			int returnVal = fc.showOpenDialog(listingPanel);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
@@ -503,7 +523,7 @@ public class ProviderGUI implements ActionListener {
 		}
 		if(e.getSource() == btnPaymentHistory)
 		{
-			
+
 			message = server.considerationMgr.printAvailableConsiderations();
 			textAreaPayment.setText(message);
 		}
@@ -516,6 +536,11 @@ public class ProviderGUI implements ActionListener {
 				File file = fc.getSelectedFile();
 				txtUsePlaneTrafficProp.setText(file.getAbsolutePath());
 			}
+		}
+		if(e.getSource() == btnUsePlaneShowTokenId)
+		{
+			message = tokenMgr.printAvailableTokens();
+			textAreaUsePlane.setText(message);
 		}
 		if(e.getSource() == btnSendUsePlane)
 		{
@@ -632,15 +657,15 @@ public class ProviderGUI implements ActionListener {
 		//		btnSettings.addActionListener(this);
 		//		providerHomeMenuPanel.add(btnSettings, "9, 3, right, default");,
 
-		btnSendConsiderationMenu = new JButton("Send Consideration");
+		btnSendConsiderationMenu = new JButton("Purchase Menu");
 		btnSendConsiderationMenu.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnSendConsiderationMenu.addActionListener(this);
 		providerHomeMenuPanel.add(btnSendConsiderationMenu, "7, 9");
 
-		btnSendListingMenu = new JButton("Send Purchase Request");
-		btnSendListingMenu.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnSendListingMenu.addActionListener(this);
-		providerHomeMenuPanel.add(btnSendListingMenu, "9, 9, center, default");
+		btnUsePlaneMenu = new JButton("Use Plane Menu");
+		btnUsePlaneMenu.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneMenu.addActionListener(this);
+		providerHomeMenuPanel.add(btnUsePlaneMenu, "9, 9");
 
 		chckbxTurnTestData = new JCheckBox("Turn Test Data On");
 		chckbxTurnTestData.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -718,15 +743,15 @@ public class ProviderGUI implements ActionListener {
 		//		btnSettings.addActionListener(this);
 		//		customerHomeMenuPanel.add(btnSettings, "9, 3, right, default");,
 
-		btnSendConsiderationMenu = new JButton("Send Consideration");
+		btnSendConsiderationMenu = new JButton("Purchase Menu");
 		btnSendConsiderationMenu.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnSendConsiderationMenu.addActionListener(this);
 		customerHomeMenuPanel.add(btnSendConsiderationMenu, "7, 9");
 
-		btnSendListingMenu = new JButton("Send Purchase Request");
-		btnSendListingMenu.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnSendListingMenu.addActionListener(this);
-		customerHomeMenuPanel.add(btnSendListingMenu, "9, 9, center, default");
+		btnUsePlaneMenu = new JButton("Use Plane Menu");
+		btnUsePlaneMenu.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneMenu.addActionListener(this);
+		customerHomeMenuPanel.add(btnUsePlaneMenu, "9, 9");
 
 		chckbxTurnTestData = new JCheckBox("Turn Test Data On");
 		chckbxTurnTestData.addActionListener(this);
@@ -736,16 +761,16 @@ public class ProviderGUI implements ActionListener {
 		customerHomeMenuPanel.add(btnSearchMarketplace, "3, 13");
 		btnSearchMarketplace.addActionListener(this);
 
-		btnAccessUsePlane = new JButton("Access Use Plane");
-//		btnAccessUsePlane.setEnabled(false);
-		btnAccessUsePlane.addActionListener(this);
-		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		//		btnAccessUsePlane = new JButton("Access Use Plane");
+		//		btnAccessUsePlane.setEnabled(false);
+		//		btnAccessUsePlane.addActionListener(this);
+		//		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 
 		btnUsePlannerService = new JButton("Use Planner Service");
 		btnUsePlannerService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlannerService.addActionListener(this);
 		customerHomeMenuPanel.add(btnUsePlannerService, "7, 13");
-		customerHomeMenuPanel.add(btnAccessUsePlane, "9, 13, center, default");
+		//		customerHomeMenuPanel.add(btnAccessUsePlane, "9, 13, center, default");
 		customerHomeMenuPanel.add(chckbxTurnTestData, "3, 17");
 
 		return customerHomeMenuPanel;
@@ -978,15 +1003,15 @@ public class ProviderGUI implements ActionListener {
 		//		btnSettings.addActionListener(this);
 		//		menuPanel.add(btnSettings, "9, 3, right, default");,
 
-		btnSendConsiderationMenu = new JButton("Send Consideration");
+		btnSendConsiderationMenu = new JButton("Purchase Menu");
 		btnSendConsiderationMenu.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnSendConsiderationMenu.addActionListener(this);
 		menuPanel.add(btnSendConsiderationMenu, "7, 9");
 
-		btnSendListingMenu = new JButton("Send Purchase Request");
-		btnSendListingMenu.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnSendListingMenu.addActionListener(this);
-		menuPanel.add(btnSendListingMenu, "9, 9, center, default");
+		btnUsePlaneMenu = new JButton("Use Plane Menu");
+		btnUsePlaneMenu.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneMenu.addActionListener(this);
+		menuPanel.add(btnUsePlaneMenu, "9, 9");
 
 		chckbxTurnTestData = new JCheckBox("Turn Test Data On");
 		chckbxTurnTestData.addActionListener(this);
@@ -996,10 +1021,10 @@ public class ProviderGUI implements ActionListener {
 		menuPanel.add(btnSearchMarketplace, "3, 13");
 		btnSearchMarketplace.addActionListener(this);
 
-		btnAccessUsePlane = new JButton("Access Use Plane");
-//		btnAccessUsePlane.setEnabled(false);
-		btnAccessUsePlane.addActionListener(this);
-		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		//		btnAccessUsePlane = new JButton("Access Use Plane");
+		//		btnAccessUsePlane.setEnabled(false);
+		//		btnAccessUsePlane.addActionListener(this);
+		//		btnAccessUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 
 		btnPopulateMarketPl = new JButton("Populate Marketplace");
 		btnPopulateMarketPl.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -1009,9 +1034,9 @@ public class ProviderGUI implements ActionListener {
 		btnUsePlannerService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlannerService.addActionListener(this);
 		menuPanel.add(btnUsePlannerService, "7, 13");
-		
 
-		menuPanel.add(btnAccessUsePlane, "9, 13, center, default");
+
+		//		menuPanel.add(btnAccessUsePlane, "9, 13, center, default");
 		menuPanel.add(chckbxTurnTestData, "3, 17");
 		menuPanel.add(btnPopulateMarketPl, "3, 19");
 
@@ -1025,14 +1050,16 @@ public class ProviderGUI implements ActionListener {
 	public JPanel createPurchasePanel ()
 	{
 
-		JPanel purchasePanel = new JPanel();
-		purchasePanel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel usePlaneMenuPanel = new JPanel();
+		usePlaneMenuPanel.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("6px"),
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
@@ -1072,14 +1099,95 @@ public class ProviderGUI implements ActionListener {
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("bottom:default"),}));
 
-		JLabel title = new JLabel("Trigger: Purchase Request");
+		JLabel title = new JLabel("Trigger: Use Plane Interaction");
 		title.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(title, "4, 3, 3, 1, center, default");
+		usePlaneMenuPanel.add(title, "4, 3, 5, 1, center, default");
 
-		btnHomeMenuListing = new JButton("Back to Main Menu");
-		btnHomeMenuListing.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnHomeMenuListing.addActionListener(this);
-		purchasePanel.add(btnHomeMenuListing, "8, 3, right, default");
+		btnHomeMenuUsePlaneMenu = new JButton("Back to Main Menu");
+		btnHomeMenuUsePlaneMenu.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnHomeMenuUsePlaneMenu.addActionListener(this);
+		usePlaneMenuPanel.add(btnHomeMenuUsePlaneMenu, "10, 3, right, default");
+
+		lblListingMessage = new JLabel("");
+		lblListingMessage.setFont(new Font("Dialog", Font.BOLD, 12));
+		lblListingMessage.setForeground(Color.BLUE);
+		usePlaneMenuPanel.add(lblListingMessage, "4, 5, 7, 1");
+
+		btnUsePlaneListing = new JButton("Advertise Service");
+		btnUsePlaneListing.addActionListener(this);
+		btnUsePlaneListing.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlaneMenuPanel.add(btnUsePlaneListing, "4, 7");
+
+		btnUsePlaneService = new JButton("Activate Service");
+		btnUsePlaneService.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneService.addActionListener(this);
+		usePlaneMenuPanel.add(btnUsePlaneService, "4, 11");
+
+		return usePlaneMenuPanel;
+	}
+
+	/**
+	 *  Returns a JPanel of the Login screen
+	 * @return JPanel
+	 */
+	public JPanel createListingPanel ()
+	{
+
+		JPanel listingPanel = new JPanel();
+		listingPanel.setLayout(new FormLayout(new ColumnSpec[] {
+				ColumnSpec.decode("6px"),
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				ColumnSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,},
+				new RowSpec[] {
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("20px"),
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				RowSpec.decode("20px"),
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.NARROW_LINE_GAP_ROWSPEC,
+				RowSpec.decode("24px"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.UNRELATED_GAP_ROWSPEC,
+				RowSpec.decode("26px"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("default:grow"),
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				FormFactory.DEFAULT_ROWSPEC,
+				FormFactory.RELATED_GAP_ROWSPEC,
+				RowSpec.decode("bottom:default"),}));
+
+		JLabel title = new JLabel("Trigger: Listing Request");
+		title.setFont(new Font("Dialog", Font.BOLD, 12));
+		listingPanel.add(title, "4, 3, center, default");
+
+		btnUsePlaneMenuListing = new JButton("Back to Use Plane Menu");
+		btnUsePlaneMenuListing.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneMenuListing.addActionListener(this);
+		listingPanel.add(btnUsePlaneMenuListing, "6, 3, 3, 1, right, default");
 
 		btnSendListingRequest = new JButton("Send Listing Request");
 		btnSendListingRequest.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -1088,65 +1196,65 @@ public class ProviderGUI implements ActionListener {
 		lblListingMessage = new JLabel("");
 		lblListingMessage.setFont(new Font("Dialog", Font.BOLD, 12));
 		lblListingMessage.setForeground(Color.BLUE);
-		purchasePanel.add(lblListingMessage, "4, 5, 5, 1");
+		listingPanel.add(lblListingMessage, "4, 5, 5, 1");
 
 		JLabel lblMarketplaceEconomyPlane = new JLabel("Marketplace Economy Plane Agent Address Type");
 		lblMarketplaceEconomyPlane.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(lblMarketplaceEconomyPlane, "4, 9");
+		listingPanel.add(lblMarketplaceEconomyPlane, "4, 9");
 
 		txtListingAddrType = new JTextField();
-		purchasePanel.add(txtListingAddrType, "6, 9, fill, default");
+		listingPanel.add(txtListingAddrType, "6, 9, fill, default");
 		txtListingAddrType.setColumns(10);
 
 		JLabel lblMarketplaceIpAddress = new JLabel("Marketplace Economy Plane Agent Address");
 		lblMarketplaceIpAddress.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(lblMarketplaceIpAddress, "4, 11");
+		listingPanel.add(lblMarketplaceIpAddress, "4, 11");
 
 		txtListingIPAddr = new JTextField();
-		purchasePanel.add(txtListingIPAddr, "6, 11, fill, default");
+		listingPanel.add(txtListingIPAddr, "6, 11, fill, default");
 		txtListingIPAddr.setColumns(10);
 
 		JLabel lblListingServiceTarget = new JLabel("Listing Service Target");
 		lblListingServiceTarget.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(lblListingServiceTarget, "4, 13");
+		listingPanel.add(lblListingServiceTarget, "4, 13");
 
 		txtListingTarget = new JTextField();
-		purchasePanel.add(txtListingTarget, "6, 13, fill, default");
+		listingPanel.add(txtListingTarget, "6, 13, fill, default");
 		txtListingTarget.setColumns(10);
 		JLabel lblRendezvousTarget = new JLabel("Token ID");
 		lblRendezvousTarget.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(lblRendezvousTarget, "4, 15");
+		listingPanel.add(lblRendezvousTarget, "4, 15");
 		txtListingTokenID = new JTextField();
-		purchasePanel.add(txtListingTokenID, "6, 15, fill, default");
+		listingPanel.add(txtListingTokenID, "6, 15, fill, default");
 		txtListingTokenID.setColumns(10);
 
 		JLabel lblServiceAdvertisementLocation = new JLabel("Advertisement Specification");
 		lblServiceAdvertisementLocation.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(lblServiceAdvertisementLocation, "4, 17");
+		listingPanel.add(lblServiceAdvertisementLocation, "4, 17");
 
 		txtListingFileLocation = new JTextField();
 		txtListingFileLocation.setEditable(false);
-		purchasePanel.add(txtListingFileLocation, "6, 17, fill, default");
+		listingPanel.add(txtListingFileLocation, "6, 17, fill, default");
 		txtListingFileLocation.setColumns(10);
 
 		btnListingAdvertisementBrowse = new JButton("Browse");
 		btnListingAdvertisementBrowse.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnListingAdvertisementBrowse.addActionListener(this);
-		purchasePanel.add(btnListingAdvertisementBrowse, "8, 17, left, default");
-		purchasePanel.add(btnSendListingRequest, "4, 21, center, default");
+		listingPanel.add(btnListingAdvertisementBrowse, "8, 17, left, default");
+		listingPanel.add(btnSendListingRequest, "4, 21, center, default");
 
 		btnShowTokenId = new JButton("Show Token ID");
 		btnShowTokenId.addActionListener(this);
 		btnShowTokenId.setFont(new Font("Dialog", Font.BOLD, 12));
-		purchasePanel.add(btnShowTokenId, "6, 21");
+		listingPanel.add(btnShowTokenId, "6, 21, center, default");
 
 		textAreaListing = new JTextArea();
 		textAreaListing.setLineWrap(true);
 		textAreaListing.setWrapStyleWord(true);
 		JScrollPane scroll = new JScrollPane (textAreaListing);
-		purchasePanel.add(scroll, "4, 23, 5, 7, fill, fill");
+		listingPanel.add(scroll, "4, 23, 5, 7, fill, fill");
 
-		return purchasePanel;
+		return listingPanel;
 	}
 
 	/**
@@ -1302,7 +1410,7 @@ public class ProviderGUI implements ActionListener {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				RowSpec.decode("bottom:default"),}));
-		JLabel title = new JLabel("Trigger: Send Consideration");
+		JLabel title = new JLabel("Trigger: Purchase Interaction");
 		title.setFont(new Font("Dialog", Font.BOLD, 12));
 		considerationPanel.add(title, "3, 3, 3, 1, center, default");
 
@@ -1311,7 +1419,7 @@ public class ProviderGUI implements ActionListener {
 		btnHomeMenuConsideration.addActionListener(this);
 		considerationPanel.add(btnHomeMenuConsideration, "7, 3");
 
-		btnSendConsiderationRequest = new JButton("Send Consideration");
+		btnSendConsiderationRequest = new JButton("Request Token");
 		btnSendConsiderationRequest.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnSendConsiderationRequest.addActionListener(this);
 
@@ -1371,7 +1479,7 @@ public class ProviderGUI implements ActionListener {
 		btnKnownEntities.addActionListener(this);
 		btnKnownEntities.setFont(new Font("Dialog", Font.BOLD, 12));
 		considerationPanel.add(btnKnownEntities, "5, 21, center, default");
-		
+
 		btnGoPaymentPanel = new JButton("Make Payment");
 		btnGoPaymentPanel.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnGoPaymentPanel.addActionListener(this);
@@ -1734,7 +1842,7 @@ public class ProviderGUI implements ActionListener {
 
 		return plannerPanel;
 	}
-	
+
 	/**
 	 *  Returns a JPanel of the Login screen
 	 * @return JPanel
@@ -1757,7 +1865,7 @@ public class ProviderGUI implements ActionListener {
 				ColumnSpec.decode("max(77dlu;default):grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,},
-			new RowSpec[] {
+				new RowSpec[] {
 				FormFactory.DEFAULT_ROWSPEC,
 				FormFactory.RELATED_GAP_ROWSPEC,
 				FormFactory.DEFAULT_ROWSPEC,
@@ -1797,92 +1905,92 @@ public class ProviderGUI implements ActionListener {
 		JLabel title = new JLabel("Trigger: Make Payment Plane");
 		title.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(title, "4, 3, 8, 1, center, default");
-		
+
 		btnBackToSendConsideration = new JButton("Previous Panel");
 		btnBackToSendConsideration.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnBackToSendConsideration.addActionListener(this);
 		paymentPanel.add(btnBackToSendConsideration, "12, 3, right, default");
-		
+
 		lblPaymentUrl = new JLabel("Payment URL:");
 		paymentPanel.add(lblPaymentUrl, "4, 7, left, default");
-		
+
 		paymentURLTextField = new JTextField( Server.purchasePortal);
 		paymentPanel.add(paymentURLTextField, "6, 7, 7, 1, fill, default");
 		paymentURLTextField.setColumns(10);
-		
+
 		lblPaymentMethod = new JLabel("Payment Method:");
 		lblPaymentMethod.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblPaymentMethod, "4, 11");
-		
+
 		rdbtnBitcoin = new JRadioButton("Bitcoin");
 		rdbtnBitcoin.setSelected(true);
 		rdbtnBitcoin.setFont(new Font("Dialog", Font.BOLD, 12));
 		rdbtnBitcoin.addActionListener(this);
 		paymentPanel.add(rdbtnBitcoin, "6, 11");
-		
+
 		rdbtnCreditCard = new JRadioButton("Credit Card");
 		rdbtnCreditCard.setEnabled(false);
 		rdbtnCreditCard.setFont(new Font("Dialog", Font.BOLD, 12));
 		rdbtnCreditCard.addActionListener(this);
 		paymentPanel.add(rdbtnCreditCard, "10, 11");
-		
+
 		rdbtnPaypal = new JRadioButton("Paypal");
 		rdbtnPaypal.setEnabled(false);
 		rdbtnPaypal.setFont(new Font("Dialog", Font.BOLD, 12));
 		rdbtnPaypal.addActionListener(this);
 		paymentPanel.add(rdbtnPaypal, "12, 11");
-		
+
 		group = new ButtonGroup();
 		group.add(rdbtnBitcoin);
 		group.add(rdbtnCreditCard);
 		group.add(rdbtnPaypal);
-		
+
 		lblAccount = new JLabel("Account:");
 		lblAccount.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblAccount, "4, 13, left, default");
-		
+
 		accountTextField = new JTextField();
 		paymentPanel.add(accountTextField, "6, 13, 7, 1, fill, default");
 		accountTextField.setColumns(10);
-		
+
 		lblAmount = new JLabel("Amount:");
 		lblAmount.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblAmount, "4, 15, left, default");
-		
+
 		amountTextField = new JTextField();
 		paymentPanel.add(amountTextField, "6, 15, 3, 1, fill, default");
 		amountTextField.setColumns(10);
-		
+
 		lblUsd = new JLabel("USD");
 		lblUsd.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblUsd, "10, 15, left, default");
-		
+
 		lblServiceName = new JLabel("Service Name:");
 		lblServiceName.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblServiceName, "4, 17, left, default");
-		
+
 		paymentServiceNameTextField = new JTextField();
 		paymentPanel.add(paymentServiceNameTextField, "6, 17, 3, 1, fill, default");
 		paymentServiceNameTextField.setColumns(10);
-		
+
 		btnMakePayment = new JButton("Make Payment");
 		btnMakePayment.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnMakePayment.addActionListener(this);
 		paymentPanel.add(btnMakePayment, "4, 19");
-		
+
 		btnPaymentHistory = new JButton("Payment History");
 		btnPaymentHistory.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnPaymentHistory.addActionListener(this);
 		paymentPanel.add(btnPaymentHistory, "6, 19");
-		
+
 		textAreaPayment = new JTextArea();
-		
+
 		textAreaPayment.setLineWrap(true);
 		textAreaPayment.setWrapStyleWord(true);
 		textAreaPayment.setEditable(false);
 		JScrollPane scroll = new JScrollPane(textAreaPayment);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
+
 		paymentPanel.add(scroll, "4, 21, 9, 12, fill, fill");
 
 		return paymentPanel;
@@ -1899,14 +2007,13 @@ public class ProviderGUI implements ActionListener {
 		usePlanePanel.setLayout(new FormLayout(new ColumnSpec[] {
 				ColumnSpec.decode("6px"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
 				ColumnSpec.decode("min:grow"),
 				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 				FormFactory.MIN_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("max(74dlu;pref):grow"),
+				ColumnSpec.decode("max(93dlu;pref):grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("max(30dlu;default):grow"),
+				ColumnSpec.decode("max(20dlu;default):grow"),
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,},
 				new RowSpec[] {
@@ -1944,64 +2051,76 @@ public class ProviderGUI implements ActionListener {
 
 		JLabel title = new JLabel("Trigger: Access Use Plane");
 		title.setFont(new Font("Dialog", Font.BOLD, 12));
-		usePlanePanel.add(title, "4, 3, 3, 1, center, default");
+		usePlanePanel.add(title, "3, 3, 3, 1, center, default");
 
-		btnHomeMenuUsePlane = new JButton("Back to Main Menu");
-		btnHomeMenuUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
-		btnHomeMenuUsePlane.addActionListener(this);
-		usePlanePanel.add(btnHomeMenuUsePlane, "8, 3, 3, 1, right, default");
+		btnUsePlaneMenuUsePlane = new JButton("Back to Use Plane Menu");
+		btnUsePlaneMenuUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnUsePlaneMenuUsePlane.addActionListener(this);
+		usePlanePanel.add(btnUsePlaneMenuUsePlane, "7, 3, 3, 1, right, default");
 
 		lblUsePlaneMessage = new JLabel("");
 		lblUsePlaneMessage.setForeground(Color.BLUE);
 		lblUsePlaneMessage.setFont(new Font("Dialog", Font.BOLD, 12));
-		usePlanePanel.add(lblUsePlaneMessage, "4, 5, 7, 1");
+		usePlanePanel.add(lblUsePlaneMessage, "3, 5, 7, 1");
 
 		JLabel lblChoicenetGatewayUse = new JLabel("ChoiceNet Gateway Use Plane Agent Type");
-		usePlanePanel.add(lblChoicenetGatewayUse, "4, 7");
+		lblChoicenetGatewayUse.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlanePanel.add(lblChoicenetGatewayUse, "3, 7");
 
 		txtUsePlaneGWType = new JTextField();
-		usePlanePanel.add(txtUsePlaneGWType, "8, 7, fill, default");
+		usePlanePanel.add(txtUsePlaneGWType, "7, 7, fill, default");
 		txtUsePlaneGWType.setColumns(10);
 
 		JLabel lblChoicenetGatewayUse_1 = new JLabel("ChoiceNet Gateway Use Plane Agent Address");
-		usePlanePanel.add(lblChoicenetGatewayUse_1, "4, 9");
+		lblChoicenetGatewayUse_1.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlanePanel.add(lblChoicenetGatewayUse_1, "3, 9");
 
 		txtUsePlaneGWAddr = new JTextField();
-		usePlanePanel.add(txtUsePlaneGWAddr, "8, 9, fill, default");
+		usePlanePanel.add(txtUsePlaneGWAddr, "7, 9, fill, default");
 		txtUsePlaneGWAddr.setColumns(10);
-				
-						JLabel lblToken = new JLabel("Token");
-						usePlanePanel.add(lblToken, "4, 11");
-		
-				txtUsePlaneToken = new JTextField();
-				usePlanePanel.add(txtUsePlaneToken, "8, 11, fill, default");
-				txtUsePlaneToken.setColumns(10);
+
+		JLabel lblToken = new JLabel("Token ID");
+		lblToken.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlanePanel.add(lblToken, "3, 11");
+
+		txtUsePlaneToken = new JTextField();
+		usePlanePanel.add(txtUsePlaneToken, "7, 11, fill, default");
+		txtUsePlaneToken.setColumns(10);
 
 		JLabel lblChuserUsePlane = new JLabel("Traffic Properties");
-		usePlanePanel.add(lblChuserUsePlane, "4, 13");
+		lblChuserUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlanePanel.add(lblChuserUsePlane, "3, 13");
 
 		txtUsePlaneTrafficProp = new JTextField();
 		txtUsePlaneTrafficProp.setEditable(false);
-		usePlanePanel.add(txtUsePlaneTrafficProp, "8, 13, fill, default");
+		usePlanePanel.add(txtUsePlaneTrafficProp, "7, 13, fill, default");
 		txtUsePlaneTrafficProp.setColumns(10);
 
-		btnSendUsePlane = new JButton("Send Use Plane Signal");
-		btnSendUsePlane.addActionListener(this);
-		
 		btnUsePlaneBrowse = new JButton("Browse");
+		btnUsePlaneBrowse.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlaneBrowse.addActionListener(this);
-		usePlanePanel.add(btnUsePlaneBrowse, "10, 13");
-		usePlanePanel.add(btnSendUsePlane, "4, 19, center, default");
+		usePlanePanel.add(btnUsePlaneBrowse, "9, 13, left, default");
+
+		btnUsePlaneShowTokenId = new JButton("Show Token ID");
+		btnUsePlaneShowTokenId.addActionListener(this);
+
+		btnSendUsePlane = new JButton("Send Use Plane Signal");
+		btnSendUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
+		btnSendUsePlane.addActionListener(this);
 
 		btnStoredUsePlane = new JButton("Stored Use Plane Information");
+		btnStoredUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnStoredUsePlane.addActionListener(this);
-		usePlanePanel.add(btnStoredUsePlane, "8, 19, center, default");
+		usePlanePanel.add(btnStoredUsePlane, "3, 19, center, default");
+		usePlanePanel.add(btnSendUsePlane, "7, 19, center, default");
+		btnUsePlaneShowTokenId.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlanePanel.add(btnUsePlaneShowTokenId, "9, 19");
 
 		textAreaUsePlane = new JTextArea();
 		textAreaUsePlane.setLineWrap(true);
 		textAreaUsePlane.setWrapStyleWord(true);
 		JScrollPane scroll = new JScrollPane (textAreaUsePlane);
-		usePlanePanel.add(scroll, "4, 21, 7, 9, fill, fill");
+		usePlanePanel.add(scroll, "3, 21, 7, 9, fill, fill");
 
 		return usePlanePanel;
 	}
@@ -2024,7 +2143,7 @@ public class ProviderGUI implements ActionListener {
 			String srcLocation = "A,B";
 			String dstLocation = "B";
 			String reason = targetServiceName;
-
+			String fileNameFirewall = "/Users/rudechuk/Documents/CSC/Research/JUNO/workspace/ChoiceNetArchitecture/firewallSettings.xml";
 
 			txtRendezvousIPAddr.setText(ipAddr);
 			txtRendezvousAddrType.setText(addrType);
@@ -2053,11 +2172,15 @@ public class ProviderGUI implements ActionListener {
 			txtLocationDestinationTypePlanner.setText(dstLocationType);
 			textFieldLocationSourcePlanner.setText(srcLocation);
 			textFieldLocationDestinationPlanner.setText(dstLocation);
-			
+
 			paymentURLTextField.setText(Server.purchasePortal);
 			accountTextField.setText("mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxF");
 			amountTextField.setText(cValue);
 			paymentServiceNameTextField.setText(reason);
+
+			txtUsePlaneGWAddr.setText(ipAddr);
+			txtUsePlaneGWType.setText(addrType);
+			txtUsePlaneTrafficProp.setText(fileNameFirewall);
 		}
 		else
 		{
@@ -2083,11 +2206,15 @@ public class ProviderGUI implements ActionListener {
 			txtLocationDestinationTypeMktpl.setText("");
 			textFieldLocationSourceMktpl.setText("");
 			textFieldLocationDestinationMktpl.setText("");
-			
+
 			paymentURLTextField.setText("");
 			accountTextField.setText("");
 			amountTextField.setText("");
 			paymentServiceNameTextField.setText("");
+
+			txtUsePlaneGWAddr.setText("");
+			txtUsePlaneGWType.setText("");
+			txtUsePlaneTrafficProp.setText("");
 		}
 	}
 	public static void updateTextArea(String systemMessage)
@@ -2159,18 +2286,18 @@ public class ProviderGUI implements ActionListener {
 		}
 		testOn = setting;
 	}
-	
+
 	public String getSelectedButtonText(ButtonGroup buttonGroup) {
-        for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
-            AbstractButton button = buttons.nextElement();
+		for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+			AbstractButton button = buttons.nextElement();
 
-            if (button.isSelected()) {
-                return button.getText();
-            }
-        }
+			if (button.isSelected()) {
+				return button.getText();
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
 	public static void main(String[] args) {
 		/* Use an appropriate Look and Feel */
