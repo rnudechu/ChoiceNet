@@ -134,7 +134,7 @@ public class ServerThread extends Thread {
 
 		return 0;
 	}
-	
+
 	/**
 	 * 	Send
 	 * This function simply takes in a Packet object to be sent across the network.  Its destination is encoded into the Packet object.
@@ -143,12 +143,15 @@ public class ServerThread extends Thread {
 	private int sendFirewallMsg (String firewallXML) {
 		try 
 		{
-			System.out.println("Sending XML:\n"+firewallXML);
+			byte[] ipAddrBytes = new byte[]{10, 0, 1, 100};
+			InetAddress addr = InetAddress.getByAddress(ipAddrBytes);
+
+			System.out.println("Sending Firewall XML:\n"+firewallXML);
 			sendData = firewallXML.getBytes();
 			System.out.println("Size of payload: "+sendData.length);
 			// as of now the IP Address and port are being ignored
 			// all packets from the Provider address is treated as control
-			sendPacket = new DatagramPacket(sendData, sendData.length, clientIPAddress, clientPort); 
+			sendPacket = new DatagramPacket(sendData, sendData.length, addr, 6000); 
 			socket.send(sendPacket);
 			Logger.log("Following information is being to sent to "+clientIPAddress+":"+clientPort+"\n"+firewallXML);
 		} 
@@ -202,7 +205,7 @@ public class ServerThread extends Thread {
 								checkRendezvousResponse(packet);
 							}
 							// Received a Transfer Consideration Message
-							if(packetType == PacketType.TRANSFER_CONSIDERATION)
+							if(packetType == PacketType.TOKEN_REQUEST)
 							{
 								respondToTransferConsiderationRequest(packet);
 							}
@@ -212,8 +215,8 @@ public class ServerThread extends Thread {
 								respondToListingRequest(packet);
 							}
 							// Received a ACK Consideration Message
-							//if(packetType == PacketType.ACK_AND_SEND_TOKEN)CONSIDERATION_ACK
-							if(packetType == PacketType.CONSIDERATION_ACK)
+							//if(packetType == PacketType.ACK_AND_SEND_TOKEN)TOKEN_RESPONSE
+							if(packetType == PacketType.TOKEN_RESPONSE)
 							{
 								respondToConsiderationACK(packet);
 							}
@@ -267,41 +270,11 @@ public class ServerThread extends Thread {
 							{
 								respondToUseAttempt(packet);
 							}
-							// Received a purchase request
-							if(packetType == PacketType.USE_PLANE_SIGNAL)
-							{
-								respondToUsePlaneSignaling(packet);
-							}
 							// Received a purchase ACK
-							if(packetType == PacketType.ACK_USE_ATTEMPT)
+							if(packetType == PacketType.USE_ATTEMPT_CONFIRMATION)
 							{
 								logUseAttemptAck(packet);
 							}
-							// Received a purchase NACK
-							if(packetType == PacketType.NACK_USE_ATTEMPT)
-							{
-								//									updatePurchaseStatus(packet, PacketType.USE_ATTEMPT);
-							}
-							// Received a purchase request
-							if(packetType == PacketType.RELEASE_USE_ATTEMPT_RESOURCES)
-							{
-								//									respondToPurgePurchaseRequest(packet);
-							}
-							// Received a purchase ACK
-							if(packetType == PacketType.ACK_RELEASE_USE_ATTEMPT_RESOURCES)
-							{
-								//									updatePurchaseStatus(packet, PacketType.RELEASE_USE_ATTEMPT_RESOURCES);
-							}
-							// Received a purchase NACK
-							if(packetType == PacketType.NACK_RELEASE_USE_ATTEMPT_RESOURCES)
-							{
-								//									updatePurchaseStatus(packet, PacketType.RELEASE_USE_ATTEMPT_RESOURCES);
-							}
-							if(packetType == PacketType.USE_ATTEMPT_STATUS)
-							{
-								System.out.println("Updating purchase status");
-							}
-
 						}
 						else
 						{
@@ -362,7 +335,7 @@ public class ServerThread extends Thread {
 		else
 		{
 			message = "No Planner to handle request";
-			
+
 			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.PLANNER_REQUEST.toString(), 1, message);
 			packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
 		}
@@ -496,7 +469,7 @@ public class ServerThread extends Thread {
 						message += "ID: "+myAd.getId()+"\n";
 						message += "\tDescription: "+myAd.getDescription()+"\n";
 						message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
-						
+
 						message += "\tLocation Source: "+Arrays.toString(myAd.getSrcLocationAddrScheme())+":"+Arrays.toString(myAd.getSrcLocationAddrValue())+"\n";
 						message += "\tLocation Destination: "+Arrays.toString(myAd.getDstLocationAddrScheme())+":"+Arrays.toString(myAd.getDstLocationAddrValue())+"\n";
 						message += "\tFormat Source: "+Arrays.toString(myAd.getSrcFormatScheme())+":"+Arrays.toString(myAd.getSrcFormatValue())+"\n";
@@ -517,9 +490,9 @@ public class ServerThread extends Thread {
 		// TODO Auto-generated method stub
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		String handleID = (String) payload[0].getValue();
-		String usePlanePortal = (String) payload[1].getValue();
-		String usePlanePlugIn = (String) payload[2].getValue();
-		String message = "Handle ID: "+handleID+" Use Plane Portal: "+usePlanePortal+" Use Plane PlugIn: "+usePlanePlugIn;
+		ChoiceNetMessageField token = payload[1];
+		Token myToken = cnLibrary.extractTokenContent(token);
+		String message = "Handle ID: "+handleID+" Token: "+myToken;
 		Server.systemMessage = message;
 	}
 	private void respondToUsePlaneSignaling(Packet packet) {
@@ -637,7 +610,7 @@ public class ServerThread extends Thread {
 				consideration = targetConsiderationContent.split(" ");
 				String targetConsiderationAmount = consideration[0];
 				String targetConsiderationCurrency = consideration[1]; 
-				
+
 				String reason = "ChoiceNet Entity: "+packet.getOriginatorName()+" purchased "+myName+": "+sName;
 				reason = reason.replace(" ", "%20");
 				System.out.println("Reason: "+reason);
@@ -653,7 +626,7 @@ public class ServerThread extends Thread {
 					// Transaction Number 
 					int tNumber = (Integer) payload[0].getValue();
 					// Create Token
-	
+
 					long eTime = 5; // where eTime is measured in minutes
 					String originatorName = (String) packet.getOriginatorName().getValue();
 					// TODO: Change Token Service Name quantity to Token Type Qualifier, ex: Listing:5
@@ -673,7 +646,9 @@ public class ServerThread extends Thread {
 							tokenType = "Transport";
 						}
 					}
+					// creates Token
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
+					
 					/*
 					// retrieve the Traffic Properties field ... if not empty send it to your (OpenFlow-enabled) firewall
 					String firewallXML = (String) payload[5].getValue();
@@ -682,7 +657,7 @@ public class ServerThread extends Thread {
 						System.out.println(firewallXML);
 						sendFirewallMsg(firewallXML);
 					}
-					*/
+					 */
 					// Send ACK with Token
 					ChoiceNetMessageField transactionNum = new ChoiceNetMessageField("Transaction Number", tNumber, "");
 					// TODO: Empty gateway credentials: Marketplace should provide something here
@@ -691,46 +666,46 @@ public class ServerThread extends Thread {
 					InetAddress providerIPAddress = clientIPAddress;
 					int providerPort = clientPort;
 					// TODO: Note: Depending on the Provider Type more operations may be necessary
-//					if(myType.equals("Provider") && !providerType.equals("Marketplace"))
-//					{
-//						// Contact the service's ChoiceNet Gateway for given service advertisement
-//						Advertisement myAd = adMgr.getAdvertisementByName(sName);
-//						if(myAd != null)
-//						{
-//							String usePlaneAddrType = myAd.getUsePlaneType();
-//							String usePlaneAddr = myAd.getUsePlaneAddress();
-//							ChoiceNetMessageField gatewayAddrType = new ChoiceNetMessageField("Addressing Scheme", usePlaneAddrType, "");
-//							ChoiceNetMessageField gatewayAddr = new ChoiceNetMessageField("Addressing Value", usePlaneAddr, "");
-//							ChoiceNetMessageField[] info = {gatewayAddrType,gatewayAddr}; 
-//							gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", info, "");
-//							newPayload[2] = gatewayCredentials;
-//							if(usePlaneAddrType.equals("TCPv4") || usePlaneAddrType.equals("UDPv4"))
-//							{
-//								String[] addr = usePlaneAddr.split(":");
-//								try {
-//									clientIPAddress = InetAddress.getByName(addr[0]);
-//									clientPort = Integer.parseInt(addr[1]);
-//									ChoiceNetMessageField[] signalingPayload = {token};
-//									newPacket = new Packet(PacketType.USE_PLANE_SIGNAL,myName,"",myType,providerType,signalingPayload);
-//									send(newPacket);
-//								} catch (UnknownHostException e) {
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								} catch (NumberFormatException e) {
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								}
-//							}
-//						}
-//						else
-//						{
-//							Logger.log("Warning no ChoiceNet Gateway Credentials found for this service: "+sName+"\nNo advertisement recorded for that service.");
-//						}
-//					}
+					//					if(myType.equals("Provider") && !providerType.equals("Marketplace"))
+					//					{
+					//						// Contact the service's ChoiceNet Gateway for given service advertisement
+					//						Advertisement myAd = adMgr.getAdvertisementByName(sName);
+					//						if(myAd != null)
+					//						{
+					//							String usePlaneAddrType = myAd.getUsePlaneType();
+					//							String usePlaneAddr = myAd.getUsePlaneAddress();
+					//							ChoiceNetMessageField gatewayAddrType = new ChoiceNetMessageField("Addressing Scheme", usePlaneAddrType, "");
+					//							ChoiceNetMessageField gatewayAddr = new ChoiceNetMessageField("Addressing Value", usePlaneAddr, "");
+					//							ChoiceNetMessageField[] info = {gatewayAddrType,gatewayAddr}; 
+					//							gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", info, "");
+					//							newPayload[2] = gatewayCredentials;
+					//							if(usePlaneAddrType.equals("TCPv4") || usePlaneAddrType.equals("UDPv4"))
+					//							{
+					//								String[] addr = usePlaneAddr.split(":");
+					//								try {
+					//									clientIPAddress = InetAddress.getByName(addr[0]);
+					//									clientPort = Integer.parseInt(addr[1]);
+					//									ChoiceNetMessageField[] signalingPayload = {token};
+					//									newPacket = new Packet(PacketType.USE_PLANE_SIGNAL,myName,"",myType,providerType,signalingPayload);
+					//									send(newPacket);
+					//								} catch (UnknownHostException e) {
+					//									// TODO Auto-generated catch block
+					//									e.printStackTrace();
+					//								} catch (NumberFormatException e) {
+					//									// TODO Auto-generated catch block
+					//									e.printStackTrace();
+					//								}
+					//							}
+					//						}
+					//						else
+					//						{
+					//							Logger.log("Warning no ChoiceNet Gateway Credentials found for this service: "+sName+"\nNo advertisement recorded for that service.");
+					//						}
+					//					}
 					clientIPAddress = providerIPAddress;
 					clientPort = providerPort;
-					//newPacket = new Packet(PacketType.ACK_AND_SEND_TOKEN,myName,"",myType,providerType,newPayload);CONSIDERATION_ACK
-					newPacket = new Packet(PacketType.CONSIDERATION_ACK,myName,"",myType,providerType,newPayload);
+					//newPacket = new Packet(PacketType.ACK_AND_SEND_TOKEN,myName,"",myType,providerType,newPayload);TOKEN_RESPONSE
+					newPacket = new Packet(PacketType.TOKEN_RESPONSE,myName,"",myType,providerType,newPayload);
 				}
 				else
 				{
@@ -738,8 +713,8 @@ public class ServerThread extends Thread {
 					int opCodeVal = 4;
 					reasonVal = "Consideration Confirmation: "+considerationConfirmation+" for account "+targetConsiderationAccount;
 					Logger.log(reasonVal);
-					
-					ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal); 
+
+					ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TOKEN_REQUEST.toString(),  opCodeVal, reasonVal); 
 					newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 				}
 			}
@@ -758,7 +733,7 @@ public class ServerThread extends Thread {
 					opCodeVal = 2;
 				}
 				Logger.log(reasonVal);
-				ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal);
+				ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TOKEN_REQUEST.toString(),  opCodeVal, reasonVal);
 				newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 			}
 
@@ -768,7 +743,7 @@ public class ServerThread extends Thread {
 			int opCodeVal = 3;
 			String reasonVal = "Consideration Target: {"+intendedEntityName+"} does not match this entity's name";
 			Logger.log(reasonVal);
-			ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TRANSFER_CONSIDERATION.toString(),  opCodeVal, reasonVal);
+			ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TOKEN_REQUEST.toString(),  opCodeVal, reasonVal);
 			newPacket = new Packet(PacketType.NACK,myName,"",myType,providerType,newPayload);
 		}
 		send(newPacket);
@@ -816,9 +791,11 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField token = payload[1];
 		// retrieve the message's intended entity name 
 		payload = (ChoiceNetMessageField[]) token.getValue();
+		int tokenID = (Integer) payload[0].getValue(); // Token ID
 		String intendedEntityName = (String) payload[2].getValue(); // Issued By
 		// check that this response is both intended for this entity node 
-		if(intendedEntityName.equals(myName))
+		// TODO: also check the tokenID exist in your TokenManager
+		if(intendedEntityName.equals(myName) && tokenMgr.getTokenCreationTime(tokenID)!=0)
 		{
 			String adXML = (String) advertisement.getValue();
 			String sName = (String) payload[3].getValue(); // Service Name
@@ -879,7 +856,14 @@ public class ServerThread extends Thread {
 		}
 		else
 		{
-			Logger.log("Listing Request: Entity name did not match. Intended for "+intendedEntityName);
+			if(tokenMgr.getTokenCreationTime(tokenID)==0)
+			{
+				Logger.log("Listing Request: Token supplied does not match any value within the Token Manager database");
+			}
+			if(!intendedEntityName.equals(myName))
+			{
+				Logger.log("Listing Request: Entity name did not match. Intended for "+intendedEntityName);
+			}
 		}
 
 	}
@@ -915,35 +899,28 @@ public class ServerThread extends Thread {
 		// TODO: Finish this ... 
 		Logger.log("Respond to Use Attempt");
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
-		ChoiceNetMessageField userAddrInfo = payload[0];
+		String trafficProp = (String) payload[0].getValue();
 		ChoiceNetMessageField token = payload[1];
-		String tokenID = (String) token.getValue(); // Issued By
-		// check whether the token matches any received 
-		int tID = Integer.parseInt(tokenID); 
-		long creationTimeID = tokenMgr.getTokenCreationTime(tID);
+		payload = (ChoiceNetMessageField[]) token.getValue();
+		int tokenID = (Integer) payload[0].getValue(); // Token ID
+		long creationTimeID = tokenMgr.getTokenCreationTime(tokenID);
 		Token myToken = TokenManager.getSingleToken(creationTimeID);
 		if(myToken != null)
 		{
-
 			if(myToken.getExpirationTime() >= System.currentTimeMillis())
 			{
 				// Valid Token
-					String addrType = userAddrInfo.getAttributeName();
-					String addrName = (String) userAddrInfo.getValue();
-					String command = "";
+				trafficProp = trafficProp.replace("<![CDATA[", "");
+				trafficProp = trafficProp.replace("\n]]>", "");
+				// Send Use Plane Signal to the controller
+				sendFirewallMsg(trafficProp);
 
-					
-					// Send an ACK when everything is completed
-					// hard coded 
-					String portal = "rtsp://"+Server.providerAddress;
-					String portalHelpURL = "http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/VLC/help.html";
-					String plugInHelpURL = "http://www.vlc.com";
-					ChoiceNetMessageField handleID = new ChoiceNetMessageField("Handle ID", System.currentTimeMillis(), "");
-					ChoiceNetMessageField usePlanePortal = new ChoiceNetMessageField("Use Plane Portal", portal, portalHelpURL);
-					ChoiceNetMessageField usePlanePlugIn = new ChoiceNetMessageField("Use Plane Plugin", "Download VLC Player", plugInHelpURL);
-					ChoiceNetMessageField[] newPayload = {handleID,usePlanePortal,usePlanePlugIn}; 
-					Packet newPacket = new Packet(PacketType.ACK_USE_ATTEMPT,myName,"",myType,providerType,newPayload);
-					send(newPacket);
+				// Send an ACK when everything is completed
+				// hard coded 
+				ChoiceNetMessageField handleID = new ChoiceNetMessageField("Handle ID", System.currentTimeMillis(), "");
+				ChoiceNetMessageField[] newPayload = {handleID,token}; 
+				Packet newPacket = new Packet(PacketType.USE_ATTEMPT_CONFIRMATION,myName,"",myType,providerType,newPayload);
+				send(newPacket);
 			}
 			else
 			{
@@ -1243,7 +1220,7 @@ public class ServerThread extends Thread {
 
 		return searchedContent;
 	}
-	
+
 	private ChoiceNetMessageField[] createNACKPayload (String nackType, int operationCode, String reasonVal)
 	{
 		ChoiceNetMessageField type = new ChoiceNetMessageField("NACK Type", nackType, "");
@@ -1252,8 +1229,8 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField[] payload = {type,opCode,reason};
 		return payload;
 	}
-	
-	
+
+
 
 	/**
 	 * Customer

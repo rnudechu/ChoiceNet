@@ -184,12 +184,12 @@ public class ChoiceNetMessageParser {
 		{
 			payload = parseRendezvousResponseMessage(pktXML);
 		}
-		if(pktType == PacketType.TRANSFER_CONSIDERATION)
+		if(pktType == PacketType.TOKEN_REQUEST)
 		{
 			payload = parseTransferConsiderationMessage(pktXML);
 		}
 		//if(pktType == PacketType.ACK_AND_SEND_TOKEN)CONSIDERATION_ACK
-		if(pktType == PacketType.CONSIDERATION_ACK)
+		if(pktType == PacketType.TOKEN_RESPONSE)
 		{
 			payload = parseConsiderationAcknowledgementMessage(pktXML);
 		}
@@ -221,9 +221,13 @@ public class ChoiceNetMessageParser {
 		{
 			payload = parseNACKMessage(pktXML);
 		}
-		if(pktType == PacketType.USE_PLANE_SIGNAL)
+		if(pktType == PacketType.USE_ATTEMPT)
 		{
-			payload = parseUsePlaneMessage(pktXML);
+			payload = parseUseAttemptMessage(pktXML);
+		}
+		if(pktType == PacketType.USE_ATTEMPT_CONFIRMATION)
+		{
+			payload = parseUseAttemptConfirmationMessage(pktXML);
 		}
 
 		return payload;
@@ -353,8 +357,15 @@ public class ChoiceNetMessageParser {
 		return payload;
 	}
 	
-	private ChoiceNetMessageField[] parseUsePlaneMessage(String pktXML) {
+	private ChoiceNetMessageField[] parseUseAttemptMessage(String pktXML) {
 		ChoiceNetMessageField trafficProp = getChoiceNetMessage(pktXML,"Traffic Properties");
+		ChoiceNetMessageField token = parseTokenMessage(pktXML);
+		ChoiceNetMessageField[] payload = {trafficProp,token};
+		return payload;
+	}
+	
+	private ChoiceNetMessageField[] parseUseAttemptConfirmationMessage(String pktXML) {
+		ChoiceNetMessageField trafficProp = getChoiceNetMessage(pktXML,"Handle ID");
 		ChoiceNetMessageField token = parseTokenMessage(pktXML);
 		ChoiceNetMessageField[] payload = {trafficProp,token};
 		return payload;

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<choicenetmessage>
+	<field attributeName="Originator Name" url="">
+		<value>ACME Transport Network</value>
+	</field>
+	<field attributeName="Originator Signature" url="">
+		<value />
+	</field>
+	<field attributeName="Originator Type" url="">
+		<value>Provider</value>
+	</field>
+	<field attributeName="Originator Provider Type" url="">
+		<value>Transport</value>
+	</field>
+	<field attributeName="Message Type" url="">
+		<value>USE_ATTEMPT</value>
+	</field>
+	<field attributeName="Message Specific" url="">
+		<value>
+			<field attributeName="Traffic Properties" url="">
+				<value>
+				<![CDATA[
+				<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+				<openFlowFirewallMessage operation="Request">    
+					<action>ACCEPT</action>    
+					<addressVersion>IPv4</addressVersion>    
+					<destinationAddress>ANY</destinationAddress>    
+					<destinationPort>ANY</destinationPort>    
+					<protocol>ANY</protocol>    
+					<sourceAddress>10.10.10.1/32</sourceAddress>    
+					<sourcePort>ANY</sourcePort>
+				</openFlowFirewallMessage>
+				]]></value>
+			</field>
+			<field attributeName="Token" url="">
+				<value>UNKNOWN</value>
+			</field>
+		</value>
+	</field>
+</choicenetmessage>

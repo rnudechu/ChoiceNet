@@ -47,7 +47,7 @@ public class Server {
 	static String acceptedConsideration = "None";
 	static String availableConsideration = "None";
 	static String runningMode = "Unknown";
-	
+
 	static String firewallAction = "Unknown";
 	static String firewallAddressVersion = "Unknown";
 	static String firewallProtocol = "Unknown";
@@ -55,7 +55,7 @@ public class Server {
 	static String firewallDestinationAddress = "Unknown";
 	static String firewallSourcePort = "Unknown";
 	static String firewallDestinationPort = "Unknown";
-	
+
 	static String systemMessage;
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
@@ -135,9 +135,9 @@ public class Server {
 			runningMode =  prop.getProperty("mode");
 			if(providerType.equals("Planner"))
 			{
-				
+
 			}
-			
+
 
 			serverSocket = new DatagramSocket(DEFAULT_SERVER_PORT);
 			serverSocket.setReuseAddress(false);
@@ -526,11 +526,11 @@ public class Server {
 			OpenFlowFirewallMessage firewallMsg = new OpenFlowFirewallMessage(System.currentTimeMillis(),firewallAction,firewallAddressVersion,firewallProtocol,firewallSourceAddress,firewallDestinationAddress,firewallSourcePort,firewallDestinationPort);
 			openflowXML = getOpenFlowFireWallMessageXML(firewallMsg);
 		}
-		
+
 		ChoiceNetMessageField trafficProp = new ChoiceNetMessageField("Traffic Properties", openflowXML, "");
-		*/
+		 */
 		ChoiceNetMessageField[] payload = {transactionNumber,considerationTarget,serviceName,considerationExchMethod,considerationExchValue};//,trafficProp};
-		Packet packet = new Packet(PacketType.TRANSFER_CONSIDERATION,myName,"",myType, providerType,payload);
+		Packet packet = new Packet(PacketType.TOKEN_REQUEST,myName,"",myType, providerType,payload);
 		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
 	}
 
@@ -556,7 +556,8 @@ public class Server {
 				Long eTime = tempToken.getExpirationTime();
 				String tokenType = tempToken.getServiceName();
 				// check that service name matches with token's service name
-				ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
+//				ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
+				ChoiceNetMessageField token = cnLibrary.createToken(tID, issuedTo, issuedBy,tokenType,eTime);
 				ChoiceNetMessageField[] payload = {advertisement,token};
 				// Save the Advertisement Attempt
 				// NOTE: I am making the Expiration time dependent on the TOKEN
@@ -610,7 +611,7 @@ public class Server {
 		}
 		return result;
 	}
-	
+
 	public String makePayment(String url, String paymentMethod, String account, String amount, String currency, String service)
 	{
 		String considerationConfirmation = "";
@@ -629,11 +630,12 @@ public class Server {
 			considerationMgr.addConsideration(id, consideration);
 		}
 		System.out.println("Consideration Confirmation: "+considerationConfirmation);
-		
+
 		return considerationConfirmation;
 	}
 
-	public void fireUsePlaneSignaling(String trafficPropFile, String myToken, String ipAddr, int port) 
+	//TODO: Check here
+	public void sendUsePlaneAttempt(String trafficPropFile, String tokenID, String ipAddr, int port) 
 	{
 		String trafficProp = "";
 		try {
@@ -645,26 +647,42 @@ public class Server {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		ChoiceNetMessageField properties = new ChoiceNetMessageField("Traffic Prop", trafficProp, "");
-		ChoiceNetMessageField token = new ChoiceNetMessageField("Token", myToken, "");
-		ChoiceNetMessageField[] payload = {properties,token};
-		Packet packet = new Packet(PacketType.USE_ATTEMPT ,myName,"",myType, providerType,payload);
-		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
+		trafficProp = "<![CDATA["+trafficProp+"\n]]>";
+		ChoiceNetMessageField properties = new ChoiceNetMessageField("Traffic Properties", trafficProp, "");
+		int tID = Integer.parseInt(tokenID); 
+		long creationTimeID = tokenMgr.getTokenCreationTime(tID);
+		Token tempToken = TokenManager.getSingleToken(creationTimeID);
+		System.out.println("==> "+System.currentTimeMillis());
+		System.out.println("==> "+tempToken);
+		if(tempToken!=null)
+		{
+			String issuedTo = tempToken.getIssuedTo();
+			Long eTime = tempToken.getExpirationTime();
+			String tokenType = tempToken.getServiceName();
+			String issuedBy = tempToken.getIssuedBy();
+			System.out.println(tempToken);
+			// check that service name matches with token's service name
+			//ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
+			ChoiceNetMessageField token = cnLibrary.createToken(tID, issuedTo, issuedBy,tokenType,eTime);
+			ChoiceNetMessageField[] payload = {properties,token};
+			Packet packet = new Packet(PacketType.USE_ATTEMPT ,myName,"",myType, providerType,payload);
+			new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
+		}
 	}
-	
+
 	public String getOpenFlowFireWallMessageXML(OpenFlowFirewallMessage msg)
 	{
-//		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
+		//		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
 		StringWriter writer = new StringWriter();
 		try {
 
-			
+
 			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
 			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
 			// output pretty printed
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			
+
 			jaxbMarshaller.marshal(msg, writer);
 
 		} catch (JAXBException e) {
@@ -673,13 +691,13 @@ public class Server {
 
 		return writer.toString();
 	}
-	
+
 	public OpenFlowFirewallMessage convertXMLtoOpenFlowFireWallMessage(String xml)
 	{
 		OpenFlowFirewallMessage openflowFirewallMsg = null;
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
-	 
+
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			openflowFirewallMsg = (OpenFlowFirewallMessage) jaxbUnmarshaller.unmarshal(new StringReader(xml));
 			System.out.println(openflowFirewallMsg);

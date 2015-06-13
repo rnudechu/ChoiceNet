@@ -114,7 +114,7 @@ public class ProviderGUI implements ActionListener {
 	private JButton btnUsePlannerService;
 	private JLabel lblMarketplacenotifier;
 	private JRadioButton rdbtnBitcoin;
-	private JRadioButton rdbtnPaypal;
+	private JRadioButton rdbtnPayPal;
 	private JRadioButton rdbtnCreditCard;
 	private JLabel lblAccount;
 	private JLabel lblPaymentMethod;
@@ -509,6 +509,15 @@ public class ProviderGUI implements ActionListener {
 			}
 		}
 		// Payment Panel
+		if(rdbtnPayPal.isSelected())
+		{
+			paymentServiceNameTextField.setEditable(false);
+//			paymentServiceNameTextField.setText("");
+		}
+		else
+		{
+			paymentServiceNameTextField.setEditable(true);
+		}
 		if(e.getSource() == btnMakePayment)
 		{
 			String url = paymentURLTextField.getText();
@@ -564,7 +573,7 @@ public class ProviderGUI implements ActionListener {
 				}
 				if(success)
 				{
-					server.fireUsePlaneSignaling(trafficPropFile, token, ipAddr, port);
+					server.sendUsePlaneAttempt(trafficPropFile, token, ipAddr, port);
 				}
 			}
 			else
@@ -1922,7 +1931,7 @@ public class ProviderGUI implements ActionListener {
 		lblPaymentMethod.setFont(new Font("Dialog", Font.BOLD, 12));
 		paymentPanel.add(lblPaymentMethod, "4, 11");
 
-		rdbtnBitcoin = new JRadioButton("Bitcoin");
+		rdbtnBitcoin = new JRadioButton("Coinbase: Testnet Bitcoin");// hardcoded the get to read Bitcoin rather than the name
 		rdbtnBitcoin.setSelected(true);
 		rdbtnBitcoin.setFont(new Font("Dialog", Font.BOLD, 12));
 		rdbtnBitcoin.addActionListener(this);
@@ -1934,16 +1943,15 @@ public class ProviderGUI implements ActionListener {
 		rdbtnCreditCard.addActionListener(this);
 		paymentPanel.add(rdbtnCreditCard, "10, 11");
 
-		rdbtnPaypal = new JRadioButton("Paypal");
-		rdbtnPaypal.setEnabled(false);
-		rdbtnPaypal.setFont(new Font("Dialog", Font.BOLD, 12));
-		rdbtnPaypal.addActionListener(this);
-		paymentPanel.add(rdbtnPaypal, "12, 11");
+		rdbtnPayPal = new JRadioButton("PayPal");
+		rdbtnPayPal.setFont(new Font("Dialog", Font.BOLD, 12));
+		rdbtnPayPal.addActionListener(this);
+		paymentPanel.add(rdbtnPayPal, "12, 11");
 
 		group = new ButtonGroup();
 		group.add(rdbtnBitcoin);
 		group.add(rdbtnCreditCard);
-		group.add(rdbtnPaypal);
+		group.add(rdbtnPayPal);
 
 		lblAccount = new JLabel("Account:");
 		lblAccount.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -2104,7 +2112,7 @@ public class ProviderGUI implements ActionListener {
 		btnUsePlaneShowTokenId = new JButton("Show Token ID");
 		btnUsePlaneShowTokenId.addActionListener(this);
 
-		btnSendUsePlane = new JButton("Send Use Plane Signal");
+		btnSendUsePlane = new JButton("Send Use Attempt");
 		btnSendUsePlane.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnSendUsePlane.addActionListener(this);
 
@@ -2240,7 +2248,6 @@ public class ProviderGUI implements ActionListener {
 			if(activeCard.equals("Consideration"))
 			{
 				textAreaConsideration.setText(message);
-				System.out.println("Consideration: "+systemMessage);
 				lblConsiderationMessage.setText(systemMessage);
 			}
 			if(activeCard.equals("Listing"))
@@ -2292,6 +2299,10 @@ public class ProviderGUI implements ActionListener {
 			AbstractButton button = buttons.nextElement();
 
 			if (button.isSelected()) {
+				if(button.getText().equals("Coinbase: Testnet Bitcoin"))
+				{
+					return "Bitcoin";
+				}
 				return button.getText();
 			}
 		}

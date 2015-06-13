@@ -22,7 +22,7 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>NCSU-NICT Optical Circuit Transit Service</name>
+			<name> Optical Circuit Transit Service</name>
 			<details>
 				<source_location scheme="IPv4" value="10.1.2.3/32" />
 				<source_location scheme="IPv4" value="10.10.10.65/32" />
@@ -32,7 +32,7 @@
 				<destination_format scheme="transport media"
 					value="optical circuit" />
 			</details>
-			<description> Optical Circuit Transit Service from NCSU to NICT
+			<description> Optical Circuit Transit Service
 			</description>
 		</service>
 		<price method="Bitcoin" value="1200" amount="20" unit="minutes" url=""/>
@@ -62,7 +62,7 @@
 						<value>ABC Marketplace</value>
 					</field>
 					<field attributeName="Service Name" url="">
-						<value>Listing:1</value>
+						<value>Listing</value>
 					</field>
 					<field attributeName="Expiration Time" url="">
 						<value>1431099428628</value>

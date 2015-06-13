@@ -587,6 +587,15 @@ public class ChoiceNetLibrary {
 		return service;
 	}
 
+	/**
+	 * Creates a Token and Adds it to the database
+	 * @param issuedToVal
+	 * @param myName
+	 * @param sName
+	 * @param eTime
+	 * @param calcExpirationTime
+	 * @return
+	 */
 	public ChoiceNetMessageField createToken(String issuedToVal, String myName, String sName, long eTime, boolean calcExpirationTime)
 	{
 		int tID = tokenMgr.createTokenID();
@@ -598,6 +607,24 @@ public class ChoiceNetLibrary {
 		{
 			eTime = System.currentTimeMillis()+(eTime*60000);
 		}
+		ChoiceNetMessageField expirationTme = new ChoiceNetMessageField("Expiration Time", eTime, "");
+		ChoiceNetMessageField serviceName = new ChoiceNetMessageField("Service Name", sName, "");
+		ChoiceNetMessageField[] payload = {tokenID,issuedTo,issuedBy,serviceName,expirationTme};
+
+		ChoiceNetMessageField token = new ChoiceNetMessageField("Token", payload, "");
+		// save the Token within the database
+		Token myToken = extractTokenContent(token);
+		long creationTime = System.currentTimeMillis();
+		myToken.setCreationTime(creationTime);
+		tokenMgr.addToken(creationTime, myToken);
+		return token;
+	}
+	
+	public ChoiceNetMessageField createToken(int tID, String issuedToVal, String myName, String sName, long eTime)
+	{
+		ChoiceNetMessageField tokenID = new ChoiceNetMessageField("Token ID", tID, "");
+		ChoiceNetMessageField issuedTo = new ChoiceNetMessageField("Issued To", issuedToVal, "");
+		ChoiceNetMessageField issuedBy = new ChoiceNetMessageField("Issued By", myName, "");
 		ChoiceNetMessageField expirationTme = new ChoiceNetMessageField("Expiration Time", eTime, "");
 		ChoiceNetMessageField serviceName = new ChoiceNetMessageField("Service Name", sName, "");
 		ChoiceNetMessageField[] payload = {tokenID,issuedTo,issuedBy,serviceName,expirationTme};
