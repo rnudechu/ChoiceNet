@@ -18,6 +18,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
@@ -47,6 +49,8 @@ public class Server {
 	static String acceptedConsideration = "None";
 	static String availableConsideration = "None";
 	static String runningMode = "Unknown";
+	static String defaultSwitchPort = "Unknown";
+	static Map<String, String> adSwitchPort = new HashMap<String, String>();
 
 	static String firewallAction = "Unknown";
 	static String firewallAddressVersion = "Unknown";
@@ -80,6 +84,7 @@ public class Server {
 	{
 		try 
 		{
+			String temp = "";
 			prop.load(new FileInputStream(CONFIG_FILE));
 			try
 			{
@@ -126,6 +131,23 @@ public class Server {
 				firewallDestinationAddress = prop.getProperty("firewallDestinationAddress");
 				firewallSourcePort = prop.getProperty("firewallSourcePort");
 				firewallDestinationPort = prop.getProperty("firewallDestinationPort");
+			}
+			
+			if(providerType.equals("Transport"))
+			{
+				defaultSwitchPort = prop.getProperty("defaultSwitchPort");
+				temp = prop.getProperty("adSwitchPort");
+				if(temp != null)
+				{
+					String[] items = temp.split("#");
+					String[] res;
+					int size = items.length;
+					for(int i=0;i<size;i++)
+					{
+						res = items[i].split("=");
+						adSwitchPort.put(res[0],res[1]);
+					}
+				}
 			}
 			// nodeAcceptableConsideration
 			acceptedConsideration  = prop.getProperty("acceptedConsideration");
@@ -658,7 +680,7 @@ public class Server {
 		if(tempToken!=null)
 		{
 			// save use attempt firewall within the database
-			OpenFlowFirewallMessage openflowFirewallMsg = convertXMLtoOpenFlowFireWallMessage(trafficProp);
+			OpenFlowFirewallMessage openflowFirewallMsg = cnLibrary.convertXMLtoOpenFlowFireWallMessage(trafficProp);
 			openFlowFirewallMsgLibrary.addOpenFlowFirewallMessage(System.currentTimeMillis(), openflowFirewallMsg);
 			
 			String issuedTo = tempToken.getIssuedTo();
@@ -684,44 +706,7 @@ public class Server {
 		return result;
 	}
 
-	public String getOpenFlowFireWallMessageXML(OpenFlowFirewallMessage msg)
-	{
-		//		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
-		StringWriter writer = new StringWriter();
-		try {
 
-
-			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
-			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-			// output pretty printed
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-			jaxbMarshaller.marshal(msg, writer);
-
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-
-		return writer.toString();
-	}
-
-	public OpenFlowFirewallMessage convertXMLtoOpenFlowFireWallMessage(String xml)
-	{
-		OpenFlowFirewallMessage openflowFirewallMsg = null;
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
-
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			openflowFirewallMsg = (OpenFlowFirewallMessage) jaxbUnmarshaller.unmarshal(new StringReader(xml));
-			System.out.println(openflowFirewallMsg);
-
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-
-		return openflowFirewallMsg;
-	}
 
 	public String getLocalIpAddress(String value) 
 	{

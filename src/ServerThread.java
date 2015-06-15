@@ -211,7 +211,14 @@ public class ServerThread extends Thread {
 							// Received a Request to List Message
 							if(packetType == PacketType.LISTING_REQUEST)
 							{
-								respondToListingRequest(packet);
+							//	if(providerType.equals("Marketplace"))
+							//	{
+									respondToListingRequest(packet);
+							//	}
+							//	else
+							//	{
+							//		System.out.println("ERROR: "+providerType+" requested "+PacketType.LISTING_REQUEST);
+							//	}
 							}
 							// Received a ACK Consideration Message
 							//if(packetType == PacketType.ACK_AND_SEND_TOKEN)TOKEN_RESPONSE
@@ -632,7 +639,6 @@ public class ServerThread extends Thread {
 
 					long eTime = 15; // where eTime is measured in minutes
 					String originatorName = (String) packet.getOriginatorName().getValue();
-					// TODO: Change Token Service Name quantity to Token Type Qualifier, ex: Listing:5
 					String tokenType = "UNKNOWN";
 					if(myType.equals("Provider"))
 					{
@@ -640,74 +646,28 @@ public class ServerThread extends Thread {
 						{
 							tokenType = "Listing";
 						}
-						if(providerType.equals("Planner"))
+						else
 						{
-							tokenType = "Planner";
+							tokenType = sName;
 						}
-						if(providerType.equals("Transport"))
-						{
-							tokenType = "Transport";
-						}
+//						if(providerType.equals("Planner"))
+//						{
+//							tokenType = "Planner";
+//						}
+//						if(providerType.equals("Transport"))
+//						{
+//							tokenType = "Transport";
+//							tokenType = "Transport";
+//						}
 					}
 					// creates Token
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
-					
-					/*
-					// retrieve the Traffic Properties field ... if not empty send it to your (OpenFlow-enabled) firewall
-					String firewallXML = (String) payload[5].getValue();
-					if(!firewallXML.equals(""))
-					{
-						System.out.println(firewallXML);
-						sendFirewallMsg(firewallXML);
-					}
-					 */
+
 					// Send ACK with Token
 					ChoiceNetMessageField transactionNum = new ChoiceNetMessageField("Transaction Number", tNumber, "");
 					// TODO: Empty gateway credentials: Marketplace should provide something here
-					ChoiceNetMessageField gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", "", "");
-					ChoiceNetMessageField[] newPayload = {transactionNum,token,gatewayCredentials}; 
-					InetAddress providerIPAddress = clientIPAddress;
-					int providerPort = clientPort;
-					// TODO: Note: Depending on the Provider Type more operations may be necessary
-					//					if(myType.equals("Provider") && !providerType.equals("Marketplace"))
-					//					{
-					//						// Contact the service's ChoiceNet Gateway for given service advertisement
-					//						Advertisement myAd = adMgr.getAdvertisementByName(sName);
-					//						if(myAd != null)
-					//						{
-					//							String usePlaneAddrType = myAd.getUsePlaneType();
-					//							String usePlaneAddr = myAd.getUsePlaneAddress();
-					//							ChoiceNetMessageField gatewayAddrType = new ChoiceNetMessageField("Addressing Scheme", usePlaneAddrType, "");
-					//							ChoiceNetMessageField gatewayAddr = new ChoiceNetMessageField("Addressing Value", usePlaneAddr, "");
-					//							ChoiceNetMessageField[] info = {gatewayAddrType,gatewayAddr}; 
-					//							gatewayCredentials = new ChoiceNetMessageField("ChoiceNet Gateway Credentials", info, "");
-					//							newPayload[2] = gatewayCredentials;
-					//							if(usePlaneAddrType.equals("TCPv4") || usePlaneAddrType.equals("UDPv4"))
-					//							{
-					//								String[] addr = usePlaneAddr.split(":");
-					//								try {
-					//									clientIPAddress = InetAddress.getByName(addr[0]);
-					//									clientPort = Integer.parseInt(addr[1]);
-					//									ChoiceNetMessageField[] signalingPayload = {token};
-					//									newPacket = new Packet(PacketType.USE_PLANE_SIGNAL,myName,"",myType,providerType,signalingPayload);
-					//									send(newPacket);
-					//								} catch (UnknownHostException e) {
-					//									// TODO Auto-generated catch block
-					//									e.printStackTrace();
-					//								} catch (NumberFormatException e) {
-					//									// TODO Auto-generated catch block
-					//									e.printStackTrace();
-					//								}
-					//							}
-					//						}
-					//						else
-					//						{
-					//							Logger.log("Warning no ChoiceNet Gateway Credentials found for this service: "+sName+"\nNo advertisement recorded for that service.");
-					//						}
-					//					}
-					clientIPAddress = providerIPAddress;
-					clientPort = providerPort;
-					//newPacket = new Packet(PacketType.ACK_AND_SEND_TOKEN,myName,"",myType,providerType,newPayload);TOKEN_RESPONSE
+					ChoiceNetMessageField[] newPayload = {transactionNum,token}; 
+		
 					newPacket = new Packet(PacketType.TOKEN_RESPONSE,myName,"",myType,providerType,newPayload);
 				}
 				else
@@ -915,6 +875,19 @@ public class ServerThread extends Thread {
 				// Valid Token
 				trafficProp = trafficProp.replace("<![CDATA[", "");
 				trafficProp = trafficProp.replace("\n]]>", "");
+				OpenFlowFirewallMessage msg = cnLibrary.convertXMLtoOpenFlowFireWallMessage(trafficProp);
+				String destinationPort = Server.adSwitchPort.get(myToken.getServiceName());
+				if(destinationPort == null)
+				{
+					destinationPort = Server.defaultSwitchPort;
+				}
+				msg.setOutputPort(destinationPort);
+				long result = myToken.getExpirationTime()-System.currentTimeMillis();
+				result = result/1000; // Save it in seconds
+				msg.setDuration(result+"");
+				// return a new string with additional properties
+				trafficProp = cnLibrary.getOpenFlowFireWallMessageXML(msg);
+				cnLibrary.getOpenFlowFireWallMessageXML(msg);
 				// Send Use Plane Signal to the controller
 				sendFirewallMsg(trafficProp);
 

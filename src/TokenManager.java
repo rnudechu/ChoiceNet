@@ -110,7 +110,7 @@ public class TokenManager {
 	
 	public String printAvailableTokens()
 	{
-		String result = "#\tToken ID\tIssued By\t\tToken Service\t\tIs Token Valid\n";
+		String result = "#\tToken ID\tIssued By\t\tToken Service\t\tStatus\n";
 		int count = 1;
 		for (Map.Entry<Long, Token> entry : map.entrySet())
 		{
@@ -123,11 +123,11 @@ public class TokenManager {
 			result += myToken.getServiceName()+"\t\t";
 			if(myToken.getExpirationTime() <= System.currentTimeMillis())
 			{
-				result += "No\n";
+				result += "Expired\n";
 			}
 			else
 			{
-				result += "Yes\n";
+				result += "Valid\n";
 			}
 			count++;
 		}

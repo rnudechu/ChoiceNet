@@ -2,7 +2,7 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 3-2</name>
+			<name>Ad 3.2</name>
 			<details>
 				<source_location scheme="IPv4" value="10.10.1.0/24" />
 				<destination_location scheme="IPv4" value="10.3.1.0/24" />

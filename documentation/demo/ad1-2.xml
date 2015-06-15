@@ -2,7 +2,7 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 1</name>
+			<name>Ad 1.2</name>
 			<details>
 				<source_location scheme="IPv4" value="10.10.1.0/24" />
 				<destination_location scheme="IPv4" value="10.3.1.0/24" />
@@ -12,7 +12,7 @@
 			</details>
 			<description>Transport Service Advertisement</description>
 		</service>
-		<price method="Bitcoin" value="21" />
+		<price method="Bitcoin" value="4" />
 		<providerID>ACME Corporation</providerID>
 		<purchasePortal>
 			<destination_location scheme="UDPv4" value="10.1.0.1:4001" />

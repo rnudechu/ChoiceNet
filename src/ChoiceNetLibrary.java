@@ -3,6 +3,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -643,5 +647,44 @@ public class ChoiceNetLibrary {
 		long expirationTime = (Long) payload[4].getValue();
 		Token myToken = new Token(tokenID, issuedTo, issuedBy, serviceName, expirationTime);
 		return myToken;
+	}
+	
+	public String getOpenFlowFireWallMessageXML(OpenFlowFirewallMessage msg)
+	{
+		//		OpenFlowFirewallMessage request = new OpenFlowFirewallMessage(1,"ACCEPT","IPv4","ANY","10.10.10.1/32","ANY","ANY","ANY");
+		StringWriter writer = new StringWriter();
+		try {
+
+
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+			Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+			// output pretty printed
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+			jaxbMarshaller.marshal(msg, writer);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return writer.toString();
+	}
+
+	public OpenFlowFirewallMessage convertXMLtoOpenFlowFireWallMessage(String xml)
+	{
+		OpenFlowFirewallMessage openflowFirewallMsg = null;
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(OpenFlowFirewallMessage.class);
+
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			openflowFirewallMsg = (OpenFlowFirewallMessage) jaxbUnmarshaller.unmarshal(new StringReader(xml));
+			System.out.println(openflowFirewallMsg);
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+
+		return openflowFirewallMsg;
 	}
 }
