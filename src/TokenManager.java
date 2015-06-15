@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +76,8 @@ public class TokenManager {
 		long eTime = items.get(id).getExpirationTime();
 		if(eTime <= System.currentTimeMillis())
 		{
-			System.out.println("Token expired!");
+			long result = System.currentTimeMillis()-eTime;
+			System.out.println("Token expired! "+result+" milliseconds has passed!");
 			return null;
 		}
 		return items.get(id);
@@ -110,7 +110,7 @@ public class TokenManager {
 	
 	public String printAvailableTokens()
 	{
-		String result = "#\tToken ID\tIssued By\t\tToken Service\n";
+		String result = "#\tToken ID\tIssued By\t\tToken Service\t\tIs Token Valid\n";
 		int count = 1;
 		for (Map.Entry<Long, Token> entry : map.entrySet())
 		{
@@ -120,7 +120,15 @@ public class TokenManager {
 			result += count+"\t";
 			result += myToken.getId()+"\t";
 			result += myToken.getIssuedBy()+"\t";	
-			result += myToken.getServiceName()+"\n";
+			result += myToken.getServiceName()+"\t\t";
+			if(myToken.getExpirationTime() <= System.currentTimeMillis())
+			{
+				result += "No\n";
+			}
+			else
+			{
+				result += "Yes\n";
+			}
 			count++;
 		}
 		return result;

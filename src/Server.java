@@ -64,6 +64,7 @@ public class Server {
 	TokenManager tokenMgr = TokenManager.getInstance();
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
 	ConsiderationManager considerationMgr = ConsiderationManager.getInstance();
+	OpenFlowFirewallMessageManager openFlowFirewallMsgLibrary = OpenFlowFirewallMessageManager.getInstance();
 
 	public Server ()
 	{
@@ -635,9 +636,10 @@ public class Server {
 	}
 
 	//TODO: Check here
-	public void sendUsePlaneAttempt(String trafficPropFile, String tokenID, String ipAddr, int port) 
+	public String sendUsePlaneAttempt(String trafficPropFile, String tokenID, String ipAddr, int port) 
 	{
 		String trafficProp = "";
+		String result = "";
 		try {
 			Scanner sc = new Scanner(new FileReader(trafficPropFile));
 			while (sc.hasNextLine()) {
@@ -647,8 +649,7 @@ public class Server {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		trafficProp = "<![CDATA["+trafficProp+"\n]]>";
-		ChoiceNetMessageField properties = new ChoiceNetMessageField("Traffic Properties", trafficProp, "");
+		
 		int tID = Integer.parseInt(tokenID); 
 		long creationTimeID = tokenMgr.getTokenCreationTime(tID);
 		Token tempToken = TokenManager.getSingleToken(creationTimeID);
@@ -656,6 +657,10 @@ public class Server {
 		System.out.println("==> "+tempToken);
 		if(tempToken!=null)
 		{
+			// save use attempt firewall within the database
+			OpenFlowFirewallMessage openflowFirewallMsg = convertXMLtoOpenFlowFireWallMessage(trafficProp);
+			openFlowFirewallMsgLibrary.addOpenFlowFirewallMessage(System.currentTimeMillis(), openflowFirewallMsg);
+			
 			String issuedTo = tempToken.getIssuedTo();
 			Long eTime = tempToken.getExpirationTime();
 			String tokenType = tempToken.getServiceName();
@@ -664,10 +669,19 @@ public class Server {
 			// check that service name matches with token's service name
 			//ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
 			ChoiceNetMessageField token = cnLibrary.createToken(tID, issuedTo, issuedBy,tokenType,eTime);
+			trafficProp = "<![CDATA["+trafficProp+"\n]]>";
+			ChoiceNetMessageField properties = new ChoiceNetMessageField("Traffic Properties", trafficProp, "");
 			ChoiceNetMessageField[] payload = {properties,token};
 			Packet packet = new Packet(PacketType.USE_ATTEMPT ,myName,"",myType, providerType,payload);
 			new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
+
+			result = "";
 		}
+		else
+		{
+			result = "Token "+tID+" is invalid. Please try again. The token entered is either expired or invalid.";
+		}
+		return result;
 	}
 
 	public String getOpenFlowFireWallMessageXML(OpenFlowFirewallMessage msg)

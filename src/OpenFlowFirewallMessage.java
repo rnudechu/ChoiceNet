@@ -14,7 +14,7 @@ public class OpenFlowFirewallMessage {
 	private String destinationAddress;
 	private String sourcePort;
 	private String destinationPort;
-	private String status;
+	private String status = "UNKNOWN";
 	private String reason;
 	
 	public OpenFlowFirewallMessage(){}

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class ServerThread extends Thread {
 	private DatagramSocket socket = null;
@@ -492,8 +491,8 @@ public class ServerThread extends Thread {
 		String handleID = (String) payload[0].getValue();
 		ChoiceNetMessageField token = payload[1];
 		Token myToken = cnLibrary.extractTokenContent(token);
-		String message = "Handle ID: "+handleID+" Token: "+myToken;
-		Server.systemMessage = message;
+		String message = "<html>Received an Use Attempt Acknowlegdement for the Token: "+myToken.getId()+"with an Handle ID: "+handleID+"</html>";
+		ProviderGUI.updateTextArea(message);
 	}
 	private void respondToUsePlaneSignaling(Packet packet) {
 		// TODO Auto-generated method stub
@@ -517,7 +516,11 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField reason = payload[2];
 		//String message = (String) nackType.getValue()+": Operation Code="+(opCodeValue)+" due to: "+(String) reason.getValue();
 		String message = "Failed: "+(String) reason.getValue();
-		Server.systemMessage = message;
+//		Server.systemMessage = message;
+		if(!Server.runningMode.equals("standalone"))
+		{
+			ProviderGUI.updateTextArea(message);
+		}
 		Logger.log(message);
 	}
 	/**
@@ -627,7 +630,7 @@ public class ServerThread extends Thread {
 					int tNumber = (Integer) payload[0].getValue();
 					// Create Token
 
-					long eTime = 5; // where eTime is measured in minutes
+					long eTime = 15; // where eTime is measured in minutes
 					String originatorName = (String) packet.getOriginatorName().getValue();
 					// TODO: Change Token Service Name quantity to Token Type Qualifier, ex: Listing:5
 					String tokenType = "UNKNOWN";
@@ -711,7 +714,7 @@ public class ServerThread extends Thread {
 				{
 					String reasonVal;
 					int opCodeVal = 4;
-					reasonVal = "Consideration Confirmation: "+considerationConfirmation+" for account "+targetConsiderationAccount;
+					reasonVal = "Consideration Confirmation failed for the account "+targetConsiderationAccount;
 					Logger.log(reasonVal);
 
 					ChoiceNetMessageField[] newPayload = createNACKPayload(PacketType.TOKEN_REQUEST.toString(),  opCodeVal, reasonVal); 

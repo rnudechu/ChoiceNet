@@ -44,6 +44,7 @@ public class ProviderGUI implements ActionListener {
 	static Server server;
 	static int serverCount = 0;
 	ChoiceNetLibrary cnLibrary = ChoiceNetLibrary.getInstance();
+	OpenFlowFirewallMessageManager openFlowFirewallMsgLibrary = OpenFlowFirewallMessageManager.getInstance();
 
 	boolean testOn = false; 
 
@@ -135,6 +136,8 @@ public class ProviderGUI implements ActionListener {
 	private JButton btnUsePlaneShowTokenId;
 	private JButton btnUsePlaneListing;
 	private JButton btnUsePlaneService;
+	private JLabel lblAdvertise;
+	private JLabel lblRequestAccessWithin;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -553,6 +556,7 @@ public class ProviderGUI implements ActionListener {
 		}
 		if(e.getSource() == btnSendUsePlane)
 		{
+			message = "";
 			String gwType = txtUsePlaneGWType.getText();
 			String gwAddr = txtUsePlaneGWAddr.getText();
 			String trafficPropFile = txtUsePlaneTrafficProp.getText();
@@ -573,7 +577,7 @@ public class ProviderGUI implements ActionListener {
 				}
 				if(success)
 				{
-					server.sendUsePlaneAttempt(trafficPropFile, token, ipAddr, port);
+					message = server.sendUsePlaneAttempt(trafficPropFile, token, ipAddr, port);
 				}
 			}
 			else
@@ -582,11 +586,13 @@ public class ProviderGUI implements ActionListener {
 				Server.systemMessage = message;
 				Logger.log(message);
 			}
+			lblUsePlaneMessage.setText(message);
 		}
 
 		if(e.getSource() == btnStoredUsePlane)
 		{
-
+			message = openFlowFirewallMsgLibrary.printAvailableOpenFlowFirewallMessages();
+			textAreaUsePlane.setText(message);
 		}
 	}
 
@@ -1125,12 +1131,24 @@ public class ProviderGUI implements ActionListener {
 		btnUsePlaneListing = new JButton("Advertise Service");
 		btnUsePlaneListing.addActionListener(this);
 		btnUsePlaneListing.setFont(new Font("Dialog", Font.BOLD, 12));
-		usePlaneMenuPanel.add(btnUsePlaneListing, "4, 7");
-
+		
 		btnUsePlaneService = new JButton("Activate Service");
 		btnUsePlaneService.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnUsePlaneService.addActionListener(this);
+		
+		lblAdvertise = new JLabel("Advertise a service");
+		lblAdvertise.setFont(new Font("Dialog", Font.BOLD, 12));
+		// Only display if the mode is NOT ClientGUI
+		if(!Server.runningMode.equals("ClientGUI"))
+		{
+			usePlaneMenuPanel.add(lblAdvertise, "8, 7, 4, 1");
+			usePlaneMenuPanel.add(btnUsePlaneListing, "4, 7");
+		}
 		usePlaneMenuPanel.add(btnUsePlaneService, "4, 11");
+		
+		lblRequestAccessWithin = new JLabel("Request access within a service provider's use plane");
+		lblRequestAccessWithin.setFont(new Font("Dialog", Font.BOLD, 12));
+		usePlaneMenuPanel.add(lblRequestAccessWithin, "8, 11, 3, 1");
 
 		return usePlaneMenuPanel;
 	}
