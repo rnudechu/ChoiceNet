@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>Listing Service</name>
+			<type>Listing</type>
+			<details>
+				<source_location scheme="UDPv4" value="127.0.0.1:4040" />
+				<source_format scheme="" value="" />
+				<destination_location scheme="" value="" />
+				<destination_format scheme="" value="" />
+			</details>
+			<description>Advertisement Listing Service</description>
+		</service>
+		<price method="USD" value="20" />
+		<providerID> ABC Marketplace </providerID>
+		<purchasePortal>
+			<source_location scheme="Payment" value="Bitcoin:mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxFv" />
+		</purchasePortal>
+	</advertisement>
+	<provisioningParameters>
+	</provisioningParameters>
+</listings>

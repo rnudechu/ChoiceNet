@@ -44,6 +44,7 @@ public class ServerThread extends Thread {
 	String availableConsideration = Server.availableConsideration;
 	String jsonSeparator = "\n";
 
+
 	AdvertisementManager adMgr = AdvertisementManager.getInstance();
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	TokenManager tokenMgr = TokenManager.getInstance();
@@ -52,6 +53,8 @@ public class ServerThread extends Thread {
 	ChoiceNetLibrary cnLibrary = ChoiceNetLibrary.getInstance();
 	DiscoveredEntitiesManager dEMgr = DiscoveredEntitiesManager.getInstance();
 	ServiceManager serviceMgr = ServiceManager.getInstance();
+
+
 
 	/**
 	 * 
@@ -211,14 +214,14 @@ public class ServerThread extends Thread {
 							// Received a Request to List Message
 							if(packetType == PacketType.LISTING_REQUEST)
 							{
-							//	if(providerType.equals("Marketplace"))
-							//	{
-									respondToListingRequest(packet);
-							//	}
-							//	else
-							//	{
-							//		System.out.println("ERROR: "+providerType+" requested "+PacketType.LISTING_REQUEST);
-							//	}
+								//	if(providerType.equals("Marketplace"))
+								//	{
+								respondToListingRequest(packet);
+								//	}
+								//	else
+								//	{
+								//		System.out.println("ERROR: "+providerType+" requested "+PacketType.LISTING_REQUEST);
+								//	}
 							}
 							// Received a ACK Consideration Message
 							//if(packetType == PacketType.ACK_AND_SEND_TOKEN)TOKEN_RESPONSE
@@ -321,34 +324,81 @@ public class ServerThread extends Thread {
 		String content = "";
 		String attr = "";
 		String value = "";
+		String[] temp;
+		String originatorName = (String) packet.getOriginatorName().getValue();
+		// Parse value
+		PlannerSearchParameter searchParameter = new PlannerSearchParameter(originatorName);
 		for(int i=0; i<size; i++)
 		{
 			attr = (String) payload[i].getAttributeName();
 			value = (String) payload[i].getValue();
-			content += attr+": "+value+", "; 
+			temp = value.split(",");
+			if(attr.equals(RequestType.LOCATION_SRC_TYPE.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getSrcTypeLocation().add(val);
+				}
+			}
+			if(attr.equals(RequestType.LOCATION_SRC.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getSrcLocation().add(val);
+				}
+			}
+			if(attr.equals(RequestType.LOCATION_DST_TYPE.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getDstTypeLocation().add(val);
+				}
+			}
+			if(attr.equals(RequestType.LOCATION_DST.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getDstLocation().add(val);
+				}
+			}
+			if(attr.equals(RequestType.FORMAT_SRC_TYPE.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getSrcTypeFormat().add(val);
+				}
+			}
+			if(attr.equals(RequestType.FORMAT_SRC.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getSrcFormat().add(val);
+				}
+			}
+			if(attr.equals(RequestType.FORMAT_DST_TYPE.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getDstTypeFormat().add(val);
+				}
+			}
+			if(attr.equals(RequestType.FORMAT_DST.toString()))
+			{
+				for(String val: temp)
+				{
+					searchParameter.getDstFormat().add(val);
+				}
+			}
+			content += attr+": "+value+" "; 
 		}
-		content = content.substring(0, content.length()-2);
-		System.out.println("Content: "+content);
-		String message = "";
-		boolean testing = true;
-		if(testing)
-		{
-			message = "Dummy Response sent to client requesting planner service\n\nContent: "+content;
-			ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Advertisement List", message, "");
-			ChoiceNetMessageField[] myPayload = {resultsField};
-			packet = new Packet(PacketType.PLANNER_RESPONSE,myName,"",myType, providerType,myPayload);
-		}
-		else
-		{
-			message = "No Planner to handle request";
+		Server.searchParameterList.add(searchParameter);
+		Server.searchParameterHistory.add(searchParameter);
 
-			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.PLANNER_REQUEST.toString(), 1, message);
-			packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
-		}
-		System.out.println(message);
-
-		send(packet);
+		// System.out.println("Content: "+content);
+		handlePlannerServiceParameters();
 	}
+
+
 	/**
 	 * Planner Provider to Any
 	 * Respond To Planner Response
@@ -362,7 +412,143 @@ public class ServerThread extends Thread {
 		String results = (String) payload[0].getValue();
 		if(!Server.runningMode.equals("standalone"))
 		{
-			ProviderGUI.updateTextArea(results);
+			ChoiceNetSpeakerGUI.updateTextArea(results);
+		}
+	}
+
+	/**
+	 * Planner Provider to any
+	 * Handle Service Parameter
+	 */
+	private void handlePlannerServiceParameters()
+	{
+		// Check searchParameterList for searchParameter(s), for any given searchParameter completed send a recipe
+		// Query Marketplace per element
+		System.out.println("Handle Planner Service Parameters");
+		boolean readyToSendPacket = false;
+		PlannerServiceRecipe selectedRecipe = null;
+		System.out.println("Handle Planner Service Parameters Size: "+Server.searchParameterList.size());
+		if(Server.searchParameterList.size()>0)
+		{
+			System.out.println("Handling Planner Service Parameters");
+			PlannerSearchParameter serviceParameter = Server.searchParameterList.get(0);
+			// serviceParameter total element is not zero then a complete query on all the elements has not been completed
+			if(serviceParameter.getTotalElements()>0)
+			{
+				System.out.println("Service Parameters Total Elements: "+serviceParameter.getTotalElements());
+				Packet packet = null;
+				boolean check = true;
+				Server.searchedParameterIsSource = false;
+				String sourceLoc = "";
+				String destinationLoc = ""; 
+				String sourceFormat = ""; 
+				String destinationFormat = ""; 
+				String sourceLocType = ""; 
+				String destinationLocType = ""; 
+				String sourceFormatType = ""; 
+				String destinationFormatType = ""; 
+				String cost = ""; 
+				String cMethod = ""; 
+				String adID = ""; 
+				String providerID = "";
+				if(check && serviceParameter.getSrcLocation().size()>0)
+				{
+					check = false;
+					Server.searchedParameterIsSource = true;
+					sourceLoc = serviceParameter.getSrcLocation().get(0);
+					sourceLocType = serviceParameter.getSrcTypeLocation().get(0);
+					serviceParameter.getSrcLocation().remove(0);
+					serviceParameter.getSrcTypeLocation().remove(0);
+				}
+				if(check && serviceParameter.getDstLocation().size()>0)
+				{
+					check = false;
+					destinationLoc = serviceParameter.getDstLocation().get(0);
+					destinationLocType = serviceParameter.getDstTypeLocation().get(0);
+					serviceParameter.getDstLocation().remove(0);
+					serviceParameter.getDstTypeLocation().remove(0);
+				}
+				if(check && serviceParameter.getSrcFormat().size()>0)
+				{
+					check = false;
+					Server.searchedParameterIsSource = true;
+					sourceFormat = serviceParameter.getSrcFormat().get(0);
+					sourceFormatType = serviceParameter.getSrcTypeFormat().get(0);
+					serviceParameter.getSrcFormat().remove(0);
+					serviceParameter.getSrcTypeFormat().remove(0);
+				}
+				if(check && serviceParameter.getDstFormat().size()>0)
+				{
+					destinationFormat = serviceParameter.getDstFormat().get(0);
+					destinationFormatType = serviceParameter.getDstTypeFormat().get(0);
+					serviceParameter.getDstFormat().remove(0);
+					serviceParameter.getDstTypeFormat().remove(0);
+				}
+				ChoiceNetMessageField[] payload = cnLibrary.createMarketplaceQuery(sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, 
+						sourceFormatType, destinationFormatType, cost, cMethod, adID, providerID);
+				try {
+					clientIPAddress = InetAddress.getByName(Server.marketplaceAddr);
+					clientPort = Server.marketplacePort;
+					packet = new Packet(PacketType.MARKETPLACE_QUERY,myName,"",myType, providerType,payload);
+					System.out.println("Planner is sending Marketplace Query packet");
+					System.out.println(packet);
+					send(packet);
+					
+				} catch (UnknownHostException e) {
+					System.out.println("Planner failed sending Marketplace Query packet");
+					e.printStackTrace();
+				}
+			}
+			else
+			{
+				Server.searchParameterList.remove(0);
+				// Check the Graph Matrix to see if any feasible plan can be achieved
+				ArrayList<PlannerServiceRecipe> recipes = serviceParameter.getGraphMatrix().getRecipes();
+
+				int lowestPrice = Integer.MAX_VALUE;
+				int currCost;
+				int svcParameterCost = serviceParameter.getCost();
+				for(PlannerServiceRecipe recipe: recipes)
+				{
+					currCost = recipe.getTotalCost();
+					if(currCost<svcParameterCost)
+					{
+						lowestPrice = Math.min(currCost, lowestPrice);
+						if(lowestPrice == currCost)
+						{
+							selectedRecipe = recipe;
+						}
+					}
+				}
+				if(selectedRecipe!=null)
+				{
+					readyToSendPacket = true;
+				}
+			}
+		}
+
+		if(readyToSendPacket)
+		{
+			Packet packet = null;
+			String message = "";
+			boolean testing = true;
+			if(testing)
+			{
+				message = selectedRecipe.getAdvertisementList();
+				ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Advertisement List", message, "");
+				ChoiceNetMessageField[] myPayload = {resultsField};
+				packet = new Packet(PacketType.PLANNER_RESPONSE,myName,"",myType, providerType,myPayload);
+			}
+			else
+			{
+				message = "No Planner to handle request";
+
+				ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.PLANNER_REQUEST.toString(), 1, message);
+				packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
+			}
+			System.out.println(message);
+
+			send(packet);
 		}
 	}
 
@@ -449,46 +635,60 @@ public class ServerThread extends Thread {
 		//		String[] results = (String[]) payload[0].getValue();
 
 		String message = "";
-		System.out.println(Server.runningMode);
-		if(Server.runningMode.equals("standalone"))
+		
+		if(providerType.equals("Planner"))
 		{
-			System.out.println("CLI VERSION <<<<<<");
-			for(String x: results)
-			{
-				message += x+"\n";
-			}
-			Server.systemMessage = message;
-			Logger.saveToFile(message, "marketplace.response");
+			// TODO: Map Query Responses with advertisement search parameters
+			// TODO: It would be nice if the response had an identifier which another thread could refer to inorder to map query responses with search parameter
+			// Save Search parameter list along with contact
+			// Load next search parameter
+			// Store the response with the advertisement
+			System.out.println("Marketplace Response received by a Planner");
+			handlePlannerServiceParameters();
 		}
 		else
 		{
-			CouchDBResponse cResponse;
-			AdvertisementDisplay myAd;
-			for(String x: results)
+			// Standard View differentiated based on the interface
+			if(Server.runningMode.equals("standalone"))
 			{
-				cResponse = CouchDBResponse.parseJson(x);
-				if(cResponse != null)
+				System.out.println("CLI VERSION <<<<<<");
+				for(String x: results)
 				{
-					for(CouchDBContainer currentAdv : cResponse.getRows())
+					message += x+"\n";
+				}
+				Server.systemMessage = message;
+				Logger.saveToFile(message, "marketplace.response");
+			}
+			else
+			{
+				CouchDBResponse cResponse;
+				AdvertisementDisplay myAd;
+				for(String x: results)
+				{
+					cResponse = CouchDBResponse.parseJson(x);
+					if(cResponse != null)
 					{
-						myAd = currentAdv.getValue();
-						message += "ID: "+myAd.getId()+"\n";
-						message += "\tDescription: "+myAd.getDescription()+"\n";
-						message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
+						for(CouchDBContainer currentAdv : cResponse.getRows())
+						{
+							myAd = currentAdv.getValue();
+							message += "ID: "+myAd.getId()+"\n";
+							message += "\tDescription: "+myAd.getDescription()+"\n";
+							message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
 
-						message += "\tLocation Source: "+Arrays.toString(myAd.getSrcLocationAddrScheme())+":"+Arrays.toString(myAd.getSrcLocationAddrValue())+"\n";
-						message += "\tLocation Destination: "+Arrays.toString(myAd.getDstLocationAddrScheme())+":"+Arrays.toString(myAd.getDstLocationAddrValue())+"\n";
-						message += "\tFormat Source: "+Arrays.toString(myAd.getSrcFormatScheme())+":"+Arrays.toString(myAd.getSrcFormatValue())+"\n";
-						message += "\tFormat Destination: "+Arrays.toString(myAd.getDstFormatScheme())+":"+Arrays.toString(myAd.getDstFormatValue())+"\n";
-						message += "\n";
+							message += "\tLocation Source: "+Arrays.toString(myAd.getSrcLocationAddrScheme())+":"+Arrays.toString(myAd.getSrcLocationAddrValue())+"\n";
+							message += "\tLocation Destination: "+Arrays.toString(myAd.getDstLocationAddrScheme())+":"+Arrays.toString(myAd.getDstLocationAddrValue())+"\n";
+							message += "\tFormat Source: "+Arrays.toString(myAd.getSrcFormatScheme())+":"+Arrays.toString(myAd.getSrcFormatValue())+"\n";
+							message += "\tFormat Destination: "+Arrays.toString(myAd.getDstFormatScheme())+":"+Arrays.toString(myAd.getDstFormatValue())+"\n";
+							message += "\n";
+						}
+					}
+					else
+					{
+						message = "No results were found";
 					}
 				}
-				else
-				{
-					message = "No results were found";
-				}
+				ChoiceNetSpeakerGUI.updateTextArea(message);
 			}
-			ProviderGUI.updateTextArea(message);
 		}
 	}
 
@@ -499,8 +699,9 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField token = payload[1];
 		Token myToken = cnLibrary.extractTokenContent(token);
 		String message = "<html>Received an Use Attempt Acknowlegdement for the Token: "+myToken.getId()+"with an Handle ID: "+handleID+"</html>";
-		ProviderGUI.updateTextArea(message);
+		ChoiceNetSpeakerGUI.updateTextArea(message);
 	}
+
 	private void respondToUsePlaneSignaling(Packet packet) {
 		// TODO Auto-generated method stub
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
@@ -523,10 +724,10 @@ public class ServerThread extends Thread {
 		ChoiceNetMessageField reason = payload[2];
 		//String message = (String) nackType.getValue()+": Operation Code="+(opCodeValue)+" due to: "+(String) reason.getValue();
 		String message = "Failed: "+(String) reason.getValue();
-//		Server.systemMessage = message;
+		//		Server.systemMessage = message;
 		if(!Server.runningMode.equals("standalone"))
 		{
-			ProviderGUI.updateTextArea(message);
+			ChoiceNetSpeakerGUI.updateTextArea(message);
 		}
 		Logger.log(message);
 	}
@@ -581,12 +782,13 @@ public class ServerThread extends Thread {
 			String id = clientIPAddress.toString()+":"+clientPort;
 			dEMgr.addDiscoveredEntities(id, entity);
 			String message = "Entity: "+originatorName+" has been included in the Known Entity list";
-			Logger.log(message);
+
 			// prevent other clients from running this logger
 			if(!Server.runningMode.equals("standalone"))
 			{
-				ProviderGUI.updateTextArea(message);
+				ChoiceNetSpeakerGUI.updateTextArea(message);
 			}
+
 		}
 	}
 	/**
@@ -650,15 +852,15 @@ public class ServerThread extends Thread {
 						{
 							tokenType = sName;
 						}
-//						if(providerType.equals("Planner"))
-//						{
-//							tokenType = "Planner";
-//						}
-//						if(providerType.equals("Transport"))
-//						{
-//							tokenType = "Transport";
-//							tokenType = "Transport";
-//						}
+						//						if(providerType.equals("Planner"))
+						//						{
+						//							tokenType = "Planner";
+						//						}
+						//						if(providerType.equals("Transport"))
+						//						{
+						//							tokenType = "Transport";
+						//							tokenType = "Transport";
+						//						}
 					}
 					// creates Token
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
@@ -667,7 +869,7 @@ public class ServerThread extends Thread {
 					ChoiceNetMessageField transactionNum = new ChoiceNetMessageField("Transaction Number", tNumber, "");
 					// TODO: Empty gateway credentials: Marketplace should provide something here
 					ChoiceNetMessageField[] newPayload = {transactionNum,token}; 
-		
+
 					newPacket = new Packet(PacketType.TOKEN_RESPONSE,myName,"",myType,providerType,newPayload);
 				}
 				else
@@ -733,7 +935,7 @@ public class ServerThread extends Thread {
 			if(!Server.runningMode.equals("standalone"))
 			{
 				String msg = "Token "+myToken.getId()+" has been added to the system database"; // should be removed for the client
-				ProviderGUI.updateTextArea(msg);
+				ChoiceNetSpeakerGUI.updateTextArea(msg);
 			}
 		}
 		else
@@ -852,7 +1054,7 @@ public class ServerThread extends Thread {
 		msg += "</html>";
 		if(!Server.runningMode.equals("standalone"))
 		{
-			ProviderGUI.updateTextArea(msg);
+			ChoiceNetSpeakerGUI.updateTextArea(msg);
 		}
 	}
 
@@ -876,12 +1078,6 @@ public class ServerThread extends Thread {
 				trafficProp = trafficProp.replace("<![CDATA[", "");
 				trafficProp = trafficProp.replace("\n]]>", "");
 				OpenFlowFirewallMessage msg = cnLibrary.convertXMLtoOpenFlowFireWallMessage(trafficProp);
-				String destinationPort = Server.adSwitchPort.get(myToken.getServiceName());
-				if(destinationPort == null)
-				{
-					destinationPort = Server.defaultSwitchPort;
-				}
-				msg.setOutputPort(destinationPort);
 				long result = myToken.getExpirationTime()-System.currentTimeMillis();
 				result = result/1000; // Save it in seconds
 				msg.setDuration(result+"");
@@ -1174,7 +1370,7 @@ public class ServerThread extends Thread {
 		}
 		if(!destinationLoc.isEmpty())
 		{
-			queryField = "byDstLocation?=";
+			queryField = "byDstLocation?key=";
 			data = queryField+"[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST, data, "");
 			return searchedContent;

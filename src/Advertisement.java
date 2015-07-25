@@ -1,36 +1,39 @@
 public class Advertisement {
 
 	private String id;
-	private String considerationMethod;
-	private int considerationValue;
-	private String entityName;
+	private AdvertisementPrice price;
+	private AdvertisementPurchasePortal purchasePortal;
+	private String providerID;
 	private Service service;
-	private String advertiserAddress;
-	private int advertiserPortAddress;
-	private String advertiserAddressScheme;
-	private long expirationTime;
 	private long creationTime;
 	private String state; // Attempting, Advertised, Expired, Not Available
 	private String usePlaneAddress;
 	private String usePlaneType;
 	
 	public Advertisement(String considerationMethod, int considerationValue,
-			String entityName, Service service, String advertiserAddress,
-			int advertiserPortAddress, String advertiserAddressScheme,
-			long expirationTime, String usePlaneType, String usePlaneAddr) {
+			String providerID, Service service, String purchasePortalValue,
+			String purchasePortalScheme,
+			String usePlaneType, String usePlaneAddr) {
 		super();
-		this.considerationMethod = considerationMethod;
-		this.considerationValue = considerationValue;
-		this.entityName = entityName;
+		price = new AdvertisementPrice(considerationMethod, considerationValue);
+		this.providerID = providerID;
 		this.service = service;
-		this.advertiserAddress = advertiserAddress;
-		this.advertiserPortAddress = advertiserPortAddress;
-		this.advertiserAddressScheme = advertiserAddressScheme;
-		this.expirationTime = expirationTime;
+		purchasePortal = new AdvertisementPurchasePortal(purchasePortalScheme, purchasePortalValue);
 		this.creationTime = System.currentTimeMillis();
 		this.usePlaneType = usePlaneType;
-		this.usePlaneAddress = usePlaneAddress;
+		this.usePlaneAddress = usePlaneAddr;
 		state = "Attempting";
+	}
+	
+	public Advertisement(String considerationMethod, int considerationValue,
+			String providerID, Service service, String purchasePortalValue,
+			String purchasePortalScheme) {
+		super();
+		price = new AdvertisementPrice(considerationMethod, considerationValue);
+		this.providerID = providerID;
+		this.service = service;
+		purchasePortal = new AdvertisementPurchasePortal(purchasePortalScheme, purchasePortalValue);
+		this.creationTime = System.currentTimeMillis();
 	}
 	
 	public String getId() {
@@ -49,35 +52,27 @@ public class Advertisement {
 		this.creationTime = creationTime;
 	}
 
-	public long getExpirationTime() {
-		return expirationTime;
+	public AdvertisementPrice getPrice() {
+		return price;
 	}
 
-	public void setExpirationTime(long expirationTime) {
-		this.expirationTime = expirationTime;
+	public void setPrice(AdvertisementPrice price) {
+		this.price = price;
 	}
 
-	public String getConsiderationMethod() {
-		return considerationMethod;
+	public String getProviderID() {
+		return providerID;
 	}
 
-	public void setConsiderationMethod(String considerationMethod) {
-		this.considerationMethod = considerationMethod;
+	public void setProviderID(String providerID) {
+		this.providerID = providerID;
 	}
 
-	public int getConsiderationValue() {
-		return considerationValue;
+	public String getproviderID() {
+		return providerID;
 	}
-
-	public void setConsiderationValue(int considerationValue) {
-		this.considerationValue = considerationValue;
-	}
-
-	public String getEntityName() {
-		return entityName;
-	}
-	public void setEntityName(String entityName) {
-		this.entityName = entityName;
+	public void setproviderID(String providerID) {
+		this.providerID = providerID;
 	}
 	public Service getService() {
 		return service;
@@ -85,23 +80,13 @@ public class Advertisement {
 	public void setService(Service service) {
 		this.service = service;
 	}
-	public String getAdvertiserAddress() {
-		return advertiserAddress;
+
+	public AdvertisementPurchasePortal getPurchasePortal() {
+		return purchasePortal;
 	}
-	public void setAdvertiserAddress(String advertiserAddress) {
-		this.advertiserAddress = advertiserAddress;
-	}
-	public int getAdvertiserPortAddress() {
-		return advertiserPortAddress;
-	}
-	public void setAdvertiserPortAddress(int advertiserPortAddress) {
-		this.advertiserPortAddress = advertiserPortAddress;
-	}
-	public String getAdvertiserAddressScheme() {
-		return advertiserAddressScheme;
-	}
-	public void setAdvertiserAddressScheme(String advertiserAddressScheme) {
-		this.advertiserAddressScheme = advertiserAddressScheme;
+
+	public void setPurchasePortal(AdvertisementPurchasePortal purchasePortal) {
+		this.purchasePortal = purchasePortal;
 	}
 
 	public String getState() {
@@ -128,15 +113,12 @@ public class Advertisement {
 		this.usePlaneType = usePlaneType;
 	}
 
-	//@Override
+	@Override
 	public String toString() {
-		return "Advertisement [id=" + id + ", considerationMethod="
-				+ considerationMethod + ", considerationValue="
-				+ considerationValue + ", entityName=" + entityName
-				+ ", service=" + service + ", advertiserAddress="
-				+ advertiserAddress + ", advertiserPortAddress="
-				+ advertiserPortAddress + ", advertiserAddressScheme="
-				+ advertiserAddressScheme + ", expirationTime="
-				+ expirationTime + ", creationTime=" + creationTime + "]";
+		return "Advertisement [id=" + id + ", price=" + price
+				+ ", purchasePortal=" + purchasePortal + ", providerID="
+				+ providerID + ", service=" + service + ", creationTime="
+				+ creationTime + ", state=" + state + ", usePlaneAddress="
+				+ usePlaneAddress + ", usePlaneType=" + usePlaneType + "]";
 	}
 }

@@ -30,7 +30,10 @@ public class TokenManager {
 		for (Map.Entry<Long, Token> entry : map.entrySet())
 		{
 			Token myToken = entry.getValue();
-			return myToken;
+			if(myToken.getExpirationTime() > System.currentTimeMillis())
+			{
+				return myToken;
+			}
 		}
 		return null;
 	}

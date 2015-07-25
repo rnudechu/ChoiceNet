@@ -23,8 +23,8 @@ public class AdvertisementRandomGenerator {
 		Element dstLocation = doc.createElement("destination_location");
 		Element srcFormat = doc.createElement("source_format");
 		Element dstFormat = doc.createElement("destination_format");
-		// Transit Service (same format, different location)
-		if(service.equals("Transit"))
+		// Pathlet Service (same format, different location)
+		if(service.equals("Pathlet"))
 		{
 			// location elements
 			srcLocation.setAttribute("scheme", "IPv4");
@@ -40,8 +40,8 @@ public class AdvertisementRandomGenerator {
 			dstFormat.setAttribute("scheme", "transport media");
 			dstFormat.setAttribute("value", srcForm);
 		}
-		// Forwarding Service (same location, different format)
-		if(service.equals("Forwarding"))
+		// Transforming Service (same location, different format)
+		if(service.equals("Transforming"))
 		{
 			// location elements
 			srcLocation.setAttribute("scheme", "IPv4");
@@ -93,6 +93,11 @@ public class AdvertisementRandomGenerator {
 			Element name = doc.createElement("name");
 			name.appendChild(doc.createTextNode(myName+" "+timestamp));
 			service.appendChild(name);
+			
+			// type element
+			Element type = doc.createElement("type");
+			type.appendChild(doc.createTextNode(serviceType));
+			service.appendChild(type);
 
 			// details elements
 			//			Element details = doc.createElement("details");
@@ -128,7 +133,7 @@ public class AdvertisementRandomGenerator {
 
 			// price element
 			Element price = doc.createElement("price");
-			price.setAttribute("method", "Bitcoin");
+			price.setAttribute("method", "USD");
 			int priceValue = randomNum(1, 100);
 			price.setAttribute("value", priceValue+"");
 
@@ -142,9 +147,10 @@ public class AdvertisementRandomGenerator {
 
 			//purchasePortal element
 			Element purchasePortal = doc.createElement("purchasePortal");
-			Element generalLocation = doc.createElement("destination_location");
-			generalLocation.setAttribute("scheme", "UDPv4");
-			generalLocation.setAttribute("value", portalLocation);
+//			Element generalLocation = doc.createElement("destination_location");
+			Element generalLocation = doc.createElement("source_location");
+			generalLocation.setAttribute("scheme", "Payment");
+			generalLocation.setAttribute("value", "Bitcoin:mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxFv");
 			purchasePortal.appendChild(generalLocation);
 			advertisement.appendChild(purchasePortal);
 
@@ -196,12 +202,13 @@ public class AdvertisementRandomGenerator {
 		String fileName = "";
 		String message = "";
 		File folder = new File("generated/");
+		Token token;
 		for (File fileEntry : folder.listFiles()) {
 			fileName = fileEntry.getPath();
 			server.transferConsiderationMessage(serviceName, target, exchangeType, exchangeAmount, marketplaceIPAddr, marketplacePort);
 			message = server.tokenMgr.printAvailableTokens();
 			System.out.println(message);
-			Token token = server.tokenMgr.getFirstTokenFromMapping();
+			token = server.tokenMgr.getFirstTokenFromMapping();
 			if(token != null)
 			{
 				String tokenID = ""+token.getId();
@@ -215,20 +222,21 @@ public class AdvertisementRandomGenerator {
 
 	private void generate(int max)
 	{
-		String adName, srcLoc, dstLoc, srcFormat, dstFormat, serviceType;
+		String adName, srcLoc, dstLoc, srcFormat, dstFormat, serviceType,providerID;
+		int temp;
 		for(int i=0;i<max;i++)
 		{
 			adName = "Ad "+i;
 
 			if(randomNum(1,10)>5)
 			{
-				serviceType = "Forwarding";
+				serviceType = "Transforming";
 				srcFormat = randomNum(1,10)+"";
 				dstFormat = randomNum(1,10)+"";
 			}
 			else
 			{
-				serviceType = "Transit";
+				serviceType = "Pathlet";
 				srcFormat = randomNum(1,10)+"";
 				dstFormat = randomNum(1,10)+"";
 			}
@@ -236,22 +244,51 @@ public class AdvertisementRandomGenerator {
 			// so add 1 to make it inclusive
 			srcLoc = randomNum(1,10)+"."+randomNum(1,10)+"."+randomNum(1,10)+".0/24";
 			dstLoc = randomNum(1,10)+"."+randomNum(1,10)+"."+randomNum(1,10)+".0/24";
-
-			createAdvertisement(serviceType, adName, srcLoc, dstLoc, srcFormat, dstFormat, "ACME Systems", "127.0.0.1:4040");
+			
+			// Select providerID
+			temp = randomNum(1,4);
+			providerID = "ACME Corporation";
+			if(temp==1)
+			{
+				providerID = "Wayne Enterprisen";
+			}
+			else
+			{
+				if(temp==2)
+				{
+					providerID = "Stark Industries";
+				}
+			}
+			createAdvertisement(serviceType, adName, srcLoc, dstLoc, srcFormat, dstFormat, providerID, "127.0.0.1:4040");
 		}
 	}
 	public static void main(String argv[]) {
 
 		AdvertisementRandomGenerator advRG = new AdvertisementRandomGenerator();
 
-		int max = 10;
-		File folder = new File("generated/");
-		// Generate Advertisements
-		//		advRG.generate(max);
-		//  marketplace IP Address and port
-		String marketplaceIPAddr = "127.0.0.1";
-		int marketplacePort = 4040;
-		advRG.sendAdvertisement(marketplaceIPAddr, marketplacePort);
+		int max = 20;
+		advRG.generate(max);
+//		if(argv.length == 1)
+//		{
+//			int val = Integer.parseInt(argv[0]);
+//			if(val>0)
+//			{
+//				max = val;
+//			}
+//			File folder = new File("generatedAdvertisement");
+//			// Generate Advertisements
+//			advRG.generate(max);
+//			//  marketplace IP Address and port
+//			String marketplaceIPAddr = "127.0.0.1";
+//			int marketplacePort = 4040;
+//			advRG.sendAdvertisement(marketplaceIPAddr, marketplacePort);
+//		}
+//		else
+//		{
+//			String message = "java -jar advertisementGenerator.jar <number of advertisement> <folder to store advertisements>";
+//			System.out.println(message);
+//		}
+		
 
 	}
 

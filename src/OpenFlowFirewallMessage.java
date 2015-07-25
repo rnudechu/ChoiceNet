@@ -15,7 +15,6 @@ public class OpenFlowFirewallMessage {
 	private String sourcePort;
 	private String destinationPort;
 	private String status = "UNKNOWN";
-	private String outputPort;
 	private String duration;
 	private String reason;
 	
@@ -121,13 +120,6 @@ public class OpenFlowFirewallMessage {
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
-	public String getOutputPort() {
-		return outputPort;
-	}
-	@XmlElement
-	public void setOutputPort(String outputPort) {
-		this.outputPort = outputPort;
-	}
 	@XmlElement
 	public void setTransactionNumber(long transactionNumber) {
 		this.transactionNumber = transactionNumber;
@@ -148,8 +140,7 @@ public class OpenFlowFirewallMessage {
 				+ protocol + ", sourceAddress=" + sourceAddress
 				+ ", destinationAddress=" + destinationAddress
 				+ ", sourcePort=" + sourcePort + ", destinationPort="
-				+ destinationPort + ", status=" + status + ", outputPort="
-				+ outputPort + ", duration=" + duration + ", reason=" + reason
+				+ destinationPort + ", status=" + status + ", duration=" + duration + ", reason=" + reason
 				+ "]";
 	}
 }

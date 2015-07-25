@@ -13,5 +13,6 @@ public enum RequestType {
 	COST,
 	COST_TYPE,
 	ADVERTISEMENT_ID,
+	PROVIDER_ID,
 	SERVICE_NAME
 }

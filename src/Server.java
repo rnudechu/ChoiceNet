@@ -10,8 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -24,11 +22,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Scanner;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 
 public class Server {
 	private static int DEFAULT_SERVER_PORT = 4445;
@@ -37,6 +30,7 @@ public class Server {
 	DatagramSocket serverSocket;
 	byte[] receiveData = new byte[8192]; 
 	static String providerAddress = "127.0.0.1";
+	static String marketplaceListing = "Unknown";
 	static String marketplaceRESTAPI = "";
 	static String purchasePortal = "";
 	static String purchasePortalValidator = "";
@@ -49,8 +43,8 @@ public class Server {
 	static String acceptedConsideration = "None";
 	static String availableConsideration = "None";
 	static String runningMode = "Unknown";
-	static String defaultSwitchPort = "Unknown";
-	static Map<String, String> adSwitchPort = new HashMap<String, String>();
+	static String bitcoinAddr = "Unknown";
+	static String paypalAddr = "Unknown";
 
 	static String firewallAction = "Unknown";
 	static String firewallAddressVersion = "Unknown";
@@ -59,8 +53,17 @@ public class Server {
 	static String firewallDestinationAddress = "Unknown";
 	static String firewallSourcePort = "Unknown";
 	static String firewallDestinationPort = "Unknown";
+	
+	static String marketplaceAddr = "Unknown";
+	static int marketplacePort = -1;
 
 	static String systemMessage;
+
+	// Planner related variables
+	static ArrayList<PlannerSearchParameter> searchParameterList = new ArrayList<PlannerSearchParameter>(); 
+	static ArrayList<PlannerSearchParameter> searchParameterHistory = new ArrayList<PlannerSearchParameter>();
+	static boolean searchedParameterIsSource = false;
+
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
 	PurchaseManager purchaseMgr = PurchaseManager.getInstance();
@@ -122,6 +125,19 @@ public class Server {
 			}
 			// myType
 			myType = prop.getProperty("myType");
+
+			// Retrieve Payment Address
+			temp  = prop.getProperty("bitcoinAddr");
+			if(temp!= null && !temp.isEmpty())
+			{
+				bitcoinAddr = temp; 
+			}
+			temp  = prop.getProperty("paypalAddr");
+			if(temp!= null && !temp.isEmpty())
+			{
+				paypalAddr = temp; 
+			}
+
 			if(myType.equals("Client"))
 			{
 				firewallAction = prop.getProperty("firewallAction");
@@ -132,22 +148,10 @@ public class Server {
 				firewallSourcePort = prop.getProperty("firewallSourcePort");
 				firewallDestinationPort = prop.getProperty("firewallDestinationPort");
 			}
-			
-			if(providerType.equals("Transport"))
+
+			if(providerType.equals("Marketplace"))
 			{
-				defaultSwitchPort = prop.getProperty("defaultSwitchPort");
-				temp = prop.getProperty("adSwitchPort");
-				if(temp != null)
-				{
-					String[] items = temp.split("#");
-					String[] res;
-					int size = items.length;
-					for(int i=0;i<size;i++)
-					{
-						res = items[i].split("=");
-						adSwitchPort.put(res[0],res[1]);
-					}
-				}
+				marketplaceListing = prop.getProperty("marketplaceListing");
 			}
 			// nodeAcceptableConsideration
 			acceptedConsideration  = prop.getProperty("acceptedConsideration");
@@ -158,7 +162,13 @@ public class Server {
 			runningMode =  prop.getProperty("mode");
 			if(providerType.equals("Planner"))
 			{
-
+				marketplaceAddr = prop.getProperty("marketplaceAddr");
+				
+				temp = prop.getProperty("marketplacePort");
+				if(temp != null)
+				{
+					marketplacePort = Integer.parseInt(temp);
+				}
 			}
 
 
@@ -189,17 +199,15 @@ public class Server {
 
 
 	public String sendPlannerRequest(String marketplaceAddr, String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
-			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID) {
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID) {
 		String[] parsedContent;
 
 		// parse the marketplace address
 		parsedContent = marketplaceAddr.split(":");
 		String marketplaceAddress = parsedContent[0];
 		int marketplacePort = Integer.parseInt(parsedContent[1]);
-		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
-				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
-		ChoiceNetMessageField data =  new ChoiceNetMessageField("Service Requirement", dataPayload, "");
-		ChoiceNetMessageField payload[] = {data};
+		ChoiceNetMessageField[] payload = cnLibrary.createPlannerRequest(sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, 
+				sourceFormatType, destinationFormatType, cost, cMethod, adID, providerID);
 		// send the payload
 		Packet packet = new Packet(PacketType.PLANNER_REQUEST,myName,"",myType, providerType,payload);
 		System.out.println(packet);
@@ -209,19 +217,16 @@ public class Server {
 	}
 
 	public String sendMarketplaceQuery(String marketplaceAddr, String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
-			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID) {
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID) {
 		String[] parsedContent;
 		// parse the marketplace address
 		parsedContent = marketplaceAddr.split(":");
 		String marketplaceAddress = parsedContent[0];
 		int marketplacePort = Integer.parseInt(parsedContent[1]);
-
 		// create search parameter for each valid field
 		Packet packet;
-		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
-				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID);
-		ChoiceNetMessageField data = new ChoiceNetMessageField("Search Parameter", dataPayload, "");
-		ChoiceNetMessageField payload[] = {data};
+		ChoiceNetMessageField[] payload = cnLibrary.createMarketplaceQuery(sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, 
+				sourceFormatType, destinationFormatType, cost, cMethod, adID, providerID);
 		// send the payload
 		packet = new Packet(PacketType.MARKETPLACE_QUERY,myName,"",myType, providerType,payload);
 		System.out.println(packet);
@@ -231,7 +236,7 @@ public class Server {
 	}
 
 	public ChoiceNetMessageField[] createGeneralRequestPayload(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
-			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID)
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID)
 	{
 		ArrayList<ChoiceNetMessageField> list = new ArrayList<ChoiceNetMessageField>();
 		// determine the query property by content submitted in the location/format source/destination
@@ -295,6 +300,12 @@ public class Server {
 			searchedContent = new ChoiceNetMessageField(""+RequestType.ADVERTISEMENT_ID, adID, "");
 			list.add(searchedContent);
 		}
+
+		if(!providerID.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.PROVIDER_ID, providerID, "");
+			list.add(searchedContent);
+		}
 		System.out.println(sourceLoc);
 		// store the content of the query within the packet
 		ChoiceNetMessageField dataPayload[] = new ChoiceNetMessageField[list.size()];
@@ -333,17 +344,7 @@ public class Server {
 			couchDBsocket.postRestInterface(marketplaceAddr,content);
 			Logger.log("Load CouchDB View");
 		}
-		// Install a default listing service
-		Advertisement ad1 = createListingServiceAdvertisement();
-		adMgr.flush();
-		adMgr.addAdvertisement(ad1);
 
-		// Load the marketplace with advertisements
-		for(Advertisement myAd : adMgr.getSingleInstance())
-		{
-			couchDBsocket.postRestInterface(marketplaceAddr, myAd);
-			Logger.log("Included the following advertisement into CouchDB: \n"+myAd);
-		}
 	}
 
 	public void createRangeDatabase(String marketplaceAddr)
@@ -368,10 +369,40 @@ public class Server {
 	 */
 	public Advertisement createListingServiceAdvertisement()
 	{
-		Service listingService  = new Service("Advertisement Listing", "Listing", "List Service");
+		//Service listingService  = new Service("Advertisement Listing", "Listing", "List Service");
+		Service listingService  = new Service("Advertisement Listing", "Listing",
+				new String[]{"IPv4"},new String[]{providerAddress+"/32"},
+				new String[]{},new String[]{},
+				new String[]{"service"},new String[]{"listing"},
+				new String[]{},new String[]{},
+				null,"Advertisement Listing Service");
 		long moreTime = 600000*2;// 10 minutes * 2
 		int port = Integer.parseInt(getLocalIpAddress("Port"));
-		Advertisement myAd = new Advertisement("Free", 0, myName, listingService, providerAddress, port, "UDPv4", System.currentTimeMillis()+moreTime, "UDPv4", providerAddress+":"+port);
+		String paymentPortal = "";
+		String paymentType = "Free";
+		int paymentValue = 0;
+		if(!bitcoinAddr.equals("UNKNOWN"))
+		{
+			paymentValue = 20;
+			paymentType = "Bitcoin";
+			paymentPortal = bitcoinAddr;
+		}
+		else
+		{
+			if(!paypalAddr.equals("UNKNOWN"))
+			{
+				paymentValue = 20;
+				paymentType = "PayPal";
+				paymentPortal = paypalAddr;
+			}
+		}
+
+		if(!paymentType.equals("Free"))
+		{
+			paymentPortal = paymentType+":"+paymentPortal;
+		}
+//		Advertisement myAd = new Advertisement("USD", paymentValue, myName, listingService, paymentPortal, 0, paymentType, System.currentTimeMillis()+moreTime, "UDPv4", providerAddress+":"+port);
+		Advertisement myAd = new Advertisement("USD", paymentValue, myName, listingService, paymentPortal, paymentType);
 		return myAd;
 	}
 
@@ -579,7 +610,7 @@ public class Server {
 				Long eTime = tempToken.getExpirationTime();
 				String tokenType = tempToken.getServiceName();
 				// check that service name matches with token's service name
-//				ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
+				//				ChoiceNetMessageField token = cnLibrary.createToken(issuedTo, issuedBy,tokenType,eTime, false);
 				ChoiceNetMessageField token = cnLibrary.createToken(tID, issuedTo, issuedBy,tokenType,eTime);
 				ChoiceNetMessageField[] payload = {advertisement,token};
 				// Save the Advertisement Attempt
@@ -610,7 +641,7 @@ public class Server {
 	}
 
 	// http://stackoverflow.com/a/326448
-	private String readFile(String pathname) {
+	public String readFile(String pathname) {
 		String result = "";
 		try
 		{
@@ -658,7 +689,7 @@ public class Server {
 	}
 
 	//TODO: Check here
-	public String sendUsePlaneAttempt(String trafficPropFile, String tokenID, String ipAddr, int port) 
+	public String sendProvisionAttempt(String trafficPropFile, String tokenID, String ipAddr, int port) 
 	{
 		String trafficProp = "";
 		String result = "";
@@ -671,7 +702,7 @@ public class Server {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		int tID = Integer.parseInt(tokenID); 
 		long creationTimeID = tokenMgr.getTokenCreationTime(tID);
 		Token tempToken = TokenManager.getSingleToken(creationTimeID);
@@ -682,7 +713,7 @@ public class Server {
 			// save use attempt firewall within the database
 			OpenFlowFirewallMessage openflowFirewallMsg = cnLibrary.convertXMLtoOpenFlowFireWallMessage(trafficProp);
 			openFlowFirewallMsgLibrary.addOpenFlowFirewallMessage(System.currentTimeMillis(), openflowFirewallMsg);
-			
+
 			String issuedTo = tempToken.getIssuedTo();
 			Long eTime = tempToken.getExpirationTime();
 			String tokenType = tempToken.getServiceName();

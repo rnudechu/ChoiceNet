@@ -153,7 +153,7 @@ public class AdminGUI implements ActionListener {
 			String marketplaceAddr = txtSettingsMktAddr.getText();
 			String rangeHelperAddr = txtRangehelper.getText();
 			server.createMarketplaceDatabase(marketplaceAddr);
-			server.createRangeDatabase(rangeHelperAddr);
+			//server.createRangeDatabase(rangeHelperAddr);
 		}
 		
 		updateTextArea();
@@ -322,6 +322,8 @@ public class AdminGUI implements ActionListener {
 		
 		
 		txtRangehelper = new JTextField();
+		txtRangehelper.setEnabled(false);
+		txtRangehelper.setEditable(false);
 		settingsPanel.add(txtRangehelper, "5, 13, fill, default");
 		txtRangehelper.setColumns(10);
 

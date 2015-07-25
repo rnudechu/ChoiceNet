@@ -227,7 +227,7 @@ public class TestUtility {
 
 				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
 				System.out.println(myService);
-				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, advertiserPortAddress, portalType, 0,"UNKNOWN","UNKNOWN");
+				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, portalType);//, 0,"UNKNOWN","UNKNOWN");
 				result.add(myAd);
 			}
 		} catch (Exception e) {

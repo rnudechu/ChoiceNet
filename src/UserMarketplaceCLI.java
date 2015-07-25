@@ -79,7 +79,7 @@ public class UserMarketplaceCLI {
 					}
 				}
 			}
-			server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat,  sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, cost, cMethod, adID);
+			server.sendMarketplaceQuery(marketplaceAddr, sourceLoc, destinationLoc, sourceFormat, destinationFormat,  sourceLocType, destinationLocType, sourceFormatType, destinationFormatType, cost, cMethod, adID, "");
 			server.startServer();
 		}
 		else

@@ -20,6 +20,7 @@
 		<provisioningParameters>
 			<configurableParameters>
 				<ports value="54990" />
+				Maybe: This Provider Hop delivery address
 			</configurableParameters>
 		</provisioningParameters>
 	</advertisement>

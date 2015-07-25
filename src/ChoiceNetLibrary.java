@@ -243,8 +243,8 @@ public class ChoiceNetLibrary {
 					myNode = myList.item(temp);
 					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
 						myElement = (Element) myNode;
-						//						myList = myElement.getElementsByTagName("source_location");
-						myList = myElement.getElementsByTagName("destination_location");
+						myList = myElement.getElementsByTagName("source_location");
+						//myList = myElement.getElementsByTagName("destination_location");
 						portalType = getAttributes(myList, "scheme", 0);
 						purchasePortal = getAttributes(myList, "value", 0);
 						System.out.println("My list "+portalType+" "+purchasePortal+"<<<");
@@ -279,6 +279,10 @@ public class ChoiceNetLibrary {
 					if (myNode.getNodeType() == Node.ELEMENT_NODE) {
 						myElement = (Element) myNode;
 						serviceName =  myElement.getElementsByTagName("name").item(0).getTextContent();
+						if(myElement.getElementsByTagName("type").getLength() > 0)
+						{
+							serviceType =  myElement.getElementsByTagName("type").item(0).getTextContent();
+						}
 						serviceDescription =  myElement.getElementsByTagName("description").item(0).getTextContent();//	
 						myList = myElement.getElementsByTagName("details");
 						myNode = myList.item(0);
@@ -364,7 +368,8 @@ public class ChoiceNetLibrary {
 
 				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
 				System.out.println(myService);
-				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, advertiserPortAddress, portalType, 0,"UNKNOWN","UNKNOWN");
+//				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, advertiserPortAddress, portalType, 0,"UNKNOWN","UNKNOWN");
+				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, portalType);
 				result.add(myAd);
 			}
 		} catch (Exception e) {
@@ -446,12 +451,12 @@ public class ChoiceNetLibrary {
 		//		ChoiceNetMessageField cValue = new ChoiceNetMessageField("Consideration Value", considerationValue, "");
 		//		ChoiceNetMessageField[] cPayload = {cMethod,cValue};  
 		//		ChoiceNetMessageField consideration = new ChoiceNetMessageField("Consideration", cPayload, "");
-		ChoiceNetMessageField cPayload = new ChoiceNetMessageField(myAd.getConsiderationMethod(), myAd.getConsiderationValue(), "");
+		ChoiceNetMessageField cPayload = new ChoiceNetMessageField(myAd.getPrice().getMethod(), myAd.getPrice().getValue(), "");
 		ChoiceNetMessageField consideration = new ChoiceNetMessageField("Consideration", cPayload, "");
 		// Provider Economy Plane Address
-		ChoiceNetMessageField addressingScheme = new ChoiceNetMessageField("Addressing Scheme", myAd.getAdvertiserAddressScheme(), "");
-		ChoiceNetMessageField addressingValue = new ChoiceNetMessageField("Addressing Value", myAd.getAdvertiserAddress()+":"+myAd.getAdvertiserPortAddress(), "");
-		ChoiceNetMessageField entityName = new ChoiceNetMessageField("Entity's Name", myAd.getEntityName(), "");
+		ChoiceNetMessageField addressingScheme = new ChoiceNetMessageField("Addressing Scheme", myAd.getPurchasePortal().getScheme(), "");
+		ChoiceNetMessageField addressingValue = new ChoiceNetMessageField("Addressing Value", myAd.getPurchasePortal().getValue(), "");
+		ChoiceNetMessageField entityName = new ChoiceNetMessageField("Entity's Name", myAd.getproviderID(), "");
 		ChoiceNetMessageField[] value = {addressingScheme,addressingValue,entityName};
 		ChoiceNetMessageField economyAddress = new ChoiceNetMessageField("Provider Economy Plane Address", value, "");
 		// Advertisement Object
@@ -687,4 +692,108 @@ public class ChoiceNetLibrary {
 
 		return openflowFirewallMsg;
 	}
+	
+	public ChoiceNetMessageField[] createPlannerRequest(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID) {
+		// create search parameter for each valid field
+		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
+				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID, providerID);
+		ChoiceNetMessageField data =  new ChoiceNetMessageField("Service Requirement", dataPayload, "");
+		ChoiceNetMessageField payload[] = {data};
+		
+		return payload;
+	}
+
+	public ChoiceNetMessageField[] createMarketplaceQuery(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID) {
+		// create search parameter for each valid field
+		ChoiceNetMessageField[] dataPayload = createGeneralRequestPayload( sourceLoc,  destinationLoc,  sourceFormat,  destinationFormat,  sourceLocType, 
+				destinationLocType,  sourceFormatType,  destinationFormatType,  cost,  cMethod, adID, providerID);
+		ChoiceNetMessageField data = new ChoiceNetMessageField("Search Parameter", dataPayload, "");
+		ChoiceNetMessageField payload[] = {data};
+		
+		return payload;
+	}
+
+	public ChoiceNetMessageField[] createGeneralRequestPayload(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
+			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID)
+	{
+		ArrayList<ChoiceNetMessageField> list = new ArrayList<ChoiceNetMessageField>();
+		// determine the query property by content submitted in the location/format source/destination
+		ChoiceNetMessageField searchedContent;
+		if(!sourceLoc.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.LOCATION_SRC, sourceLoc, "");
+			list.add(searchedContent);
+		}
+		if(!destinationLoc.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.LOCATION_DST, destinationLoc, "");
+			list.add(searchedContent);
+		}
+		if(!sourceFormat.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.FORMAT_SRC, sourceFormat, "");
+			list.add(searchedContent);
+		}
+		if(!destinationFormat.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.FORMAT_DST, destinationFormat, "");
+			list.add(searchedContent);
+		}
+
+		if(!sourceLocType.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.LOCATION_SRC_TYPE, sourceLocType, "");
+			list.add(searchedContent);
+		}
+		if(!destinationLocType.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.LOCATION_DST_TYPE, destinationLocType, "");
+			list.add(searchedContent);
+		}
+		if(!sourceFormatType.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.FORMAT_SRC_TYPE, sourceFormatType, "");
+			list.add(searchedContent);
+		}
+		if(!destinationFormatType.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.FORMAT_DST_TYPE, destinationFormatType, "");
+			list.add(searchedContent);
+		}
+
+		// decode the cost type field
+		if(!cMethod.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.COST_TYPE, cMethod, "");
+			list.add(searchedContent);
+		}
+		if(!cost.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.COST, cost, "");
+			list.add(searchedContent);
+		}
+		// decode the advertisement ID field
+		if(!adID.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.ADVERTISEMENT_ID, adID, "");
+			list.add(searchedContent);
+		}
+		
+		if(!providerID.isEmpty())
+		{
+			searchedContent = new ChoiceNetMessageField(""+RequestType.PROVIDER_ID, providerID, "");
+			list.add(searchedContent);
+		}
+		System.out.println(sourceLoc);
+		// store the content of the query within the packet
+		ChoiceNetMessageField dataPayload[] = new ChoiceNetMessageField[list.size()];
+		for(int i=0;i<list.size();i++)
+		{
+			dataPayload[i] = list.get(i);
+		}
+		return dataPayload;
+	}
+	
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>Ad 1.2</name>
+			<type>Analytics</type>
+			<details>
+				<source_location scheme="UDPv4" value="10.1.3.1:3050" />
+				<destination_location scheme="IPv4" value="ANY_PUBLIC" />
+				<source_format scheme="IPv4-format" value="packet timestamp" />
+				<destination_format scheme="text" value="CSV,XLS,XML" />
+			</details>
+			<description>Analytics Service Advertisement</description>
+		</service>
+		<price method="USD" value="20" />
+		<providerID>Oscorp Analytics</providerID>
+		<purchasePortal>
+			<source_location scheme="Payment" value="Bitcoin:mreGsuG9mkiaeRbn5f3L4omCCuMLiNBWzQ" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters/>
+		</provisioningParameters>
+	</advertisement>
+</listings>
