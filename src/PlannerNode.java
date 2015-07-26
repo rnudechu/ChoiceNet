@@ -5,29 +5,40 @@ public class PlannerNode {
 	private int resourceCost = 0;
 	private String nodeName = "Default";
 	private ArrayList<PlannerNode> adjancies = new ArrayList<PlannerNode>();
-	boolean isRoot = false;
-	CouchDBResponse advertisement;
+	public enum NodeType {
+		SOURCE,
+		REGULAR,
+		DESTINATION
+	}
+	NodeType status = NodeType.REGULAR;
+	AdvertisementDisplay advertisement;
 	
 	
-	public CouchDBResponse getAdvertisement() {
+	public AdvertisementDisplay getAdvertisement() {
 		return advertisement;
 	}
 
-	public void setAdvertisement(CouchDBResponse advertisement) {
+	public void setAdvertisement(AdvertisementDisplay advertisement) {
 		this.advertisement = advertisement;
 	}
 
-	public boolean isRoot() {
-		return isRoot;
+	public NodeType getStatus() {
+		return status;
 	}
 
-	public void setVisited(boolean isRoot) {
-		this.isRoot = isRoot;
+	public void setStatus(NodeType status) {
+		this.status = status;
 	}
 
 	public PlannerNode(String nodeName, int cost) {
 		this.nodeName = nodeName;
 		this.resourceCost = cost;
+	}
+	
+	public PlannerNode(String nodeName, int cost, AdvertisementDisplay advertisement) {
+		this.nodeName = nodeName;
+		this.resourceCost = cost;
+		this.advertisement = advertisement;
 	}
 
 	public String getNodeName() {

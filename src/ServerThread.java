@@ -328,6 +328,15 @@ public class ServerThread extends Thread {
 		String originatorName = (String) packet.getOriginatorName().getValue();
 		// Parse value
 		PlannerSearchParameter searchParameter = new PlannerSearchParameter(originatorName);
+		// Check to see if Planner has communicated with this entity before if not force a "silent" Rendezvous Interaction
+		if(dEMgr.getDiscoveredEntityByName(originatorName) == null)
+		{
+			String originatorProviderType = (String) packet.getOriginatorProviderType().getValue();
+			ChoiceNetMessageField[] rendezvousPayload = cnLibrary.createRendevouzMessage(originatorProviderType, acceptedConsideration, availableConsideration);
+			Packet rendezvousPacket = new Packet(PacketType.RENDEZVOUS_REQUEST,myName,"",myType, providerType,rendezvousPayload);
+			sendRequest(rendezvousPacket);
+		}
+		//new ServerThread(socket, clientBroadcastAddress, rendezvousPacket);
 		for(int i=0; i<size; i++)
 		{
 			attr = (String) payload[i].getAttributeName();
@@ -389,12 +398,20 @@ public class ServerThread extends Thread {
 					searchParameter.getDstFormat().add(val);
 				}
 			}
+			if(attr.equals(RequestType.COST.toString()))
+			{
+				int total = Integer.parseInt(value);
+				searchParameter.setCost(total);
+			}
+			if(attr.equals(RequestType.COST_TYPE.toString()))
+			{
+				searchParameter.setCostType(value);
+			}
 			content += attr+": "+value+" "; 
 		}
 		Server.searchParameterList.add(searchParameter);
 		Server.searchParameterHistory.add(searchParameter);
 
-		// System.out.println("Content: "+content);
 		handlePlannerServiceParameters();
 	}
 
@@ -439,6 +456,7 @@ public class ServerThread extends Thread {
 				Packet packet = null;
 				boolean check = true;
 				Server.searchedParameterIsSource = false;
+				Server.searchedParameterIsDestination = false;
 				String sourceLoc = "";
 				String destinationLoc = ""; 
 				String sourceFormat = ""; 
@@ -463,6 +481,7 @@ public class ServerThread extends Thread {
 				if(check && serviceParameter.getDstLocation().size()>0)
 				{
 					check = false;
+					Server.searchedParameterIsDestination = true;
 					destinationLoc = serviceParameter.getDstLocation().get(0);
 					destinationLocType = serviceParameter.getDstTypeLocation().get(0);
 					serviceParameter.getDstLocation().remove(0);
@@ -479,11 +498,13 @@ public class ServerThread extends Thread {
 				}
 				if(check && serviceParameter.getDstFormat().size()>0)
 				{
+					Server.searchedParameterIsDestination = true;
 					destinationFormat = serviceParameter.getDstFormat().get(0);
 					destinationFormatType = serviceParameter.getDstTypeFormat().get(0);
 					serviceParameter.getDstFormat().remove(0);
 					serviceParameter.getDstTypeFormat().remove(0);
 				}
+
 				ChoiceNetMessageField[] payload = cnLibrary.createMarketplaceQuery(sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, 
 						sourceFormatType, destinationFormatType, cost, cMethod, adID, providerID);
 				try {
@@ -493,7 +514,7 @@ public class ServerThread extends Thread {
 					System.out.println("Planner is sending Marketplace Query packet");
 					System.out.println(packet);
 					send(packet);
-					
+
 				} catch (UnknownHostException e) {
 					System.out.println("Planner failed sending Marketplace Query packet");
 					e.printStackTrace();
@@ -501,28 +522,45 @@ public class ServerThread extends Thread {
 			}
 			else
 			{
+				System.out.println("Planner attempting discover if any recipes exist with known components");
+				long id = serviceParameter.getIdentifier();
+				serviceParameter = Server.getSearchParameter(id);
 				Server.searchParameterList.remove(0);
+				// At this point only advertisements with only a single connection or no connection will be found at this time
+				// Should another round of queries be made against initial discovered advertisements
+				// ... maybe additional three queries per item
+				serviceParameter.getGraphMatrix().run();
 				// Check the Graph Matrix to see if any feasible plan can be achieved
 				ArrayList<PlannerServiceRecipe> recipes = serviceParameter.getGraphMatrix().getRecipes();
+				System.out.println("Number of potential recipes: "+recipes.size());
 
+				serviceParameter.getGraphMatrix().printRecipe();
 				int lowestPrice = Integer.MAX_VALUE;
 				int currCost;
 				int svcParameterCost = serviceParameter.getCost();
 				for(PlannerServiceRecipe recipe: recipes)
 				{
 					currCost = recipe.getTotalCost();
+					System.out.println("Ad Cost: "+recipe.getTotalCost()+" vs. "+svcParameterCost);
 					if(currCost<svcParameterCost)
 					{
 						lowestPrice = Math.min(currCost, lowestPrice);
+						System.out.println("Ad lowest cost: "+lowestPrice);
 						if(lowestPrice == currCost)
 						{
 							selectedRecipe = recipe;
 						}
 					}
 				}
-				if(selectedRecipe!=null)
-				{
-					readyToSendPacket = true;
+				System.out.println("Potential recipe: "+selectedRecipe);
+				readyToSendPacket = true;
+				// update the ip address and port to initiating entity
+				DiscoveredEntities entity = dEMgr.getDiscoveredEntityByName(serviceParameter.getOriginatorName());
+				try {
+					clientIPAddress = InetAddress.getByName(entity.getIpAddr());
+					clientPort = entity.getPort();
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -531,21 +569,17 @@ public class ServerThread extends Thread {
 		{
 			Packet packet = null;
 			String message = "";
-			boolean testing = true;
-			if(testing)
+			if(selectedRecipe!=null)
 			{
 				message = selectedRecipe.getAdvertisementList();
-				ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Advertisement List", message, "");
-				ChoiceNetMessageField[] myPayload = {resultsField};
-				packet = new Packet(PacketType.PLANNER_RESPONSE,myName,"",myType, providerType,myPayload);
 			}
 			else
 			{
-				message = "No Planner to handle request";
-
-				ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.PLANNER_REQUEST.toString(), 1, message);
-				packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
+				message = "No recipes discovered with the given service requirements";
 			}
+			ChoiceNetMessageField resultsField = new ChoiceNetMessageField("Advertisement List", message, "");
+			ChoiceNetMessageField[] myPayload = {resultsField};
+			packet = new Packet(PacketType.PLANNER_RESPONSE,myName,"",myType, providerType,myPayload);
 			System.out.println(message);
 
 			send(packet);
@@ -635,7 +669,7 @@ public class ServerThread extends Thread {
 		//		String[] results = (String[]) payload[0].getValue();
 
 		String message = "";
-		
+
 		if(providerType.equals("Planner"))
 		{
 			// TODO: Map Query Responses with advertisement search parameters
@@ -643,7 +677,39 @@ public class ServerThread extends Thread {
 			// Save Search parameter list along with contact
 			// Load next search parameter
 			// Store the response with the advertisement
+			// Create new Advertisement Node for each object
 			System.out.println("Marketplace Response received by a Planner");
+			CouchDBResponse cResponse;
+			AdvertisementDisplay myAd;
+			long id = Server.searchParameterList.get(0).getIdentifier(); 
+			PlannerSearchParameter searchParameter = Server.getSearchParameter(id);
+			PlannerNode advertisementNode;
+			System.out.println("Thread respondToMarketplaceResponse(): parse response");
+			for(String x: results)
+			{
+				cResponse = CouchDBResponse.parseJson(x);
+				if(cResponse != null)
+				{
+					for(CouchDBContainer currentAdv : cResponse.getRows())
+					{
+						myAd = currentAdv.getValue();
+						if(!searchParameter.getGraphMatrix().doesNodeExist(myAd.getId()))
+						{	
+							System.out.println("Thread respondToMarketplaceResponse(): attempting to install ad");
+							advertisementNode = new PlannerNode(myAd.getId(), myAd.getConsiderationValue(), myAd);
+							if(Server.searchedParameterIsSource)
+							{
+								advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
+							}
+							if(Server.searchedParameterIsDestination)
+							{
+								advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
+							}
+							searchParameter.getGraphMatrix().getNodeGraph().add(advertisementNode);
+						}
+					}
+				}
+			}
 			handlePlannerServiceParameters();
 		}
 		else
@@ -662,7 +728,6 @@ public class ServerThread extends Thread {
 			else
 			{
 				CouchDBResponse cResponse;
-				AdvertisementDisplay myAd;
 				for(String x: results)
 				{
 					cResponse = CouchDBResponse.parseJson(x);
@@ -670,16 +735,7 @@ public class ServerThread extends Thread {
 					{
 						for(CouchDBContainer currentAdv : cResponse.getRows())
 						{
-							myAd = currentAdv.getValue();
-							message += "ID: "+myAd.getId()+"\n";
-							message += "\tDescription: "+myAd.getDescription()+"\n";
-							message += "\tCost: "+myAd.getConsiderationMethod()+":"+myAd.getConsiderationValue()+"\n";
-
-							message += "\tLocation Source: "+Arrays.toString(myAd.getSrcLocationAddrScheme())+":"+Arrays.toString(myAd.getSrcLocationAddrValue())+"\n";
-							message += "\tLocation Destination: "+Arrays.toString(myAd.getDstLocationAddrScheme())+":"+Arrays.toString(myAd.getDstLocationAddrValue())+"\n";
-							message += "\tFormat Source: "+Arrays.toString(myAd.getSrcFormatScheme())+":"+Arrays.toString(myAd.getSrcFormatValue())+"\n";
-							message += "\tFormat Destination: "+Arrays.toString(myAd.getDstFormatScheme())+":"+Arrays.toString(myAd.getDstFormatValue())+"\n";
-							message += "\n";
+							message += currentAdv.printAdvertisementDisplay();
 						}
 					}
 					else
@@ -767,6 +823,7 @@ public class ServerThread extends Thread {
 		// Record the Consideration Type 
 		ChoiceNetMessageField[] payload = (ChoiceNetMessageField[]) packet.getMessageSpecific().getValue();
 		String intendedEntityName = (String) payload[0].getValue();
+		String message = "";
 		//String targetAcceptedConsideration = (String) payload[1].getValue();
 		// check that this response is both intended for this entity node 
 		// .... (Save for another function) AND consideration accepted matches this entity's available consideration
@@ -778,17 +835,26 @@ public class ServerThread extends Thread {
 			String originatorType = (String) packet.getOriginatorProviderType().getValue();
 			String acceptedConsideration = (String) payload[1].getValue();
 			String availableConsideration = (String) payload[2].getValue();
-			DiscoveredEntities entity = new DiscoveredEntities(originatorName, originatorType, clientIPAddress.toString(), clientPort,acceptedConsideration, availableConsideration);
+			String ipAddr = clientIPAddress.toString();
+			ipAddr = ipAddr.substring(1,ipAddr.length());
+			DiscoveredEntities entity = new DiscoveredEntities(originatorName, originatorType, ipAddr, clientPort,acceptedConsideration, availableConsideration);
 			String id = clientIPAddress.toString()+":"+clientPort;
 			dEMgr.addDiscoveredEntities(id, entity);
-			String message = "Entity: "+originatorName+" has been included in the Known Entity list";
-
+			message = "Entity: "+originatorName+" has been included in the Known Entity list";
+			Logger.log(message);
 			// prevent other clients from running this logger
 			if(!Server.runningMode.equals("standalone"))
 			{
 				ChoiceNetSpeakerGUI.updateTextArea(message);
 			}
 
+		}
+		else
+		{
+			message = "Name Mismatched. Intended Entity Name is {"+intendedEntityName+"} and not {"+myName+"}";
+
+			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.RENDEZVOUS_RESPONSE.toString(), 1, message);
+			packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
 		}
 	}
 	/**

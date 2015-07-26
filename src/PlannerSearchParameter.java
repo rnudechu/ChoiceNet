@@ -12,9 +12,19 @@ public class PlannerSearchParameter {
 	ArrayList<String> srcTypeFormat = new ArrayList<String>();
 	ArrayList<String> dstFormat = new ArrayList<String>();
 	ArrayList<String> dstTypeFormat = new ArrayList<String>();
-	int cost;
+	int cost = Integer.MAX_VALUE;
+	String costType;
 	int totalElements;
 	boolean status = true;
+	
+	public String getCostType() {
+		return costType;
+	}
+
+	public void setCostType(String costType) {
+		this.costType = costType;
+	}
+
 	PlannerGraphMatrix graphMatrix = new PlannerGraphMatrix();
 	
 	public PlannerGraphMatrix getGraphMatrix() {
@@ -126,14 +136,16 @@ public class PlannerSearchParameter {
 	
 	@Override
 	public String toString() {
-		return "PlannerSearchParameter [originatorName=" + originatorName
-				+ ", srcLocation=" + srcLocation + ", srcTypeLocation="
-				+ srcTypeLocation + ", dstLocation=" + dstLocation
-				+ ", dstTypeLocation=" + dstTypeLocation + ", srcFormat="
-				+ srcFormat + ", srcTypeFormat=" + srcTypeFormat
-				+ ", dstFormat=" + dstFormat + ", dstTypeFormat="
-				+ dstTypeFormat + ", cost=" + cost + ", totalElements="
-				+ totalElements + "]";
+		return "PlannerSearchParameter [identifier=" + identifier
+				+ ", originatorName=" + originatorName + ", srcLocation="
+				+ srcLocation + ", srcTypeLocation=" + srcTypeLocation
+				+ ", dstLocation=" + dstLocation + ", dstTypeLocation="
+				+ dstTypeLocation + ", srcFormat=" + srcFormat
+				+ ", srcTypeFormat=" + srcTypeFormat + ", dstFormat="
+				+ dstFormat + ", dstTypeFormat=" + dstTypeFormat + ", cost="
+				+ cost + ", costType=" + costType + ", totalElements="
+				+ totalElements + ", status=" + status + ", graphMatrix="
+				+ graphMatrix + "]";
 	}
 	
 	

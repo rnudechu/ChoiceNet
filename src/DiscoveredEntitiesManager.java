@@ -42,6 +42,18 @@ public class DiscoveredEntitiesManager {
 		items.remove(id);
 	}
 	
+	public DiscoveredEntities getDiscoveredEntityByName (String name)
+	{
+		for(DiscoveredEntities myDiscoveredEntities: getDiscoveredEntities())
+		{
+			if(myDiscoveredEntities.getName().equals(name))
+			{
+				return myDiscoveredEntities;
+			}
+		}
+		return null;
+	}
+	
 	public String printDiscoveredEntities()
 	{
 		String result = "";

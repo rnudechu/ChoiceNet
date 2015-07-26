@@ -4,161 +4,161 @@
   "views":
   {
     "byServiceName": {
-      "map": "function(doc) { if (doc.service.name) { emit([doc.service.name], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue,}) } }"
+      "map": "function(doc) { if (doc.service.name) { emit([doc.service.name], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue,}) } }"
     },
     "byServiceType": {
-      "map": "function(doc) { if (doc.service.type) { emit([doc.service.type], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
-    }, 
+      "map": "function(doc) { if (doc.service.type) { emit([doc.service.type], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
+    },
     "byID": {
-      "map": "function(doc) { if (doc._id) { emit([doc._id], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
-    }, 
-    
+      "map": "function(doc) { if (doc._id) { emit([doc._id], {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
+    },
+
     "bySrcLocation": {
-      "map": "function(doc) { if (doc.service.srcLocationAddrValue) 
-      { 
+      "map": "function(doc) { if (doc.service.srcLocationAddrValue)
+      {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
-      emit([doc.service.srcLocationAddrValue[i], doc.service.srcLocationAddrScheme[i]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
+      emit([doc.service.srcLocationAddrValue[i], doc.service.srcLocationAddrScheme[i]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
        }} }"
-    }, 
+    },
     "byDstLocation": {
-      "map": "function(doc) { if (doc.service.dstLocationAddrValue) 
-      { 
+      "map": "function(doc) { if (doc.service.dstLocationAddrValue)
+      {
       for( var i=0, l=doc.service.dstLocationAddrValue.length; i<l; i++) {
-      emit([doc.service.dstLocationAddrValue[i], doc.service.dstLocationAddrScheme[i]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
-      }} }"
-    }, 
-    "bySrcFormat": {
-      "map": "function(doc) { if (doc.service.srcFormatValue) 
-      { 
-      for( var i=0, l=doc.service.srcFormatValue.length; i<l; i++) {
-      emit([doc.service.srcFormatValue[i], doc.service.srcFormatScheme[i]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
-      }} }"
-    }, 
-    "byDstFormat": {
-      "map": "function(doc) { if (doc.service.dstFormatValue) { 
-      for( var i=0, l=doc.service.dstFormatValue.length; i<l; i++) {
-      emit([doc.service.dstFormatValue[i], doc.service.dstFormatScheme[i]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.dstLocationAddrValue[i], doc.service.dstLocationAddrScheme[i]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }} }"
     },
-    
-     
+    "bySrcFormat": {
+      "map": "function(doc) { if (doc.service.srcFormatValue)
+      {
+      for( var i=0, l=doc.service.srcFormatValue.length; i<l; i++) {
+      emit([doc.service.srcFormatValue[i], doc.service.srcFormatScheme[i]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
+      }} }"
+    },
+    "byDstFormat": {
+      "map": "function(doc) { if (doc.service.dstFormatValue) {
+      for( var i=0, l=doc.service.dstFormatValue.length; i<l; i++) {
+      emit([doc.service.dstFormatValue[i], doc.service.dstFormatScheme[i]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
+      }} }"
+    },
+
+
     "bySrcDstLocation": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue, doc.service.srcLocationAddrScheme, doc.service.dstLocationAddrValue, doc.service.dstLocationAddrScheme]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue, doc.service.srcLocationAddrScheme, doc.service.dstLocationAddrValue, doc.service.dstLocationAddrScheme]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstLocationAddrValue.length; j<m; j++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
+      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}
       } }"
-    }, 
+    },
     "bySrcLocationSrcFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue, doc.service.srcLocationAddrScheme, doc.service.srcFormatValue, doc.service.srcFormatScheme]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue, doc.service.srcLocationAddrScheme, doc.service.srcFormatValue, doc.service.srcFormatScheme]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.srcFormatValue.length; j<m; j++) {
-      emit([doc.service.srcLocationAddrValue[i], doc.service.srcLocationAddrScheme[i], doc.service.srcFormatValue[j], doc.service.srcFormatScheme[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i], doc.service.srcLocationAddrScheme[i], doc.service.srcFormatValue[j], doc.service.srcFormatScheme[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}
       } }"
-    }, 
+    },
     "bySrcLocationDstFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstFormatValue.length; j<m; j++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.dstFormatValue[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i],doc.service.dstFormatValue[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}
       } }"
-    }, 
+    },
     "byDstLocationSrcFormat": {
-      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.srcFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.srcFormatValue]) {
       for( var i=0, l=doc.service.dstLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.srcFormatValue.length; j<m; j++) {
-      emit([doc.service.dstLocationAddrValue[i],doc.service.srcFormatValue[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.dstLocationAddrValue[i],doc.service.srcFormatValue[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}
       } }"
     },
     "byDstLocationDstFormat": {
-      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.dstLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstFormatValue.length; j<m; j++) {
-      emit([doc.service.dstLocationAddrValue[i],doc.service.dstFormatValue[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
-      }}
-      } }"
-    },  
-    "bySrcDstFormat": {
-      "map": "function(doc) { if ([doc.service.srcFormatValue,doc.service.dstFormatValue]) { 
-      for( var i=0, l=doc.service.srcFormatValue.length; i<l; i++) {
-      for( var j=0, m=doc.service.dstFormatValue.length; j<m; j++) {
-      emit([doc.service.srcFormatValue[i],doc.service.dstFormatValue[j]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.dstLocationAddrValue[i],doc.service.dstFormatValue[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}
       } }"
     },
-    
+    "bySrcDstFormat": {
+      "map": "function(doc) { if ([doc.service.srcFormatValue,doc.service.dstFormatValue]) {
+      for( var i=0, l=doc.service.srcFormatValue.length; i<l; i++) {
+      for( var j=0, m=doc.service.dstFormatValue.length; j<m; j++) {
+      emit([doc.service.srcFormatValue[i],doc.service.dstFormatValue[j]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
+      }}
+      } }"
+    },
+
     "bySrcDstLocationSrcFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.srcFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.srcFormatValue]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstLocationAddrValue.length; j<m; j++) {
       for( var k=0, n=doc.service.srcFormatValue.length; k<n; k++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.srcFormatValue[k]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.srcFormatValue[k]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}}
       } }"
-    }, 
+    },
     "bySrcDstLocationDstFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstLocationAddrValue.length; j<m; j++) {
       for( var k=0, n=doc.service.dstFormatValue.length; k<n; k++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.dstFormatValue[k]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.dstFormatValue[k]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}}
       } }"
-    }, 
+    },
     "bySrcLocationSrcDstFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.srcFormatValue.length; j<m; j++) {
       for( var k=0, n=doc.service.dstFormatValue.length; k<n; k++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.srcFormatValue[j],doc.service.dstFormatValue[k]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i],doc.service.srcFormatValue[j],doc.service.dstFormatValue[k]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}}
       } }"
-    }, 
+    },
     "byDstLocationSrcDstFormat": {
-      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.dstLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.dstLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.srcFormatValue.length; j<m; j++) {
       for( var k=0, n=doc.service.dstFormatValue.length; k<n; k++) {
-      emit([doc.service.dstLocationAddrValue[i],doc.service.srcFormatValue[j],doc.service.dstFormatValue[k]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.dstLocationAddrValue[i],doc.service.srcFormatValue[j],doc.service.dstFormatValue[k]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}}
       } }"
-    }, 
+    },
     
-     
+
     "bySrcDstLocationSrcDstFormat": {
-      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) { 
+      "map": "function(doc) { if ([doc.service.srcLocationAddrValue,doc.service.dstLocationAddrValue,doc.service.srcFormatValue,doc.service.dstFormatValue]) {
       for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {
       for( var j=0, m=doc.service.dstLocationAddrValue.length; j<m; j++) {
       for( var k=0, n=doc.service.srcFormatValue.length; k<n; k++) {
       for( var h=0, o=doc.service.dstFormatValue.length; h<o; h++) {
-      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.srcFormatValue[k],doc.service.dstFormatValue[h]], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) 
+      emit([doc.service.srcLocationAddrValue[i],doc.service.dstLocationAddrValue[j],doc.service.srcFormatValue[k],doc.service.dstFormatValue[h]],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})
       }}}}
       } }"
-    }, 
-    
+    },
+
     "byCost": {
-      "map": "function(doc) { if ([doc.considerationValue, doc.considerationMethod]) { 
-      emit([doc.considerationValue, doc.considerationMethod], 
-      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, advertiserAddressScheme: doc.advertiserAddressScheme, advertiserAddress: doc.advertiserAddress, advertiserPortAddress: doc.advertiserPortAddress, _rev: doc._rev, considerationMethod: doc.considerationMethod, considerationValue: doc.considerationValue, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
+      "map": "function(doc) { if ([doc.price.value, doc.price.method]) {
+      emit([doc.price.value, doc.price.method],
+      {id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,}) } }"
     },
   }
 }

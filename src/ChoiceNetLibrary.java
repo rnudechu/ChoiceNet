@@ -693,6 +693,17 @@ public class ChoiceNetLibrary {
 		return openflowFirewallMsg;
 	}
 	
+	// Create Message
+	public ChoiceNetMessageField[] createRendevouzMessage (String target, String acceptedConsideration, String availableConsideration)
+	{
+		ChoiceNetMessageField rendezvousTarget = new ChoiceNetMessageField("Rendezvous Target", target, "");
+		ChoiceNetMessageField acceptedConsiderationFld = new ChoiceNetMessageField("Accepted Consideration", acceptedConsideration, "");
+		ChoiceNetMessageField availableConsiderationFld = new ChoiceNetMessageField("Available Consideration", availableConsideration, "");
+		ChoiceNetMessageField[] payload = {rendezvousTarget,acceptedConsiderationFld,availableConsiderationFld};
+		
+		return payload;
+	}
+	
 	public ChoiceNetMessageField[] createPlannerRequest(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, String sourceLocType, 
 			String destinationLocType, String sourceFormatType, String destinationFormatType, String cost, String cMethod, String adID, String providerID) {
 		// create search parameter for each valid field

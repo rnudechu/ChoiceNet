@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 // https://code.google.com/p/r-email/source/browse/trunk/src/org/eclipse/remail/couchdb/helper/CouchDBResponse.java?r=121
 
 public class CouchDBContainer {
@@ -35,6 +37,22 @@ public class CouchDBContainer {
         }
         public void setValue(AdvertisementDisplay value) {
                 this.value = value;
+        }
+        
+        public String printAdvertisementDisplay()
+        {
+        	String message = "";
+        	AdvertisementDisplay myAd = getValue();
+        	message += "ID: "+myAd.getId()+"\n";
+			message += "\tDescription: "+myAd.getDescription()+"\n";
+			message += "\tCost: "+myAd.getConsiderationValue()+" "+myAd.getConsiderationMethod()+"\n";
+
+			message += "\tLocation Source: "+Arrays.toString(myAd.getSrcLocationAddrScheme())+":"+Arrays.toString(myAd.getSrcLocationAddrValue())+"\n";
+			message += "\tLocation Destination: "+Arrays.toString(myAd.getDstLocationAddrScheme())+":"+Arrays.toString(myAd.getDstLocationAddrValue())+"\n";
+			message += "\tFormat Source: "+Arrays.toString(myAd.getSrcFormatScheme())+":"+Arrays.toString(myAd.getSrcFormatValue())+"\n";
+			message += "\tFormat Destination: "+Arrays.toString(myAd.getDstFormatScheme())+":"+Arrays.toString(myAd.getDstFormatValue())+"\n";
+			message += "\n";
+        	return message;
         }
 
 }

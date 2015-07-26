@@ -63,6 +63,7 @@ public class Server {
 	static ArrayList<PlannerSearchParameter> searchParameterList = new ArrayList<PlannerSearchParameter>(); 
 	static ArrayList<PlannerSearchParameter> searchParameterHistory = new ArrayList<PlannerSearchParameter>();
 	static boolean searchedParameterIsSource = false;
+	static boolean searchedParameterIsDestination = false;
 
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
@@ -547,10 +548,7 @@ public class Server {
 	 */
 	public void sendRendevouzMessage (String target, String ipAddr, int port)
 	{
-		ChoiceNetMessageField rendezvousTarget = new ChoiceNetMessageField("Rendezvous Target", target, "");
-		ChoiceNetMessageField acceptedConsiderationFld = new ChoiceNetMessageField("Accepted Consideration", acceptedConsideration, "");
-		ChoiceNetMessageField availableConsiderationFld = new ChoiceNetMessageField("Available Consideration", availableConsideration, "");
-		ChoiceNetMessageField[] payload = {rendezvousTarget,acceptedConsiderationFld,availableConsiderationFld};
+		ChoiceNetMessageField[] payload = cnLibrary.createRendevouzMessage(target, acceptedConsideration, availableConsideration);
 		Packet packet = new Packet(PacketType.RENDEZVOUS_REQUEST,myName,"",myType, providerType,payload);
 		new ServerThread(serverSocket, ipAddr, port).sendRequest(packet);
 	}
@@ -737,7 +735,17 @@ public class Server {
 		return result;
 	}
 
-
+	public static PlannerSearchParameter getSearchParameter(long id)
+	{
+		for(PlannerSearchParameter searchParameter : searchParameterHistory)
+		{
+			if(searchParameter.getIdentifier() == id)
+			{
+				return searchParameter;
+			}
+		}
+		return null;
+	}
 
 	public String getLocalIpAddress(String value) 
 	{

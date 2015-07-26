@@ -4,15 +4,15 @@
 		<service>
 			<name>Ad 3.1.1</name>
 			<details>
-				<source_location scheme="IPv4" value="10.10.3.0/24" />
-				<destination_location scheme="IPv4" value="10.3.1.0/24" />
+				<source_location scheme="IPv4" value="10.3.1.0/24" />
+				<destination_location scheme="IPv4" value="10.10.3.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
 			</details>
 			<description>Transport Service Advertisement</description>
 		</service>
-		<price method="USD" value="420" />
+		<price method="USD" value="42" />
 		<providerID>Stark Industries</providerID>
 		<purchasePortal>
 			<source_location scheme="Payment" value="Bitcoin:mnYyPZZPb3RHMgu1ZTcndW6di6SCumMiS5" />

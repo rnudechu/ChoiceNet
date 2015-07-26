@@ -7,10 +7,19 @@ import java.util.Stack;
 public class PlannerGraphMatrix {
 
 	ArrayList<PlannerNode> nodeGraph = new ArrayList<PlannerNode>(); 
+
+
 	boolean[] visited;
 	Stack<PlannerNode> nodeStack = new Stack<PlannerNode>();
 	ArrayList<PlannerServiceRecipe> recipes = new ArrayList<PlannerServiceRecipe>();
-	
+
+	public ArrayList<PlannerNode> getNodeGraph() {
+		return nodeGraph;
+	}
+
+	public void setNodeGraph(ArrayList<PlannerNode> nodeGraph) {
+		this.nodeGraph = nodeGraph;
+	}
 	public void addEdge(String src, int srcCost, String dst, int dstCost)
 	{
 		PlannerNode srcNode, dstNode = null;
@@ -29,7 +38,7 @@ public class PlannerGraphMatrix {
 			srcNode.getAdjancies().add(dstNode);
 		}
 	}
-	
+
 	public boolean doesNodeExist(String nodeName)
 	{
 		for(PlannerNode node: nodeGraph)
@@ -41,13 +50,13 @@ public class PlannerGraphMatrix {
 		}
 		return false;
 	}
-	
+
 	public void addNode(String nodeName, int cost)
 	{
 		PlannerNode node = new PlannerNode(nodeName, cost);
 		nodeGraph.add(node);
 	}
-	
+
 	public PlannerNode getNode(String nodeName)
 	{
 		for(PlannerNode node: nodeGraph)
@@ -59,7 +68,7 @@ public class PlannerGraphMatrix {
 		}
 		return null;
 	}
-	
+
 	public int getNodeIndex(String nodeName)
 	{
 		int index = 0;
@@ -104,7 +113,7 @@ public class PlannerGraphMatrix {
 	}
 
 
-	
+
 
 	private void printNodeStack(Stack<PlannerNode> stack) {
 		int total = 0;
@@ -135,17 +144,81 @@ public class PlannerGraphMatrix {
 		this.recipes = recipes;
 	}
 
+	public void createAdjancies()
+	{
+		String[] dstLocX;
+		String[] srcLocY;
+		String[] dstFormatX;
+		String[] srcFormatY;
+		boolean alreadyCreatedEdge = false;
+		for(PlannerNode nodeX: nodeGraph)
+		{
+			for(PlannerNode nodeY: nodeGraph)
+			{
+				alreadyCreatedEdge = false;
+				if(nodeX != nodeY)
+				{
+					dstLocX = nodeX.getAdvertisement().getDstLocationAddrValue(); 
+					srcLocY = nodeY.getAdvertisement().getSrcLocationAddrValue();
+					for(String x:dstLocX)
+					{
+						for(String y:srcLocY)
+						{
+							if(x.equals(y))
+							{
+								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost());
+								alreadyCreatedEdge = true;
+							}
+						}
+					}
+//					if(!alreadyCreatedEdge)
+//					{
+//						dstFormatX = nodeX.getAdvertisement().getDstFormatValue(); 
+//						srcFormatY = nodeY.getAdvertisement().getSrcFormatValue();
+//						for(String x:dstFormatX)
+//						{
+//							for(String y:srcFormatY)
+//							{
+//								if(x.equals(y))
+//								{
+//									addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost());
+//								}
+//							}
+//						}
+//					}
+				}
+			}
+		}
+	}
+	
+	public void run()
+	{
+		int size = nodeGraph.size();
+		createAdjancies();
+		for(PlannerNode nodeX: nodeGraph)
+		{
+			for(PlannerNode nodeY: nodeGraph)
+			{
+				if(nodeX.getStatus().equals(PlannerNode.NodeType.SOURCE) && 
+						nodeY.getStatus().equals(PlannerNode.NodeType.DESTINATION))
+				{
+					findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size]);
+				}
+			}
+		}
+	}
 
-//	public static void main(String[] args) {
-//
-//		PlannerGraphMatrix gm = new PlannerGraphMatrix();
-//		gm.addEdge("0",2,"1",1);
-//		gm.addEdge("0",2,"2",1);
-//		gm.addEdge("0",2,"3",1);
-//		gm.addEdge("1",1,"3",1);
-//		gm.addEdge("2",1,"0",2);
-//		gm.addEdge("2",1,"1",1);
-//		gm.findAllPath("2", "3",new boolean[gm.nodeGraph.size()]);
-//		gm.printRecipe();
-//	}
+
+	//	public static void main(String[] args) {
+	//
+	//		PlannerGraphMatrix gm = new PlannerGraphMatrix();
+	//		gm.addEdge("0",2,"1",1);
+	//		gm.addEdge("0",2,"2",1);
+	//		gm.addEdge("0",2,"3",1);
+	//		gm.addEdge("1",1,"3",1);
+	//		gm.addEdge("2",1,"0",2);
+	//		gm.addEdge("2",1,"1",1);
+	//		gm.findAllPath("2", "3",new boolean[gm.nodeGraph.size()]);
+	//		gm.printRecipe();
+	//	}
 }
