@@ -10,10 +10,56 @@ public class PlannerNode {
 		REGULAR,
 		DESTINATION
 	}
-	NodeType status = NodeType.REGULAR;
-	AdvertisementDisplay advertisement;
+	private NodeType status = NodeType.REGULAR;
+	private AdvertisementDisplay advertisement;
+	private ArrayList<String> provisionParameter = new ArrayList<String>();
+	private String searchedParameterLocation = "";
+	private String searchedParameterFormat = "";
 	
+	public String getSearchedParameter()
+	{
+		String searchParameter = "";
+		String searchedFormat = getSearchedParameterFormat();
+		String searchedLocation = getSearchedParameterLocation();
+		if(!searchedFormat.isEmpty())
+		{
+			searchParameter = searchedFormat;
+		}
+		if(!searchedLocation.isEmpty())
+		{
+			searchParameter = searchedLocation;
+		}
+		if(!searchedFormat.isEmpty() && !searchedLocation.isEmpty())
+		{
+			searchParameter = searchedLocation+":"+searchedFormat;
+		}
+		return searchParameter;
+	}
 	
+	public String getSearchedParameterLocation() {
+		return searchedParameterLocation;
+	}
+
+	public void setSearchedParameterLocation(String searchedParameterLocation) {
+		this.searchedParameterLocation = searchedParameterLocation;
+	}
+
+	public String getSearchedParameterFormat() {
+		return searchedParameterFormat;
+	}
+
+	public void setSearchedParameterFormat(String searchedParameterFormat) {
+		this.searchedParameterFormat = searchedParameterFormat;
+	}
+	
+	public ArrayList<String> getProvisionParameter() {
+		return provisionParameter;
+	}
+
+	public void setProvisionParameter(ArrayList<String> provisionParameter) {
+		this.provisionParameter = provisionParameter;
+	}
+
 	public AdvertisementDisplay getAdvertisement() {
 		return advertisement;
 	}
@@ -67,8 +113,10 @@ public class PlannerNode {
 
 	@Override
 	public String toString() {
-		return "PlannerNode [resourceCost=" + resourceCost + ", nodeName=" + nodeName
-				+ ", adjancies=" + adjancies + "]";
+		return "PlannerNode [resourceCost=" + resourceCost + ", nodeName="
+				+ nodeName + ", adjancies=" + adjancies + ", status=" + status
+				+ ", advertisement=" + advertisement + ", provisionParameter="
+				+ provisionParameter + "]";
 	}
 	 
 }

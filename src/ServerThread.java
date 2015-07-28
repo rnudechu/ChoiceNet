@@ -327,7 +327,7 @@ public class ServerThread extends Thread {
 		String[] temp;
 		String originatorName = (String) packet.getOriginatorName().getValue();
 		// Parse value
-		PlannerSearchParameter searchParameter = new PlannerSearchParameter(originatorName);
+		PlannerSearchParameter searchParameter = new PlannerSearchParameter(originatorName, Server.numberOfFreeQueries, 0);
 		// Check to see if Planner has communicated with this entity before if not force a "silent" Rendezvous Interaction
 		if(dEMgr.getDiscoveredEntityByName(originatorName) == null)
 		{
@@ -429,7 +429,29 @@ public class ServerThread extends Thread {
 		String results = (String) payload[0].getValue();
 		if(!Server.runningMode.equals("standalone"))
 		{
+			// parse the results if XML data
+			if(!results.contains("<![CDATA["))
+			{
+				String parsedResults = results;
+				parsedResults = parsedResults.replace("<![CDATA[", "");
+				parsedResults = parsedResults.replace("\n]]>", "");
+				PlannerServiceRecipe recipe = new PlannerServiceRecipe();
+				recipe.parseXML(parsedResults);
+				parsedResults = "Total Cost: "+recipe.getTotalCost()+"\n";
+				parsedResults = "Advertisement List:";
+				int size = recipe.getAdvertisementList().size();
+				for(int i=0; i<size; i++ )
+				{
+					parsedResults += "\t Advertisement "+i+": "+recipe.getAdvertisementList().get(i)+"\n";
+					parsedResults += "\t\t Provision Parameter:: "+recipe.getProvisioningParameters().get(i)+"\n";
+				}
+				results = parsedResults;
+			}
 			ChoiceNetSpeakerGUI.updateTextArea(results);
+		}
+		else
+		{
+			Logger.log("Planner Response:\n"+results);
 		}
 	}
 
@@ -450,7 +472,7 @@ public class ServerThread extends Thread {
 			System.out.println("Handling Planner Service Parameters");
 			PlannerSearchParameter serviceParameter = Server.searchParameterList.get(0);
 			// serviceParameter total element is not zero then a complete query on all the elements has not been completed
-			if(serviceParameter.getTotalElements()>0)
+			if(serviceParameter.getTotalQueries()>0) // serviceParameter.getTotalElements()>0 
 			{
 				System.out.println("Service Parameters Total Elements: "+serviceParameter.getTotalElements());
 				Packet packet = null;
@@ -474,6 +496,7 @@ public class ServerThread extends Thread {
 					check = false;
 					Server.searchedParameterIsSource = true;
 					sourceLoc = serviceParameter.getSrcLocation().get(0);
+					Server.searchedParameterLocation = sourceLoc;
 					sourceLocType = serviceParameter.getSrcTypeLocation().get(0);
 					serviceParameter.getSrcLocation().remove(0);
 					serviceParameter.getSrcTypeLocation().remove(0);
@@ -492,27 +515,61 @@ public class ServerThread extends Thread {
 					check = false;
 					Server.searchedParameterIsSource = true;
 					sourceFormat = serviceParameter.getSrcFormat().get(0);
+					Server.searchedParameterFormat = sourceFormat;
 					sourceFormatType = serviceParameter.getSrcTypeFormat().get(0);
 					serviceParameter.getSrcFormat().remove(0);
 					serviceParameter.getSrcTypeFormat().remove(0);
 				}
 				if(check && serviceParameter.getDstFormat().size()>0)
 				{
+					check = false;
 					Server.searchedParameterIsDestination = true;
 					destinationFormat = serviceParameter.getDstFormat().get(0);
 					destinationFormatType = serviceParameter.getDstTypeFormat().get(0);
 					serviceParameter.getDstFormat().remove(0);
 					serviceParameter.getDstTypeFormat().remove(0);
 				}
+				
+				if(check && serviceParameter.getDiscoveredSrcLocation().size()>0)
+				{
+					check = false;
+					sourceLoc = serviceParameter.getDiscoveredSrcLocation().get(0);
+					sourceLocType = serviceParameter.getDiscoveredSrcTypeLocation().get(0);
+					serviceParameter.getDiscoveredSrcLocation().remove(0);
+					serviceParameter.getDiscoveredSrcTypeLocation().remove(0);
+				}
+				if(check && serviceParameter.getDiscoveredDstLocation().size()>0)
+				{
+					check = false;
+					destinationLoc = serviceParameter.getDiscoveredDstLocation().get(0);
+					destinationLocType = serviceParameter.getDiscoveredDstTypeLocation().get(0);
+					serviceParameter.getDiscoveredDstLocation().remove(0);
+					serviceParameter.getDiscoveredDstTypeLocation().remove(0);
+				}
+				if(check && serviceParameter.getDiscoveredSrcFormat().size()>0)
+				{
+					check = false;
+					sourceFormat = serviceParameter.getDiscoveredSrcFormat().get(0);
+					sourceFormatType = serviceParameter.getDiscoveredSrcTypeFormat().get(0);
+					serviceParameter.getDiscoveredSrcFormat().remove(0);
+					serviceParameter.getDiscoveredSrcTypeFormat().remove(0);
+				}
+				if(check && serviceParameter.getDiscoveredDstFormat().size()>0)
+				{
+					destinationFormat = serviceParameter.getDiscoveredDstFormat().get(0);
+					destinationFormatType = serviceParameter.getDiscoveredDstTypeFormat().get(0);
+					serviceParameter.getDiscoveredDstFormat().remove(0);
+					serviceParameter.getDiscoveredDstTypeFormat().remove(0);
+				}
 
 				ChoiceNetMessageField[] payload = cnLibrary.createMarketplaceQuery(sourceLoc, destinationLoc, sourceFormat, destinationFormat, sourceLocType, destinationLocType, 
 						sourceFormatType, destinationFormatType, cost, cMethod, adID, providerID);
 				try {
+					serviceParameter.decrementQueries();
 					clientIPAddress = InetAddress.getByName(Server.marketplaceAddr);
 					clientPort = Server.marketplacePort;
 					packet = new Packet(PacketType.MARKETPLACE_QUERY,myName,"",myType, providerType,payload);
 					System.out.println("Planner is sending Marketplace Query packet");
-					System.out.println(packet);
 					send(packet);
 
 				} catch (UnknownHostException e) {
@@ -522,37 +579,40 @@ public class ServerThread extends Thread {
 			}
 			else
 			{
-				System.out.println("Planner attempting discover if any recipes exist with known components");
 				long id = serviceParameter.getIdentifier();
 				serviceParameter = Server.getSearchParameter(id);
+
+				System.out.println("Planner attempting discover if any recipes exist with known components");
+
 				Server.searchParameterList.remove(0);
 				// At this point only advertisements with only a single connection or no connection will be found at this time
 				// Should another round of queries be made against initial discovered advertisements
 				// ... maybe additional three queries per item
 				serviceParameter.getGraphMatrix().run();
 				// Check the Graph Matrix to see if any feasible plan can be achieved
+				// Possible to have dumb recipes that cycle the provider resources e.g. SRC-A-B-A-DST rather than SRC-A-DST
+				// these recipes are still valid
 				ArrayList<PlannerServiceRecipe> recipes = serviceParameter.getGraphMatrix().getRecipes();
 				System.out.println("Number of potential recipes: "+recipes.size());
 
-				serviceParameter.getGraphMatrix().printRecipe();
+				//serviceParameter.getGraphMatrix().printRecipe();
 				int lowestPrice = Integer.MAX_VALUE;
 				int currCost;
 				int svcParameterCost = serviceParameter.getCost();
 				for(PlannerServiceRecipe recipe: recipes)
 				{
 					currCost = recipe.getTotalCost();
-					System.out.println("Ad Cost: "+recipe.getTotalCost()+" vs. "+svcParameterCost);
 					if(currCost<svcParameterCost)
 					{
 						lowestPrice = Math.min(currCost, lowestPrice);
-						System.out.println("Ad lowest cost: "+lowestPrice);
+						System.out.println("Potential recipes "+recipe.getAdvertisementList());
 						if(lowestPrice == currCost)
 						{
 							selectedRecipe = recipe;
 						}
 					}
 				}
-				System.out.println("Potential recipe: "+selectedRecipe);
+				System.out.println("Selected recipe: "+selectedRecipe);
 				readyToSendPacket = true;
 				// update the ip address and port to initiating entity
 				DiscoveredEntities entity = dEMgr.getDiscoveredEntityByName(serviceParameter.getOriginatorName());
@@ -571,7 +631,7 @@ public class ServerThread extends Thread {
 			String message = "";
 			if(selectedRecipe!=null)
 			{
-				message = selectedRecipe.getAdvertisementList();
+				message ="<![CDATA["+selectedRecipe.createXML()+"\n]]>";
 			}
 			else
 			{
@@ -696,16 +756,33 @@ public class ServerThread extends Thread {
 						if(!searchParameter.getGraphMatrix().doesNodeExist(myAd.getId()))
 						{	
 							System.out.println("Thread respondToMarketplaceResponse(): attempting to install ad");
-							advertisementNode = new PlannerNode(myAd.getId(), myAd.getConsiderationValue(), myAd);
-							if(Server.searchedParameterIsSource)
-							{
-								advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
-							}
-							if(Server.searchedParameterIsDestination)
-							{
-								advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
-							}
-							searchParameter.getGraphMatrix().getNodeGraph().add(advertisementNode);
+								advertisementNode = new PlannerNode(myAd.getId(), myAd.getConsiderationValue(), myAd);
+								if(Server.searchedParameterIsSource || Server.searchedParameterIsDestination)
+								{
+									if(Server.searchedParameterIsSource)
+									{
+										advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
+						
+										searchParameter.addDiscoveredDstLocation(myAd.getDstLocationAddrValue(), myAd.getDstLocationAddrScheme());
+										searchParameter.addDiscoveredDstFormat(myAd.getDstFormatValue(), myAd.getDstFormatScheme());
+										if(!Server.searchedParameterLocation.isEmpty())
+										{
+											advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
+										}
+										if(!Server.searchedParameterFormat.isEmpty())
+										{
+											advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
+										}
+									}
+									if(Server.searchedParameterIsDestination)
+									{
+										advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
+										searchParameter.addDiscoveredSrcLocation(myAd.getSrcLocationAddrValue(), myAd.getSrcLocationAddrScheme());
+										searchParameter.addDiscoveredSrcFormat(myAd.getSrcFormatValue(), myAd.getSrcFormatScheme());
+									}
+								}
+								
+								searchParameter.getGraphMatrix().getNodeGraph().add(advertisementNode);
 						}
 					}
 				}

@@ -54,6 +54,7 @@ public class Server {
 	static String firewallSourcePort = "Unknown";
 	static String firewallDestinationPort = "Unknown";
 	
+	static int numberOfFreeQueries = -1;
 	static String marketplaceAddr = "Unknown";
 	static int marketplacePort = -1;
 
@@ -64,6 +65,8 @@ public class Server {
 	static ArrayList<PlannerSearchParameter> searchParameterHistory = new ArrayList<PlannerSearchParameter>();
 	static boolean searchedParameterIsSource = false;
 	static boolean searchedParameterIsDestination = false;
+	static String searchedParameterLocation = "";
+	static String searchedParameterFormat = "";
 
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
@@ -169,6 +172,12 @@ public class Server {
 				if(temp != null)
 				{
 					marketplacePort = Integer.parseInt(temp);
+				}
+				
+				temp = prop.getProperty("numberOfFreeQueries");
+				if(temp != null)
+				{
+					numberOfFreeQueries = Integer.parseInt(temp);
 				}
 			}
 

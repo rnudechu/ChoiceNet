@@ -11,6 +11,7 @@ public class PlannerGraphMatrix {
 
 	boolean[] visited;
 	Stack<PlannerNode> nodeStack = new Stack<PlannerNode>();
+	Stack<String> provisionParameterStack = new Stack<String>();
 	ArrayList<PlannerServiceRecipe> recipes = new ArrayList<PlannerServiceRecipe>();
 
 	public ArrayList<PlannerNode> getNodeGraph() {
@@ -20,7 +21,8 @@ public class PlannerGraphMatrix {
 	public void setNodeGraph(ArrayList<PlannerNode> nodeGraph) {
 		this.nodeGraph = nodeGraph;
 	}
-	public void addEdge(String src, int srcCost, String dst, int dstCost)
+	// sharedValue = provisionParameter
+	public void addEdge(String src, int srcCost, String dst, int dstCost, String sharedValue)
 	{
 		PlannerNode srcNode, dstNode = null;
 		if(!doesNodeExist(src))
@@ -36,6 +38,7 @@ public class PlannerGraphMatrix {
 		if(srcNode!=null && dstNode!=null)
 		{
 			srcNode.getAdjancies().add(dstNode);
+			srcNode.getProvisionParameter().add(sharedValue);
 		}
 	}
 
@@ -69,10 +72,10 @@ public class PlannerGraphMatrix {
 		return null;
 	}
 
-	public int getNodeIndex(String nodeName)
+	public int getNodeIndex(String nodeName, ArrayList<PlannerNode> graph)
 	{
 		int index = 0;
-		for(PlannerNode node: nodeGraph)
+		for(PlannerNode node: graph)
 		{
 			if(node.getNodeName().equals(nodeName))
 			{
@@ -83,16 +86,31 @@ public class PlannerGraphMatrix {
 		return -1;
 	}
 
-	public void findAllPath(String src,String dst,boolean[] visited){
+	public void findAllPath(String src,String dst,boolean[] visited, String provisionParameter){
 		PlannerNode srcNode, dstNode = null;
-		int srcIndex = getNodeIndex(src);
-		int currIndex = -1;
+		int srcIndex = getNodeIndex(src, nodeGraph);
+		int currIndex, parameterIndex = -1;
+		//int currIndex = -1;
 		srcNode = getNode(src);
 		dstNode = getNode(dst);
 		nodeStack.add(srcNode);
+		if(provisionParameter == null)
+		{
+			provisionParameter = srcNode.getSearchedParameter();
+		}
+		provisionParameterStack.add(provisionParameter);
+		System.out.println("Source Node: "+srcNode.getNodeName());
+		System.out.println("Source Parameters: "+srcNode.getProvisionParameter());
+		for(PlannerNode node:srcNode.getAdjancies())
+		{
+			System.out.println("\tSource Adjancies: "+node.getNodeName());
+		}
+		System.out.println("Provision Paramer: "+provisionParameter);
+		System.out.println("Destination Node: "+dstNode.getNodeName());
+		
 
 		if(srcNode.equals(dstNode)){
-			printNodeStack(nodeStack);
+			printNodeStack(nodeStack, provisionParameterStack);
 		}
 
 		if(visited[srcIndex] != true)
@@ -101,29 +119,42 @@ public class PlannerGraphMatrix {
 		ArrayList<PlannerNode> adjNodes = srcNode.getAdjancies();
 		if(adjNodes.size()>0){	
 			for (PlannerNode node: adjNodes) {
-				currIndex = getNodeIndex(node.getNodeName());
+				currIndex = getNodeIndex(node.getNodeName(), nodeGraph);
+				parameterIndex = getNodeIndex(node.getNodeName(), adjNodes);
+				provisionParameter = srcNode.getProvisionParameter().get(parameterIndex);
 				if(visited[currIndex]!=true){
-					findAllPath(node.getNodeName(), dst,visited);
+					findAllPath(node.getNodeName(), dst,visited, provisionParameter);
 				}
 			}
 		}
 
 		visited[srcIndex] = false;
 		nodeStack.remove(nodeStack.size()-1);
+		if(provisionParameterStack.size()>0)
+		{
+			provisionParameterStack.remove(provisionParameterStack.size()-1);
+		}
 	}
 
 
 
 
-	private void printNodeStack(Stack<PlannerNode> stack) {
+	private void printNodeStack(Stack<PlannerNode> stack, Stack<String> parameterStack) {
 		int total = 0;
-		String advertisementList = "";
+		ArrayList<String> advertisementList = new ArrayList<String>();
+		ArrayList<String> provisioningParameter = new ArrayList<String>();
+		System.out.println("Parameter Stack: "+parameterStack);
 		for (PlannerNode node: stack) {
-			advertisementList += (node.getNodeName())+",";
+			advertisementList.add(node.getNodeName());
 			total += node.getResourceCost();
+			//provisionParameter = parameterStack.get(i);
+			//provisioningParameter.add(provisionParameter);
 		}
-		advertisementList = advertisementList.substring(0, advertisementList.length()-1);
-		PlannerServiceRecipe myRecipe = new PlannerServiceRecipe(advertisementList, total);
+		
+		for (String provisionParameter: parameterStack) {
+			provisioningParameter.add(provisionParameter);
+		}
+		PlannerServiceRecipe myRecipe = new PlannerServiceRecipe(advertisementList, total, provisioningParameter);
 		recipes.add(myRecipe);
 	}
 
@@ -166,7 +197,7 @@ public class PlannerGraphMatrix {
 						{
 							if(x.equals(y))
 							{
-								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost());
+								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost(),  y);
 								alreadyCreatedEdge = true;
 							}
 						}
@@ -202,7 +233,7 @@ public class PlannerGraphMatrix {
 				if(nodeX.getStatus().equals(PlannerNode.NodeType.SOURCE) && 
 						nodeY.getStatus().equals(PlannerNode.NodeType.DESTINATION))
 				{
-					findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size]);
+					findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size],null);
 				}
 			}
 		}
