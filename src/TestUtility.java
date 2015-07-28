@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import java.io.File;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -903,6 +904,48 @@ public class TestUtility {
 		return openflowFirewallMsg;
 	}
 
+	// http://stackoverflow.com/a/10484311
+	public boolean netMatch(String subnet, String addr){ 
+
+        String[] parts = subnet.split("/");
+        String ip = parts[0];
+        int prefix;
+
+        if (parts.length < 2) {
+            prefix = 0;
+        } else {
+            prefix = Integer.parseInt(parts[1]);
+        }
+
+        Inet4Address a =null;
+        Inet4Address a1 =null;
+        try {
+            a = (Inet4Address) InetAddress.getByName(ip);
+            a1 = (Inet4Address) InetAddress.getByName(addr);
+        } catch (UnknownHostException e){}
+
+        byte[] b = a.getAddress();
+        int subnetBytes = ((b[0] & 0xFF) << 24) |
+                         ((b[1] & 0xFF) << 16) |
+                         ((b[2] & 0xFF) << 8)  |
+                         ((b[3] & 0xFF) << 0);
+
+        byte[] b1 = a1.getAddress();
+        int ipBytes = ((b1[0] & 0xFF) << 24) |
+                         ((b1[1] & 0xFF) << 16) |
+                         ((b1[2] & 0xFF) << 8)  |
+                         ((b1[3] & 0xFF) << 0);
+
+        int mask = ~((1 << (32 - prefix)) - 1);
+
+        if ((subnetBytes & mask) == (ipBytes & mask)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+}
+	
 	public static void main(String[] args) throws UnknownHostException 
 	{
 		TestUtility tu = new TestUtility();
@@ -932,7 +975,6 @@ public class TestUtility {
 		//			System.out.println(ad);
 		//		}
 
-		/*
 		String url = "http://152.54.14.45:5984/marketplace-rangehelper";
 
 		// Turn IP address to binary string
@@ -983,18 +1025,20 @@ public class TestUtility {
 		System.out.println(i3&j1);
 		System.out.println(i4&j2);
 		String ipAddr1 = "10.0.0.0/25";
+		boolean result = tu.netMatch(ipAddr1, "10.0.0.128");
+		System.out.println(result);
 		//		String property = System.getProperty("java.library.path");
 		//		StringTokenizer parser = new StringTokenizer(property, ";");
 		//		while (parser.hasMoreTokens()) {
 		//		    System.err.println(parser.nextToken());
 		//		    }
-		 */
+		
 		//String text = tu.couchDB.getRestInterface("http://192.168.1.10/bitcoin/processPayment.php?unit=Bitcoin&currency=USD&amount=1&account=mxezaksWcv9J6JJfgLDkH6eFvJ1XucWgbp&reason=3");
 		//System.out.println(text);
 		
-		String text = tu.testXMLWriter();
-		System.out.println(text);
-		tu.convertXMLtoObj(text);
+//		String text = tu.testXMLWriter();
+//		System.out.println(text);
+//		tu.convertXMLtoObj(text);
 	}
 
 }

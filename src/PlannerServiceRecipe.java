@@ -27,7 +27,13 @@ public class PlannerServiceRecipe {
 	private ArrayList<String> provisioningParameters;
 	private int totalCost;
 
-	public PlannerServiceRecipe(){}
+	public PlannerServiceRecipe()
+	{
+		this.advertisementList = new ArrayList<String>();
+		this.totalCost = 0;
+		this.provisioningParameters = new ArrayList<String>();
+	}
+	
 	public PlannerServiceRecipe(ArrayList<String> advertisementList, int totalCost, ArrayList<String> provisioningParameters) {
 		super();
 		this.advertisementList = advertisementList;
@@ -129,9 +135,9 @@ public class PlannerServiceRecipe {
 		return xml;
 	}
 
-	public PlannerServiceRecipe parseXML(String xml)
+	public void parseXML(String xml)
 	{
-		PlannerServiceRecipe recipe = new PlannerServiceRecipe();
+//		PlannerServiceRecipe recipe = new PlannerServiceRecipe();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder;
 		try {
@@ -156,8 +162,9 @@ public class PlannerServiceRecipe {
 				// Price
 				myList = doc.getElementsByTagName("cost");
 				cValue = getAttributes(myList, "value",0);
-				totalCost = Integer.parseInt(cValue);
-				recipe.setTotalCost(totalCost);
+				this.totalCost = Integer.parseInt(cValue);
+//				System.out.println("Total Cost "+totalCost);
+				//recipe.setTotalCost(totalCost);
 			}
 			myList = doc.getElementsByTagName("serviceAdvertisements");
 			myNode = myList.item(temp);
@@ -172,9 +179,11 @@ public class PlannerServiceRecipe {
 					provisionParameter = getAttributes(myList, "provisioningParameter", i);
 					advertisementList.add(advertisement);
 					provisioningParameters.add(provisionParameter);
+					System.out.println("Advertisement "+advertisement);
+					System.out.println("Parameter "+provisioningParameters);
 				}
-				recipe.setAdvertisementList(advertisementList);
-				recipe.setProvisioningParameters(provisioningParameters);
+				this.setAdvertisementList(advertisementList);
+				this.setProvisioningParameters(provisioningParameters);
 			}
 		}
 		} catch (ParserConfigurationException e) {
@@ -187,7 +196,8 @@ public class PlannerServiceRecipe {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return recipe;
+//		System.out.println(">>>>>"+recipe);
+//		return recipe;
 	}
 		
 	public String getAttributes(NodeList list, String attribute, int index)

@@ -1,3 +1,6 @@
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -107,7 +110,7 @@ public class PlannerGraphMatrix {
 		}
 		System.out.println("Provision Paramer: "+provisionParameter);
 		System.out.println("Destination Node: "+dstNode.getNodeName());
-		
+
 
 		if(srcNode.equals(dstNode)){
 			printNodeStack(nodeStack, provisionParameterStack);
@@ -150,7 +153,7 @@ public class PlannerGraphMatrix {
 			//provisionParameter = parameterStack.get(i);
 			//provisioningParameter.add(provisionParameter);
 		}
-		
+
 		for (String provisionParameter: parameterStack) {
 			provisioningParameter.add(provisionParameter);
 		}
@@ -191,54 +194,113 @@ public class PlannerGraphMatrix {
 				{
 					dstLocX = nodeX.getAdvertisement().getDstLocationAddrValue(); 
 					srcLocY = nodeY.getAdvertisement().getSrcLocationAddrValue();
-					for(String x:dstLocX)
+					for(String subnet:dstLocX)
 					{
-						for(String y:srcLocY)
+						for(String ipAddr:srcLocY)
 						{
-							if(x.equals(y))
+							if(subnet.equals(ipAddr))
+							//System.out.println(ipAddr+" is within "+subnet+"?");
+//							if(netMatch(subnet, ipAddr))
 							{
-								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost(),  y);
+								System.out.println(ipAddr+" is within "+subnet+" = TRUE");
+								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost(), ipAddr);
 								alreadyCreatedEdge = true;
 							}
 						}
 					}
-//					if(!alreadyCreatedEdge)
-//					{
-//						dstFormatX = nodeX.getAdvertisement().getDstFormatValue(); 
-//						srcFormatY = nodeY.getAdvertisement().getSrcFormatValue();
-//						for(String x:dstFormatX)
-//						{
-//							for(String y:srcFormatY)
-//							{
-//								if(x.equals(y))
-//								{
-//									addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost());
-//								}
-//							}
-//						}
-//					}
+					//					if(!alreadyCreatedEdge)
+					//					{
+					//						dstFormatX = nodeX.getAdvertisement().getDstFormatValue(); 
+					//						srcFormatY = nodeY.getAdvertisement().getSrcFormatValue();
+					//						for(String x:dstFormatX)
+					//						{
+					//							for(String y:srcFormatY)
+					//							{
+					//								if(x.equals(y))
+					//								{
+					//									addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost());
+					//								}
+					//							}
+					//						}
+					//					}
 				}
 			}
 		}
 	}
 	
+	// http://stackoverflow.com/a/10484311
+		public boolean netMatch(String subnet, String addr){ 
+
+	        String[] parts = subnet.split("/");
+	        String ip = parts[0];
+	        int prefix;
+
+	        if (parts.length < 2) {
+	            prefix = 0;
+	        } else {
+	            prefix = Integer.parseInt(parts[1]);
+	        }
+
+	        Inet4Address a =null;
+	        Inet4Address a1 =null;
+	        try {
+	            a = (Inet4Address) InetAddress.getByName(ip);
+	            a1 = (Inet4Address) InetAddress.getByName(addr);
+	        } catch (UnknownHostException e){}
+
+	        byte[] b = a.getAddress();
+	        int subnetBytes = ((b[0] & 0xFF) << 24) |
+	                         ((b[1] & 0xFF) << 16) |
+	                         ((b[2] & 0xFF) << 8)  |
+	                         ((b[3] & 0xFF) << 0);
+
+	        byte[] b1 = a1.getAddress();
+	        int ipBytes = ((b1[0] & 0xFF) << 24) |
+	                         ((b1[1] & 0xFF) << 16) |
+	                         ((b1[2] & 0xFF) << 8)  |
+	                         ((b1[3] & 0xFF) << 0);
+
+	        int mask = ~((1 << (32 - prefix)) - 1);
+
+	        if ((subnetBytes & mask) == (ipBytes & mask)) {
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	}
+
 	public void run()
 	{
 		int size = nodeGraph.size();
 		createAdjancies();
 		for(PlannerNode nodeX: nodeGraph)
 		{
-			for(PlannerNode nodeY: nodeGraph)
+			if(nodeX.getStatus().equals(PlannerNode.NodeType.SOLUTION))
 			{
-				if(nodeX.getStatus().equals(PlannerNode.NodeType.SOURCE) && 
-						nodeY.getStatus().equals(PlannerNode.NodeType.DESTINATION))
+				ArrayList<String> advertisementList = new ArrayList<String>();
+				ArrayList<String> provisioningParameter = new ArrayList<String>();
+				advertisementList.add(nodeX.getNodeName());
+				provisioningParameter.add(nodeX.getSearchedParameter());
+				PlannerServiceRecipe myRecipe = new PlannerServiceRecipe(advertisementList, nodeX.getResourceCost(), provisioningParameter);
+				recipes.add(myRecipe);
+			}
+			else
+			{
+				for(PlannerNode nodeY: nodeGraph)
 				{
-					findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size],null);
+					if(nodeX.getStatus().equals(PlannerNode.NodeType.SOURCE) && 
+							nodeY.getStatus().equals(PlannerNode.NodeType.DESTINATION))
+					{
+						//					System.out.println(">>>"+nodeX.getNodeName()+" to "+nodeY.getNodeName());
+						findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size],null);
+					}
 				}
 			}
 		}
 	}
 
+	
 
 	//	public static void main(String[] args) {
 	//

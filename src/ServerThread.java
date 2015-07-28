@@ -430,29 +430,31 @@ public class ServerThread extends Thread {
 		if(!Server.runningMode.equals("standalone"))
 		{
 			// parse the results if XML data
-			if(!results.contains("<![CDATA["))
+			if(results.contains("xml"))
 			{
 				String parsedResults = results;
 				parsedResults = parsedResults.replace("<![CDATA[", "");
 				parsedResults = parsedResults.replace("\n]]>", "");
+
 				PlannerServiceRecipe recipe = new PlannerServiceRecipe();
 				recipe.parseXML(parsedResults);
-				parsedResults = "Total Cost: "+recipe.getTotalCost()+"\n";
-				parsedResults = "Advertisement List:";
-				int size = recipe.getAdvertisementList().size();
-				for(int i=0; i<size; i++ )
+				if(recipe.getAdvertisementList().size()>0)
 				{
-					parsedResults += "\t Advertisement "+i+": "+recipe.getAdvertisementList().get(i)+"\n";
-					parsedResults += "\t\t Provision Parameter:: "+recipe.getProvisioningParameters().get(i)+"\n";
+					System.out.println(recipe);
+					parsedResults = "Total Cost: "+recipe.getTotalCost()+"\n";
+					parsedResults += "Advertisement List:\n";
+					int size = recipe.getAdvertisementList().size();
+					for(int i=0; i<size; i++ )
+					{
+						parsedResults += "\t Advertisement "+(i+1)+": "+recipe.getAdvertisementList().get(i)+"\n";
+						parsedResults += "\t\t Provision Parameter:: "+recipe.getProvisioningParameters().get(i)+"\n";
+					}
+					results = parsedResults;
 				}
-				results = parsedResults;
 			}
 			ChoiceNetSpeakerGUI.updateTextArea(results);
 		}
-		else
-		{
-			Logger.log("Planner Response:\n"+results);
-		}
+		Logger.log("Planner Response:\n"+results);
 	}
 
 	/**
@@ -529,7 +531,7 @@ public class ServerThread extends Thread {
 					serviceParameter.getDstFormat().remove(0);
 					serviceParameter.getDstTypeFormat().remove(0);
 				}
-				
+
 				if(check && serviceParameter.getDiscoveredSrcLocation().size()>0)
 				{
 					check = false;
@@ -756,33 +758,53 @@ public class ServerThread extends Thread {
 						if(!searchParameter.getGraphMatrix().doesNodeExist(myAd.getId()))
 						{	
 							System.out.println("Thread respondToMarketplaceResponse(): attempting to install ad");
-								advertisementNode = new PlannerNode(myAd.getId(), myAd.getConsiderationValue(), myAd);
-								if(Server.searchedParameterIsSource || Server.searchedParameterIsDestination)
+							advertisementNode = new PlannerNode(myAd.getId(), myAd.getConsiderationValue(), myAd);
+							if(Server.searchedParameterIsSource || Server.searchedParameterIsDestination)
+							{
+								if(Server.searchedParameterIsSource)
 								{
-									if(Server.searchedParameterIsSource)
+									advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
+
+									searchParameter.addDiscoveredDstLocation(myAd.getDstLocationAddrValue(), myAd.getDstLocationAddrScheme());
+									searchParameter.addDiscoveredDstFormat(myAd.getDstFormatValue(), myAd.getDstFormatScheme());
+									if(!Server.searchedParameterLocation.isEmpty())
 									{
-										advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
-						
-										searchParameter.addDiscoveredDstLocation(myAd.getDstLocationAddrValue(), myAd.getDstLocationAddrScheme());
-										searchParameter.addDiscoveredDstFormat(myAd.getDstFormatValue(), myAd.getDstFormatScheme());
-										if(!Server.searchedParameterLocation.isEmpty())
-										{
-											advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
-										}
-										if(!Server.searchedParameterFormat.isEmpty())
-										{
-											advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
-										}
+										advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
 									}
-									if(Server.searchedParameterIsDestination)
+									if(!Server.searchedParameterFormat.isEmpty())
 									{
-										advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
-										searchParameter.addDiscoveredSrcLocation(myAd.getSrcLocationAddrValue(), myAd.getSrcLocationAddrScheme());
-										searchParameter.addDiscoveredSrcFormat(myAd.getSrcFormatValue(), myAd.getSrcFormatScheme());
+										advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
 									}
 								}
-								
-								searchParameter.getGraphMatrix().getNodeGraph().add(advertisementNode);
+								if(Server.searchedParameterIsDestination)
+								{
+									advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
+									searchParameter.addDiscoveredSrcLocation(myAd.getSrcLocationAddrValue(), myAd.getSrcLocationAddrScheme());
+									searchParameter.addDiscoveredSrcFormat(myAd.getSrcFormatValue(), myAd.getSrcFormatScheme());
+								}
+							}
+
+							searchParameter.getGraphMatrix().getNodeGraph().add(advertisementNode);
+						}
+						else
+						{
+							// PlannerNode already exist check to see if NodeType is SOURCE or DESTINATION
+							// if so check to see if this ran would have tagged it as the other option
+							// if so then classify this node with a special NodeType SOLUTION that should be added as a possible recipe
+							advertisementNode = searchParameter.getGraphMatrix().getNode(myAd.getId());
+							if((advertisementNode.getStatus().equals(PlannerNode.NodeType.DESTINATION) && Server.searchedParameterIsSource)
+								|| (advertisementNode.getStatus().equals(PlannerNode.NodeType.SOURCE) && Server.searchedParameterIsDestination))
+							{
+								advertisementNode.setStatus(PlannerNode.NodeType.SOLUTION);
+								if(!Server.searchedParameterLocation.isEmpty())
+								{
+									advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
+								}
+								if(!Server.searchedParameterFormat.isEmpty())
+								{
+									advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
+								}
+							}
 						}
 					}
 				}

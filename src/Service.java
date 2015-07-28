@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 
 public class Service {
 
@@ -10,9 +12,63 @@ public class Service {
 	String[] srcFormatScheme;
 	String[] srcFormatValue;
 	String[] dstFormatScheme;
-	String[] dstFormatValue;	
+	String[] dstFormatValue;
+	String[] performanceMetricUnit;
+	public Service(String name, String type, String[] srcLocationAddrScheme,
+			String[] srcLocationAddrValue, String[] dstLocationAddrScheme,
+			String[] dstLocationAddrValue, String[] srcFormatScheme,
+			String[] srcFormatValue, String[] dstFormatScheme,
+			String[] dstFormatValue, String[] performanceMetricScheme, 
+			String[] performanceMetricValue, String[] performanceMetricUnit,
+			ProvisioningProperty[] property, String description) {
+		super();
+		this.name = name;
+		this.type = type;
+		this.srcLocationAddrScheme = srcLocationAddrScheme;
+		this.srcLocationAddrValue = srcLocationAddrValue;
+		this.dstLocationAddrScheme = dstLocationAddrScheme;
+		this.dstLocationAddrValue = dstLocationAddrValue;
+		this.srcFormatScheme = srcFormatScheme;
+		this.srcFormatValue = srcFormatValue;
+		this.dstFormatScheme = dstFormatScheme;
+		this.dstFormatValue = dstFormatValue;
+		this.performanceMetricUnit = performanceMetricUnit;
+		this.performanceMetricScheme = performanceMetricScheme;
+		this.performanceMetricValue = performanceMetricValue;
+		this.property = property;
+		this.description = description;
+	}
+
+	String[] performanceMetricScheme;
+	String[] performanceMetricValue;
 	ProvisioningProperty[] property;
 	String description;
+	;
+	public String[] getPerformanceMetricUnit() {
+		return performanceMetricUnit;
+	}
+
+	public void setPerformanceMetricUnit(String[] performanceMetricUnit) {
+		this.performanceMetricUnit = performanceMetricUnit;
+	}
+
+	public String[] getPerformanceMetricScheme() {
+		return performanceMetricScheme;
+	}
+
+	public void setPerformanceMetricScheme(String[] performanceMetricScheme) {
+		this.performanceMetricScheme = performanceMetricScheme;
+	}
+
+	public String[] getPerformanceMetricValue() {
+		return performanceMetricValue;
+	}
+
+	public void setPerformanceMetricValue(String[] performanceMetricValue) {
+		this.performanceMetricValue = performanceMetricValue;
+	}
+
+
 	
 	public Service(String name, String type, String[] srcLocationAddrScheme,
 			String[] srcLocationAddrValue, String[] dstLocationAddrScheme,
@@ -154,14 +210,25 @@ public class Service {
 	@Override
 	public String toString() {
 		return "Service [name=" + name + ", type=" + type
-				+ ", srcLocationAddrScheme=" + srcLocationAddrScheme
-				+ ", srcLocationAddrValue=" + srcLocationAddrValue
-				+ ", dstLocationAddrScheme=" + dstLocationAddrScheme
-				+ ", dstLocationAddrValue=" + dstLocationAddrValue
-				+ ", srcFormatScheme=" + srcFormatScheme + ", srcFormatValue="
-				+ srcFormatValue + ", dstFormatScheme=" + dstFormatScheme
-				+ ", dstFormatValue=" + dstFormatValue + ", property="
-				+ property + ", description=" + description + "]";
+				+ ", srcLocationAddrScheme="
+				+ Arrays.toString(srcLocationAddrScheme)
+				+ ", srcLocationAddrValue="
+				+ Arrays.toString(srcLocationAddrValue)
+				+ ", dstLocationAddrScheme="
+				+ Arrays.toString(dstLocationAddrScheme)
+				+ ", dstLocationAddrValue="
+				+ Arrays.toString(dstLocationAddrValue) + ", srcFormatScheme="
+				+ Arrays.toString(srcFormatScheme) + ", srcFormatValue="
+				+ Arrays.toString(srcFormatValue) + ", dstFormatScheme="
+				+ Arrays.toString(dstFormatScheme) + ", dstFormatValue="
+				+ Arrays.toString(dstFormatValue) + ", performanceMetricUnit="
+				+ Arrays.toString(performanceMetricUnit)
+				+ ", performanceMetricScheme="
+				+ Arrays.toString(performanceMetricScheme)
+				+ ", performanceMetricValue="
+				+ Arrays.toString(performanceMetricValue) + ", property="
+				+ Arrays.toString(property) + ", description=" + description
+				+ "]";
 	}
 	
 }

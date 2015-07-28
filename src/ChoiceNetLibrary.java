@@ -217,9 +217,11 @@ public class ChoiceNetLibrary {
 			String type, addressType = "", portalType = "", location = "";
 			String priceMethod, pValue, providerID, provisioningParameters, purchasePortal, advertiserName, serviceName, serviceType, 
 			serviceDescription;
-			String[] srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue;
+			String[] srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue,
+			performanceMetricUnit,  performanceMetricValue, performanceMetricScheme;
 			priceMethod = pValue = providerID = provisioningParameters = purchasePortal = advertiserName = serviceName = serviceType = serviceDescription = null;  
-			srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = null;
+			srcAddressScheme = srcAddressValue = dstAddressScheme = dstAddressValue = srcFormatScheme = srcFormatValue = dstFormatScheme = dstFormatValue = 
+			performanceMetricUnit = performanceMetricValue = performanceMetricScheme = null;
 			ProvisioningProperty pProp;
 			ArrayList<ProvisioningProperty> serviceProperties;
 			int size = 0;
@@ -335,6 +337,19 @@ public class ChoiceNetLibrary {
 							System.out.println("Scheme "+dstFormatScheme[i]+" Value "+dstFormatValue[i]);
 						}
 						
+						myList = myElement.getElementsByTagName("performance_metrics");
+						size = myList.getLength();
+						performanceMetricScheme = new String[size];
+						performanceMetricValue = new String[size];
+						performanceMetricUnit = new String[size];
+						System.out.println("Performance Metric");
+						for(int i=0;i<size;i++)
+						{	
+							performanceMetricScheme[i] = getAttributes(myList, "scheme", i);
+							performanceMetricValue[i] = getAttributes(myList, "value", i);
+							performanceMetricUnit[i] = getAttributes(myList, "unit", i);
+							System.out.println("Scheme "+dstFormatScheme[i]+" Value "+dstFormatValue[i]);
+						}
 					}
 					// Print Out
 					String printOut = "Advertisement \n" +
@@ -366,7 +381,10 @@ public class ChoiceNetLibrary {
 				}
 				System.out.println(srcFormatValue);
 
-				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, sProp, serviceDescription);
+				Service myService = new Service(serviceName, serviceType, srcAddressScheme, srcAddressValue, dstAddressScheme, 
+						dstAddressValue, srcFormatScheme, srcFormatValue, dstFormatScheme, dstFormatValue, 
+						performanceMetricScheme,performanceMetricValue,performanceMetricUnit,  
+						sProp, serviceDescription);
 				System.out.println(myService);
 //				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, advertiserPortAddress, portalType, 0,"UNKNOWN","UNKNOWN");
 				Advertisement myAd = new Advertisement(priceMethod, priceValue, providerID, myService, advertiserAddress, portalType);

@@ -8,7 +8,8 @@ public class PlannerNode {
 	public enum NodeType {
 		SOURCE,
 		REGULAR,
-		DESTINATION
+		DESTINATION,
+		SOLUTION
 	}
 	private NodeType status = NodeType.REGULAR;
 	private AdvertisementDisplay advertisement;

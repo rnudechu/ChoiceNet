@@ -334,7 +334,7 @@ public class Server {
 		// load couchdb view
 		String content = "";
 		try {
-			sc = new Scanner(new FileReader("marketplace_view.json"));
+			sc = new Scanner(new FileReader("marketplace_shows.json"));
 			while (sc.hasNextLine()) {
 				content += sc.nextLine();
 			}
