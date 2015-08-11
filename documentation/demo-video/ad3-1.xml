@@ -2,10 +2,10 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 3.1.1</name>
+			<name>Ad 3.1</name>
 			<details>
-				<source_location scheme="IPv4" value="10.3.1.0/24" />
-				<destination_location scheme="IPv4" value="10.10.3.0/24" />
+				<source_location scheme="IPv4" value="10.1.13.3/32" />
+				<destination_location scheme="IPv4" value="10.3.1.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
@@ -18,7 +18,9 @@
 			<source_location scheme="Payment" value="Bitcoin:mnYyPZZPb3RHMgu1ZTcndW6di6SCumMiS5" />
 		</purchasePortal>
 		<provisioningParameters>
-			<configurableParameters/>
+			<configurableParameters>
+				<ports value="54990" />
+			</configurableParameters>
 		</provisioningParameters>
 	</advertisement>
 </listings>

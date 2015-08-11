@@ -14,6 +14,7 @@ public class OpenFlowFirewallMessage {
 	private String destinationAddress;
 	private String sourcePort;
 	private String destinationPort;
+	private String provisioningParameter;
 	private String status = "UNKNOWN";
 	private String duration;
 	private String reason;
@@ -131,6 +132,13 @@ public class OpenFlowFirewallMessage {
 	public void setDuration(String duration) {
 		this.duration = duration;
 	}
+	public String getProvisioningParameter() {
+		return provisioningParameter;
+	}
+	@XmlElement
+	public void setProvisioningParameter(String provisioningParameter) {
+		this.provisioningParameter = provisioningParameter;
+	}
 
 	@Override
 	public String toString() {
@@ -140,7 +148,8 @@ public class OpenFlowFirewallMessage {
 				+ protocol + ", sourceAddress=" + sourceAddress
 				+ ", destinationAddress=" + destinationAddress
 				+ ", sourcePort=" + sourcePort + ", destinationPort="
-				+ destinationPort + ", status=" + status + ", duration=" + duration + ", reason=" + reason
-				+ "]";
+				+ destinationPort + ", provisioningParameter="
+				+ provisioningParameter + ", status=" + status + ", duration="
+				+ duration + ", reason=" + reason + "]";
 	}
 }

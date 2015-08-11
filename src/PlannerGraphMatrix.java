@@ -185,6 +185,8 @@ public class PlannerGraphMatrix {
 		String[] dstFormatX;
 		String[] srcFormatY;
 		boolean alreadyCreatedEdge = false;
+
+		System.out.println("NodeGraph size is "+nodeGraph.size()+"?");
 		for(PlannerNode nodeX: nodeGraph)
 		{
 			for(PlannerNode nodeY: nodeGraph)
@@ -198,9 +200,9 @@ public class PlannerGraphMatrix {
 					{
 						for(String ipAddr:srcLocY)
 						{
-							if(subnet.equals(ipAddr))
-							//System.out.println(ipAddr+" is within "+subnet+"?");
-//							if(netMatch(subnet, ipAddr))
+							//if(subnet.equals(ipAddr))
+							System.out.println(ipAddr+" is within "+subnet+"?");
+							if(Utility.netMatch(subnet, ipAddr))
 							{
 								System.out.println(ipAddr+" is within "+subnet+" = TRUE");
 								addEdge(nodeX.getNodeName(),nodeX.getResourceCost(),nodeY.getNodeName(),nodeY.getResourceCost(), ipAddr);
@@ -228,47 +230,7 @@ public class PlannerGraphMatrix {
 		}
 	}
 	
-	// http://stackoverflow.com/a/10484311
-		public boolean netMatch(String subnet, String addr){ 
 
-	        String[] parts = subnet.split("/");
-	        String ip = parts[0];
-	        int prefix;
-
-	        if (parts.length < 2) {
-	            prefix = 0;
-	        } else {
-	            prefix = Integer.parseInt(parts[1]);
-	        }
-
-	        Inet4Address a =null;
-	        Inet4Address a1 =null;
-	        try {
-	            a = (Inet4Address) InetAddress.getByName(ip);
-	            a1 = (Inet4Address) InetAddress.getByName(addr);
-	        } catch (UnknownHostException e){}
-
-	        byte[] b = a.getAddress();
-	        int subnetBytes = ((b[0] & 0xFF) << 24) |
-	                         ((b[1] & 0xFF) << 16) |
-	                         ((b[2] & 0xFF) << 8)  |
-	                         ((b[3] & 0xFF) << 0);
-
-	        byte[] b1 = a1.getAddress();
-	        int ipBytes = ((b1[0] & 0xFF) << 24) |
-	                         ((b1[1] & 0xFF) << 16) |
-	                         ((b1[2] & 0xFF) << 8)  |
-	                         ((b1[3] & 0xFF) << 0);
-
-	        int mask = ~((1 << (32 - prefix)) - 1);
-
-	        if ((subnetBytes & mask) == (ipBytes & mask)) {
-	            return true;
-	        }
-	        else {
-	            return false;
-	        }
-	}
 
 	public void run()
 	{

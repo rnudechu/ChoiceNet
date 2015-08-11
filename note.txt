@@ -1,0 +1,129 @@
+63bb39fae892855cd5fa3f37fd03a972,63bb39fae892855cd5fa3f37fd03c7e7,63bb39fae892855cd5fa3f37fd03d711
+
+63bb39fae892855cd5fa3f37fd03a972
+SRC: 10.10.1.0
+DST: 10.10.2.0
+
+63bb39fae892855cd5fa3f37fd03c7e7
+SRC: 10.10.2.0
+DST: 10.10.3.0
+
+63bb39fae892855cd5fa3f37fd03d711
+SRC: 10.10.3.0
+DST: 10.3.1.0
+
+Advertisement List: 63bb39fae892855cd5fa3f37fd03a972,63bb39fae892855cd5fa3f37fd03c7e7,63bb39fae892855cd5fa3f37fd03b94d,63bb39fae892855cd5fa3f37fd0422be,63bb39fae892855cd5fa3f37fd03d711
+
+63bb39fae892855cd5fa3f37fd03b94d
+SRC: 10.10.3.0
+DST: 10.10.2.0
+
+10.2.1.100 Client Link32
+10.2.1.1 Provider Link34
+10.2.1.2 Provider2 Link24
+10.2.1.3 Provider3 Link14
+10.2.1.4 Planner Link0
+10.2.1.5 Marketplace Link1
+
+Check that port can be found by searching
+
+# Client
+arp -s 10.3.1.1 $MediaServer.MAC("Link3")
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+
+ProviderSwitch
+1: 127.0.0.1
+2: 10.10.10.1
+3: 10.1.12.2
+7: 10.1.13.3
+
+ProviderSwitch2
+1: 127.0.0.1
+2: 10.1.23.3
+6: 10.1.12.1
+
+ProviderSwitch3
+1: 127.0.0.1
+2: 10.1.23.2
+6: 10.3.1.1
+7: 10.1.13.1
+
+List
+  Provision
+  How to advertise service (Pathlet)
+    Be able specify services sufficiently advertise them
+      (Optional) Performance Metrics: Bandwidth, Jitter, Lost Probability, Delay
+      Provisioning Parameter: Power Consumption, Wavelength, (optical packet) Modulation scheme
+  Purchase Request
+
+Anything that is free does not need to be provisioned
+What is injection point
+A Customer with a single endpoint (source) can not have the same destination for multiple flows at the same time
+Metrics: OPS/OCS format
+
+Advertising:
+Provisioning: Needs to OPCI
+Service Generator: Simulator : Pricing Algorithm
+
+OCS Expecting more lightpath requirement in the future for social/sport event, natural disaster
+Why would you reduce OCS? You would want to increase OPS based on the usage.
+Define utility on both the customer and provider side. Determine strategy for shifting resources between OCS/OPS
+
+Agree on the format of socket_provider
+NextNode within OCS trace
+OCS Update: Column for Packet Establish/Release(<-)
+Move the type (OCS info:, OPS info:, OCS/OPS update:) after the NextNode column
+"Routable" network(s) need to be provided from the data plane to assist the service
+VPN/IPSec
+When OCS route is established it should be bidirectional
+  assume their is only a single rate (10 Gbps)
+  Inverse Multiplexing?
+Shortest path vs. minimum number of lambda (has smallest bottleneck)(<- this will show better result with a larger topology)
+
+Provide a doc on the pfsense to Dr. Miyazawa & Dr. Dutta = Done
+
+NCSU:
+  VPN setup
+  Call Perl code from our code (Test Harness will due for now)
+NICT:
+  Make modifications as discussed in today's meeting (Dr. Dutta provided a file with the message changes)
+
+Conclusion:
+  -
+
+Takeaway:
+
+
+Script:
+OVS
+  ./runOVS
+  ./setupOVSIntf mapping.txt
+Marketplace
+  initialize database if not done
+  start marketplace service
+Pathlet Provider(s)
+  run as background service
+  Buy listing service
+Pathlet Provider Use Plane
+  Install Erlang
+    ./configure
+    make && make install
+  Install LINC
+    make offline
+  Run LINC-Switch
+    /rel/linc/bin/linc console
+  Run OpenFlow Switch
+    ryu-manager rnu_epb_controller.py
+Client
+  java -jar UDPClient 10.3.1.1 4000
+
+
+- Modify ads given to each provider
+- Check what happens when you send a malformed advertisement, currently receive an ACK
+
+http://192.1.242.16:5984/marketplacev3/_design/examples/_show/posts?parrot=1

@@ -6,7 +6,11 @@
         {  
         	return req.query.parrot;
         }",
-        "bySrcLocation": "function(doc, req)
+        "bySrcLocation": "function(doc, req) 
+        {  
+        	var message = '';for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++){message += doc.service.srcLocationAddrValue[i]}return message+' <<<<<';
+        }",
+        "bySrcLocationOLD": "function(doc, req)
         {
 			var ip2long = function(ip){var components;if(components = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/)){var iplong = 0;var power  = 1;for(var i=4; i>=1; i-=1){iplong += power * parseInt(components[i]);power  *= 256;}return iplong;}else return -1;};var inSubNet = function(ip, subnet){var mask, base_ip, long_ip = ip2long(ip);if( (mask = subnet.match(/^(.*?)\/(\d{1,2})$/)) && ((base_ip=ip2long(mask[1])) >= 0) ){var freedom = Math.pow(2, 32 - parseInt(mask[2]));return (long_ip > base_ip) && (long_ip < base_ip + freedom - 1);}else return false;};if (doc.service.srcLocationAddrValue){for( var i=0, l=doc.service.srcLocationAddrValue.length; i<l; i++) {if((doc.service.srcLocationAddrScheme[i] == req.query.type && inSubNet(doc.service.srcLocationAddrValue[i], req.query.addr))|| doc.service.srcLocationAddrScheme[i] == req.query.type){emit([doc.service.srcLocationAddrValue[i], doc.service.srcLocationAddrScheme[i]],{id: doc._id, serviceName: doc.service.name, serviceType: doc.service.type, description: doc.service.description, entityName: doc.providerID, price: doc.price, purchasePortalScheme: doc.purchasePortal.scheme, purchasePortalValue: doc.purchasePortal.value, _rev: doc._rev, considerationMethod: doc.price.method, considerationValue: doc.price.value, srcLocationAddrScheme: doc.service.srcLocationAddrScheme, srcLocationAddrValue: doc.service.srcLocationAddrValue, dstLocationAddrScheme: doc.service.dstLocationAddrScheme, dstLocationAddrValue: doc.service.dstLocationAddrValue, srcFormatScheme: doc.service.srcFormatScheme, srcFormatValue: doc.service.srcFormatValue, dstFormatScheme: doc.service.dstFormatScheme, dstFormatValue: doc.service.dstFormatValue,})}}}return  req.query.type;
     	}",

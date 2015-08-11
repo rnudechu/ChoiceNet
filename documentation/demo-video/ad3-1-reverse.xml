@@ -2,20 +2,20 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 1.1.1</name>
+			<name>Ad 3.1.1</name>
 			<details>
-				<source_location scheme="IPv4" value="10.10.2.0/24" />
-				<destination_location scheme="IPv4" value="10.10.1.0/24" />
+				<source_location scheme="IPv4" value="10.3.1.3/32" />
+				<destination_location scheme="IPv4" value="10.1.13.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
 			</details>
 			<description>Transport Service Advertisement</description>
 		</service>
-		<price method="USD" value="21" />
-		<providerID>ACME Corporation</providerID>
+		<price method="USD" value="42" />
+		<providerID>Stark Industries</providerID>
 		<purchasePortal>
-			<source_location scheme="Payment" value="Bitcoin:mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxFv" />
+			<source_location scheme="Payment" value="Bitcoin:mnYyPZZPb3RHMgu1ZTcndW6di6SCumMiS5" />
 		</purchasePortal>
 		<provisioningParameters>
 			<configurableParameters/>

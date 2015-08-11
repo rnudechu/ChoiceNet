@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<listings>
+	<advertisement id="1">
+		<service>
+			<name>Ad 2.1.1</name>
+			<details>
+				<source_location scheme="IPv4" value="10.1.23.2/32" />
+				<destination_location scheme="IPv4" value="10.1.20.0/24" />
+				<source_format scheme="transport media" value="optical packet" />
+				<destination_format scheme="transport media"
+					value="optical packet" />
+			</details>
+			<description>Transport Service Advertisement</description>
+		</service>
+		<price method="USD" value="420" />
+		<providerID>Wayne Enterprise</providerID>
+		<purchasePortal>
+			<source_location scheme="Payment" value="Bitcoin:mreGsuG9mkiaeRbn5f3L4omCCuMLiNBWzQ" />
+		</purchasePortal>
+		<provisioningParameters>
+			<configurableParameters>
+				<ports value="54990" />
+			</configurableParameters>
+		</provisioningParameters>
+	</advertisement>
+</listings>

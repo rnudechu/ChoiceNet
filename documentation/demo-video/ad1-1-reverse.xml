@@ -2,26 +2,23 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 1</name>
+			<name>Ad 1.1.1</name>
 			<details>
-				<source_location scheme="IPv4" value="3.5.4.0/24" />
-				<destination_location scheme="IPv4" value="7.1.8.0/24" />
+				<source_location scheme="IPv4" value="10.1.12.1/32" />
+				<destination_location scheme="IPv4" value="10.1.10.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
-				<performance_metrics scheme="bandwidth" value="10" unit="Mbps"/>
 			</details>
-			<description>Generated Pathlet Service Advertisement</description>
+			<description>Transport Service Advertisement</description>
 		</service>
-		<price method="Bitcoin" value="2" />
-		<providerID>ACME Systems</providerID>
+		<price method="USD" value="21" />
+		<providerID>ACME Corporation</providerID>
 		<purchasePortal>
 			<source_location scheme="Payment" value="Bitcoin:mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxFv" />
 		</purchasePortal>
 		<provisioningParameters>
-			<configurableParameters>
-				<wavelength value="1440" unit="nanometer"/>
-			</configurableParameters>
+			<configurableParameters/>
 		</provisioningParameters>
 	</advertisement>
 </listings>

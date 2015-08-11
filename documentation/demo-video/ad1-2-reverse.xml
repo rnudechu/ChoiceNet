@@ -2,17 +2,17 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 1.1</name>
+			<name>Ad 1.2.1</name>
 			<details>
-				<source_location scheme="IPv4" value="10.10.1.0/24" />
-				<destination_location scheme="IPv4" value="10.10.2.0/24" />
+				<source_location scheme="IPv4" value="10.1.13.1/32" />
+				<destination_location scheme="IPv4" value="10.1.10.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
 			</details>
 			<description>Transport Service Advertisement</description>
 		</service>
-		<price method="USD" value="21" />
+		<price method="USD" value="40" />
 		<providerID>ACME Corporation</providerID>
 		<purchasePortal>
 			<source_location scheme="Payment" value="Bitcoin:mknFpFW8x5pvLH8WSSLSKQRBrkPPiPPoxFv" />

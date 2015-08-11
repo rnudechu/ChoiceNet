@@ -32,6 +32,7 @@ public class Server {
 	static String providerAddress = "127.0.0.1";
 	static String marketplaceListing = "Unknown";
 	static String marketplaceRESTAPI = "";
+	static String marketplaceProcessingAgent = "";
 	static String purchasePortal = "";
 	static String purchasePortalValidator = "";
 	static String CONFIG_FILE = "server.properties";
@@ -54,6 +55,7 @@ public class Server {
 	static String firewallSourcePort = "Unknown";
 	static String firewallDestinationPort = "Unknown";
 	
+	static String provisioningOption = "Unknown";
 	static int numberOfFreeQueries = -1;
 	static String marketplaceAddr = "Unknown";
 	static int marketplacePort = -1;
@@ -67,6 +69,8 @@ public class Server {
 	static boolean searchedParameterIsDestination = false;
 	static String searchedParameterLocation = "";
 	static String searchedParameterFormat = "";
+	static String searchedParameterLocationType = "";
+	static String searchedParameterFormatType = "";
 
 	TransactionManager transcactionMgr = TransactionManager.getInstance();
 	CouchDBOperations couchDBsocket = CouchDBOperations.getInstance();
@@ -151,11 +155,14 @@ public class Server {
 				firewallDestinationAddress = prop.getProperty("firewallDestinationAddress");
 				firewallSourcePort = prop.getProperty("firewallSourcePort");
 				firewallDestinationPort = prop.getProperty("firewallDestinationPort");
+				
+				provisioningOption = prop.getProperty("provisioningOption");
 			}
 
 			if(providerType.equals("Marketplace"))
 			{
 				marketplaceListing = prop.getProperty("marketplaceListing");
+				marketplaceProcessingAgent  = prop.getProperty("marketplaceProcessingAgent");
 			}
 			// nodeAcceptableConsideration
 			acceptedConsideration  = prop.getProperty("acceptedConsideration");
@@ -334,7 +341,7 @@ public class Server {
 		// load couchdb view
 		String content = "";
 		try {
-			sc = new Scanner(new FileReader("marketplace_shows.json"));
+			sc = new Scanner(new FileReader("marketplace_view.json"));
 			while (sc.hasNextLine()) {
 				content += sc.nextLine();
 			}
@@ -380,7 +387,7 @@ public class Server {
 	public Advertisement createListingServiceAdvertisement()
 	{
 		//Service listingService  = new Service("Advertisement Listing", "Listing", "List Service");
-		Service listingService  = new Service("Advertisement Listing", "Listing",
+		Service listingService  = new Service("Listing Service", "Listing",
 				new String[]{"IPv4"},new String[]{providerAddress+"/32"},
 				new String[]{},new String[]{},
 				new String[]{"service"},new String[]{"listing"},

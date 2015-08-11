@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.xml.bind.JAXBContext;

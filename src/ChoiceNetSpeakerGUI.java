@@ -2139,7 +2139,7 @@ public class ChoiceNetSpeakerGUI implements ActionListener {
 			ipAddr = "127.0.0.1:5050";
 			srcLocationType = "IPv4";
 			dstLocationType = "IPv4";
-			srcLocation = "10.10.1.0/24";
+			srcLocation = "10.1.10.0/24";
 			dstLocation = "10.3.1.0/24";
 			serverIPAddressTxtFldPlanner.setText(ipAddr);
 			txtLocationSourceTypePlanner.setText(srcLocationType);

@@ -17,6 +17,49 @@ public class PlannerNode {
 	private String searchedParameterLocation = "";
 	private String searchedParameterFormat = "";
 	
+	public String findMatchingSearchCriteria(String field, String searchCriteria, String searchType)
+	{
+		AdvertisementDisplay myAd = getAdvertisement();
+		String result = "";
+		String[] values = {}, types = {};
+		if(field.equals("Location"))
+		{
+			values = myAd.getSrcLocationAddrValue();
+			types = myAd.getSrcLocationAddrScheme();
+		}
+		if(field.equals("Format"))
+		{
+			values = myAd.getSrcFormatValue();
+			types = myAd.getSrcFormatScheme();
+		}
+		
+		int size = types.length;
+		boolean check = false;
+		for(int i =0; (i<size && !check); i++)
+		{
+			if(types[i].equals(searchType))
+			{
+				check = checkField(searchType, searchCriteria, values[i]);
+			}
+			if(check)
+			{
+				result = values[i];
+			}
+		}
+		return result;
+	}
+	
+	public boolean checkField(String searchType, String searchCriteria, String matchingCriteria)
+	{
+		boolean result = false;
+		if(searchType.equals("IPv4"))
+		{
+			result = Utility.netMatch(searchCriteria, matchingCriteria);
+		}
+		return result;
+				
+	}
+	
 	public String getSearchedParameter()
 	{
 		String searchParameter = "";

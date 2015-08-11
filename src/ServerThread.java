@@ -500,6 +500,7 @@ public class ServerThread extends Thread {
 					sourceLoc = serviceParameter.getSrcLocation().get(0);
 					Server.searchedParameterLocation = sourceLoc;
 					sourceLocType = serviceParameter.getSrcTypeLocation().get(0);
+					Server.searchedParameterLocationType = sourceLocType;
 					serviceParameter.getSrcLocation().remove(0);
 					serviceParameter.getSrcTypeLocation().remove(0);
 				}
@@ -519,6 +520,7 @@ public class ServerThread extends Thread {
 					sourceFormat = serviceParameter.getSrcFormat().get(0);
 					Server.searchedParameterFormat = sourceFormat;
 					sourceFormatType = serviceParameter.getSrcTypeFormat().get(0);
+					Server.searchedParameterFormatType = sourceFormatType;
 					serviceParameter.getSrcFormat().remove(0);
 					serviceParameter.getSrcTypeFormat().remove(0);
 				}
@@ -670,9 +672,7 @@ public class ServerThread extends Thread {
 		{
 			queryValue = (String) searchField.getValue();
 			queryValue = queryValue.replaceAll(" ", "%20");
-			query = "/_design/marketplace/_view/"+queryValue;
-			// Retrieve CouchDB unique identifier for the document containing its entry to get its document ID, this will be used as an Advertisement ID
-			String url = Server.marketplaceRESTAPI+query;
+			String url = queryValue; 
 			Logger.log(url);
 			response = couchDBsocket.getRestInterface(url);
 			cResponse = CouchDBResponse.parseJson(response);
@@ -765,22 +765,25 @@ public class ServerThread extends Thread {
 								{
 									advertisementNode.setStatus(PlannerNode.NodeType.SOURCE);
 
-									searchParameter.addDiscoveredDstLocation(myAd.getDstLocationAddrValue(), myAd.getDstLocationAddrScheme());
-									searchParameter.addDiscoveredDstFormat(myAd.getDstFormatValue(), myAd.getDstFormatScheme());
+									searchParameter.addDiscoveredSrcLocation(myAd.getDstLocationAddrValue(), myAd.getDstLocationAddrScheme());
+									//searchParameter.addDiscoveredDstFormat(myAd.getDstFormatValue(), myAd.getDstFormatScheme());
 									if(!Server.searchedParameterLocation.isEmpty())
 									{
-										advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
+										// search among the source locations for the likely field that passed this search
+										String result = advertisementNode.findMatchingSearchCriteria("Location", Server.searchedParameterLocation, Server.searchedParameterLocationType);
+										advertisementNode.setSearchedParameterLocation(result);
 									}
 									if(!Server.searchedParameterFormat.isEmpty())
 									{
-										advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
+										String result = advertisementNode.findMatchingSearchCriteria("Format", Server.searchedParameterFormat, Server.searchedParameterFormatType);
+										advertisementNode.setSearchedParameterFormat(result);
 									}
 								}
 								if(Server.searchedParameterIsDestination)
 								{
 									advertisementNode.setStatus(PlannerNode.NodeType.DESTINATION);
-									searchParameter.addDiscoveredSrcLocation(myAd.getSrcLocationAddrValue(), myAd.getSrcLocationAddrScheme());
-									searchParameter.addDiscoveredSrcFormat(myAd.getSrcFormatValue(), myAd.getSrcFormatScheme());
+									searchParameter.addDiscoveredDstLocation(myAd.getSrcLocationAddrValue(), myAd.getSrcLocationAddrScheme());
+									//searchParameter.addDiscoveredSrcFormat(myAd.getSrcFormatValue(), myAd.getSrcFormatScheme());
 								}
 							}
 
@@ -798,11 +801,12 @@ public class ServerThread extends Thread {
 								advertisementNode.setStatus(PlannerNode.NodeType.SOLUTION);
 								if(!Server.searchedParameterLocation.isEmpty())
 								{
-									advertisementNode.setSearchedParameterLocation(Server.searchedParameterLocation);
-								}
+									String result = advertisementNode.findMatchingSearchCriteria("Location", Server.searchedParameterLocation, Server.searchedParameterLocationType);
+									advertisementNode.setSearchedParameterLocation(result);								}
 								if(!Server.searchedParameterFormat.isEmpty())
 								{
-									advertisementNode.setSearchedParameterFormat(Server.searchedParameterFormat);
+									String result = advertisementNode.findMatchingSearchCriteria("Format", Server.searchedParameterFormat, Server.searchedParameterFormatType);
+									advertisementNode.setSearchedParameterFormat(result);
 								}
 							}
 						}
@@ -1349,7 +1353,9 @@ public class ServerThread extends Thread {
 		String[] dstLocTypeArr = destinationLocType.split(",");
 		String[] srcFormatTypeArr = sourceFormatType.split(",");
 		String[] dstFormatTypeArr = destinationFormatType.split(",");
-
+		String query = "/_design/marketplace/_view/";
+		// Retrieve CouchDB unique identifier for the document containing its entry to get its document ID, this will be used as an Advertisement ID
+		String url = Server.marketplaceRESTAPI+query;
 		int i = 0;
 		int j = 0;
 		int k = 0;
@@ -1359,7 +1365,7 @@ public class ServerThread extends Thread {
 		while(i<srcLocArr.length)
 		{
 			operate = false;
-			searchedContent = determineQueryParameter(srcLocArr[i],dstLocArr[j],srcFormatArr[k],dstFormatArr[l],srcLocTypeArr[i],dstLocTypeArr[j],srcFormatTypeArr[k],dstFormatTypeArr[l]);
+			searchedContent = determineQueryParameter(url, srcLocArr[i],dstLocArr[j],srcFormatArr[k],dstFormatArr[l],srcLocTypeArr[i],dstLocTypeArr[j],srcFormatTypeArr[k],dstFormatTypeArr[l]);
 			if(searchedContent!=null)
 			{
 				list.add(searchedContent);
@@ -1397,7 +1403,7 @@ public class ServerThread extends Thread {
 		if(!cost.isEmpty())
 		{
 			queryField = "byCost?startkey=[\""+costType+"\"]&endkey=";
-			data = queryField+"[\""+costType+"\","+cost+"]";
+			data = url+queryField+"[\""+costType+"\","+cost+"]";
 			searchedContent = new InternalMessageField(""+QueryType.COST, data, "");
 			list.add(searchedContent);
 		}
@@ -1405,7 +1411,7 @@ public class ServerThread extends Thread {
 		if(!adID.isEmpty())
 		{
 			queryField = "byID?key=";
-			data = queryField+"[\""+adID+"\"]";
+			data = url+queryField+"[\""+adID+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.ADVERTISEMENT_ID, data, "");
 			list.add(searchedContent);
 		}
@@ -1425,7 +1431,7 @@ public class ServerThread extends Thread {
 	 * @param destinationFormat
 	 * @return
 	 */
-	private InternalMessageField determineQueryParameter(String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, 
+	private InternalMessageField determineQueryParameter(String defaultURL, String sourceLoc, String destinationLoc, String sourceFormat, String destinationFormat, 
 			String sourceLocType, String destinationLocType, String sourceFormatType, String destinationFormatType)
 	{
 		// 1: (1,2,3,4)
@@ -1449,7 +1455,7 @@ public class ServerThread extends Thread {
 		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
 		{
 			queryField = "bySrcDstLocationSrcDstFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC_DST, data, "");
 			return searchedContent;
 		}
@@ -1457,28 +1463,28 @@ public class ServerThread extends Thread {
 		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !sourceFormat.isEmpty())
 		{
 			queryField = "bySrcDstLocationSrcFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+sourceFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_SRC, data, "");
 			return searchedContent;
 		}
 		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty() && !destinationFormat.isEmpty())
 		{
 			queryField = "bySrcDstLocationDstFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST_FORMAT_DST, data, "");
 			return searchedContent;
 		}
 		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
 		{
 			queryField = "bySrcLocationSrcDstFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC_DST, data, "");
 			return searchedContent;
 		}
 		if(!destinationLoc.isEmpty() && !sourceFormat.isEmpty() && !destinationFormat.isEmpty())
 		{
 			queryField = "byDstLocationSrcDstFormat?key=";
-			data = queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC_DST, data, "");
 			return searchedContent;
 		}
@@ -1486,35 +1492,35 @@ public class ServerThread extends Thread {
 		if(!sourceLoc.isEmpty() && !destinationLoc.isEmpty())
 		{
 			queryField = "bySrcDstLocation?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+destinationLoc+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_DST, data, "");
 			return searchedContent;
 		}
 		if(!sourceLoc.isEmpty() && !sourceFormat.isEmpty())
 		{
 			queryField = "bySrcLocationSrcFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\",\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\",\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_SRC, data, "");
 			return searchedContent;
 		}
 		if(!sourceLoc.isEmpty() && !destinationFormat.isEmpty())
 		{
 			queryField = "bySrcLocationDstFormat?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC_FORMAT_DST, data, "");
 			return searchedContent;
 		}
 		if(destinationLoc.isEmpty() && !sourceFormat.isEmpty())
 		{
 			queryField = "byDstLocationSrcFormat?key=";
-			data = queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\"]";
+			data = defaultURL+queryField+"[\""+destinationLoc+"\",\""+sourceFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_SRC, data, "");
 			return searchedContent;
 		}
 		if(!destinationLoc.isEmpty() &&  !destinationFormat.isEmpty())
 		{
 			queryField = "byDstLocationDstFormat?key=";
-			data = queryField+"[\""+destinationLoc+"\",\""+destinationFormat+"\"]";
+			data = defaultURL+queryField+"[\""+destinationLoc+"\",\""+destinationFormat+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST_FORMAT_DST, data, "");
 			return searchedContent;
 		}
@@ -1528,29 +1534,43 @@ public class ServerThread extends Thread {
 		// Single case
 		if(!sourceLoc.isEmpty())
 		{
-			queryField = "bySrcLocation?key=";
-			data = queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\"]";
+			if(sourceLocType.equals("IPv4"))
+			{
+				data = Server.marketplaceProcessingAgent+"?query=bySrcLocationType&value="+sourceLoc+"&type=[\""+sourceLocType+"\"]";
+			}
+			else
+			{
+				queryField = "bySrcLocation?key=";
+				data = defaultURL+queryField+"[\""+sourceLoc+"\",\""+sourceLocType+"\"]";
+			}
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_SRC, data, "");
 			return searchedContent;
 		}
 		if(!destinationLoc.isEmpty())
 		{
-			queryField = "byDstLocation?key=";
-			data = queryField+"[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
+			if(destinationLocType.equals("IPv4"))
+			{
+				data = Server.marketplaceProcessingAgent+"?query=byDstLocationType&value="+destinationLoc+"&type=[\""+destinationLocType+"\"]";
+			}
+			else
+			{
+				queryField = "byDstLocation?key=";
+				data = defaultURL+queryField+"[\""+destinationLoc+"\",\""+destinationLocType+"\"]";
+			}
 			searchedContent = new InternalMessageField(""+QueryType.LOCATION_DST, data, "");
 			return searchedContent;
 		}
 		if(!sourceFormat.isEmpty())
 		{
 			queryField = "bySrcFormat?key=";
-			data = queryField+"[\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
+			data = defaultURL+queryField+"[\""+sourceFormat+"\",\""+sourceFormatType+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.FORMAT_SRC, data, "");
 			return searchedContent;
 		}
 		if(!destinationFormat.isEmpty())
 		{
 			queryField = "byDstFormat?key=";
-			data = queryField+"[\""+destinationFormat+"\",\""+destinationFormatType+"\"]";
+			data = defaultURL+queryField+"[\""+destinationFormat+"\",\""+destinationFormatType+"\"]";
 			searchedContent = new InternalMessageField(""+QueryType.FORMAT_DST, data, "");
 			return searchedContent;
 		}

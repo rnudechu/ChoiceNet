@@ -56,8 +56,6 @@ public class AdminGUI implements ActionListener {
 	TokenManager tokenMgr = TokenManager.getInstance();
 	DiscoveredEntitiesManager dEMgr = DiscoveredEntitiesManager.getInstance();
 	private JCheckBox chckbxTurnTestData;
-	private JTextField txtRangehelper;
-	private JLabel lblRangeHelper;
 
 	/**
 	 * Create the GUI and show it.  For thread safety,
@@ -151,7 +149,6 @@ public class AdminGUI implements ActionListener {
 		if(e.getSource() == btnCreateMarketplace)
 		{
 			String marketplaceAddr = txtSettingsMktAddr.getText();
-			String rangeHelperAddr = txtRangehelper.getText();
 			server.createMarketplaceDatabase(marketplaceAddr);
 			//server.createRangeDatabase(rangeHelperAddr);
 		}
@@ -314,18 +311,6 @@ public class AdminGUI implements ActionListener {
 		btnCreateMarketplace.setFont(new Font("Dialog", Font.BOLD, 12));
 		btnCreateMarketplace.addActionListener(this);
 		settingsPanel.add(btnCreateMarketplace, "9, 9");
-		
-		lblRangeHelper = new JLabel("Range Helper");
-		lblRangeHelper.setFont(new Font("Dialog", Font.BOLD, 12));
-		settingsPanel.add(lblRangeHelper, "3, 13, left, default");
-		
-		
-		
-		txtRangehelper = new JTextField();
-		txtRangehelper.setEnabled(false);
-		txtRangehelper.setEditable(false);
-		settingsPanel.add(txtRangehelper, "5, 13, fill, default");
-		txtRangehelper.setColumns(10);
 
 		textAreaSettings = new JTextArea();
 		textAreaSettings.setLineWrap(true);
@@ -341,13 +326,11 @@ public class AdminGUI implements ActionListener {
 		if(testOn)
 		{
 			txtSettingsMktAddr.setText(Server.marketplaceRESTAPI);
-			txtRangehelper.setText(Server.marketplaceRESTAPI+"-rangehelper");
 			System.out.println("Test Data On");
 		}
 		else
 		{
 			txtSettingsMktAddr.setText("");
-			txtRangehelper.setText("");
 			System.out.println("Test Data Off");
 		}
 	}
