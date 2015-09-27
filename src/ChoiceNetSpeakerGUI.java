@@ -2225,13 +2225,17 @@ public class ChoiceNetSpeakerGUI implements ActionListener {
 			{
 				textAreaMktpl.setText(systemMessage);
 			}
+			if(activeCard.equals("Payment"))
+			{
+				textAreaPayment.setText(systemMessage);
+			}
 			if(activeCard.equals("Planner"))
 			{
 				textAreaPlanner.setText(systemMessage);
 			}
-			if(activeCard.equals("Payment"))
+			if(activeCard.equals("Provision"))
 			{
-				textAreaPayment.setText(systemMessage);
+				lblProvisionMessage.setText(systemMessage);
 			}
 		}
 	}

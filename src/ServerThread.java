@@ -328,6 +328,8 @@ public class ServerThread extends Thread {
 		String originatorName = (String) packet.getOriginatorName().getValue();
 		// Parse value
 		PlannerSearchParameter searchParameter = new PlannerSearchParameter(originatorName, Server.numberOfFreeQueries, 0);
+		PlannerSearchParameter searchParameterRecord = new PlannerSearchParameter(originatorName, Server.numberOfFreeQueries, 0);
+		searchParameterRecord.setIdentifier(searchParameter.getIdentifier());
 		// Check to see if Planner has communicated with this entity before if not force a "silent" Rendezvous Interaction
 		if(dEMgr.getDiscoveredEntityByName(originatorName) == null)
 		{
@@ -347,6 +349,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getSrcTypeLocation().add(val);
+					searchParameterRecord.getSrcTypeLocation().add(val);
 				}
 			}
 			if(attr.equals(RequestType.LOCATION_SRC.toString()))
@@ -354,6 +357,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getSrcLocation().add(val);
+					searchParameterRecord.getSrcLocation().add(val);
 				}
 			}
 			if(attr.equals(RequestType.LOCATION_DST_TYPE.toString()))
@@ -361,6 +365,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getDstTypeLocation().add(val);
+					searchParameterRecord.getDstTypeLocation().add(val);
 				}
 			}
 			if(attr.equals(RequestType.LOCATION_DST.toString()))
@@ -368,6 +373,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getDstLocation().add(val);
+					searchParameterRecord.getDstLocation().add(val);
 				}
 			}
 			if(attr.equals(RequestType.FORMAT_SRC_TYPE.toString()))
@@ -375,6 +381,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getSrcTypeFormat().add(val);
+					searchParameterRecord.getSrcTypeFormat().add(val);
 				}
 			}
 			if(attr.equals(RequestType.FORMAT_SRC.toString()))
@@ -382,6 +389,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getSrcFormat().add(val);
+					searchParameterRecord.getSrcFormat().add(val);
 				}
 			}
 			if(attr.equals(RequestType.FORMAT_DST_TYPE.toString()))
@@ -389,6 +397,7 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getDstTypeFormat().add(val);
+					searchParameterRecord.getDstTypeFormat().add(val);
 				}
 			}
 			if(attr.equals(RequestType.FORMAT_DST.toString()))
@@ -396,21 +405,24 @@ public class ServerThread extends Thread {
 				for(String val: temp)
 				{
 					searchParameter.getDstFormat().add(val);
+					searchParameterRecord.getDstFormat().add(val);
 				}
 			}
 			if(attr.equals(RequestType.COST.toString()))
 			{
 				int total = Integer.parseInt(value);
 				searchParameter.setCost(total);
+				searchParameterRecord.setCost(total);
 			}
 			if(attr.equals(RequestType.COST_TYPE.toString()))
 			{
 				searchParameter.setCostType(value);
+				searchParameterRecord.setCostType(value);
 			}
 			content += attr+": "+value+" "; 
 		}
 		Server.searchParameterList.add(searchParameter);
-		Server.searchParameterHistory.add(searchParameter);
+		Server.searchParameterHistory.add(searchParameterRecord);
 
 		handlePlannerServiceParameters();
 	}
@@ -592,7 +604,7 @@ public class ServerThread extends Thread {
 				// At this point only advertisements with only a single connection or no connection will be found at this time
 				// Should another round of queries be made against initial discovered advertisements
 				// ... maybe additional three queries per item
-				serviceParameter.getGraphMatrix().run();
+				serviceParameter.getGraphMatrix().run(Server.getSearchParameterFromHistory(id));
 				// Check the Graph Matrix to see if any feasible plan can be achieved
 				// Possible to have dumb recipes that cycle the provider resources e.g. SRC-A-B-A-DST rather than SRC-A-DST
 				// these recipes are still valid
@@ -603,6 +615,7 @@ public class ServerThread extends Thread {
 				int lowestPrice = Integer.MAX_VALUE;
 				int currCost;
 				int svcParameterCost = serviceParameter.getCost();
+				// validate the the potential recipe has satisfied the source/destination location/format
 				for(PlannerServiceRecipe recipe: recipes)
 				{
 					currCost = recipe.getTotalCost();
@@ -616,6 +629,7 @@ public class ServerThread extends Thread {
 						}
 					}
 				}
+				
 				System.out.println("Selected recipe: "+selectedRecipe);
 				readyToSendPacket = true;
 				// update the ip address and port to initiating entity
@@ -857,8 +871,13 @@ public class ServerThread extends Thread {
 		String handleID = (String) payload[0].getValue();
 		ChoiceNetMessageField token = payload[1];
 		Token myToken = cnLibrary.extractTokenContent(token);
-		String message = "<html>Received an Use Attempt Acknowlegdement for the Token: "+myToken.getId()+"with an Handle ID: "+handleID+"</html>";
-		ChoiceNetSpeakerGUI.updateTextArea(message);
+//		String message = "<html>Received an Use Attempt Acknowlegdement for the Token: "+myToken.getId()+"with an Handle ID: "+handleID+"</html>";
+		String message = "<html>Received an Use Attempt Acknowlegdement for the Token: "+myToken.getId()+"<br>" +
+				"Service: "+myToken.getServiceName()+" is activated</html>";
+		if(!Server.runningMode.equals("standalone"))
+		{
+			ChoiceNetSpeakerGUI.updateTextArea(message);
+		}
 	}
 
 	private void respondToUsePlaneSignaling(Packet packet) {
@@ -913,7 +932,12 @@ public class ServerThread extends Thread {
 		}
 		else
 		{
-			Logger.log("WARNING: "+targetedProvider+" does not match "+providerType);
+			String message = ("WARNING: "+targetedProvider+" does not match "+providerType);
+			Logger.log(message);
+			if(!Server.runningMode.equals("standalone"))
+			{
+				ChoiceNetSpeakerGUI.updateTextArea(message);
+			}
 		}
 	}
 	/**
@@ -958,6 +982,7 @@ public class ServerThread extends Thread {
 
 			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.RENDEZVOUS_RESPONSE.toString(), 1, message);
 			packet = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
+			send(packet);
 		}
 	}
 	/**
@@ -1021,15 +1046,15 @@ public class ServerThread extends Thread {
 						{
 							tokenType = sName;
 						}
-						//						if(providerType.equals("Planner"))
-						//						{
-						//							tokenType = "Planner";
-						//						}
-						//						if(providerType.equals("Transport"))
-						//						{
-						//							tokenType = "Transport";
-						//							tokenType = "Transport";
-						//						}
+//						if(providerType.equals("Planner"))
+//						{
+//							tokenType = "Planner";
+//						}
+//						if(providerType.equals("Transport"))
+//						{
+//							tokenType = "Transport";
+//							tokenType = "Transport";
+//						}
 					}
 					// creates Token
 					ChoiceNetMessageField token = cnLibrary.createToken(originatorName, myName, tokenType, eTime, true);
@@ -1100,10 +1125,10 @@ public class ServerThread extends Thread {
 			tokenMgr.addToken(creationTime, myToken);
 			Logger.log("Token has been added to the system database.");
 			Logger.log("Token contains:\n"+myToken+"\n==================");
+			String msg = "Token "+myToken.getId()+" has been added to the system database"; // should be removed for the client
 			// prevent other clients from running this logger
 			if(!Server.runningMode.equals("standalone"))
 			{
-				String msg = "Token "+myToken.getId()+" has been added to the system database"; // should be removed for the client
 				ChoiceNetSpeakerGUI.updateTextArea(msg);
 			}
 		}
@@ -1127,6 +1152,7 @@ public class ServerThread extends Thread {
 		payload = (ChoiceNetMessageField[]) token.getValue();
 		int tokenID = (Integer) payload[0].getValue(); // Token ID
 		String intendedEntityName = (String) payload[2].getValue(); // Issued By
+		
 		// check that this response is both intended for this entity node 
 		// TODO: also check the tokenID exist in your TokenManager
 		if(intendedEntityName.equals(myName) && tokenMgr.getTokenCreationTime(tokenID)!=0)
@@ -1190,13 +1216,19 @@ public class ServerThread extends Thread {
 		}
 		else
 		{
+			String msg = "";
 			if(tokenMgr.getTokenCreationTime(tokenID)==0)
 			{
-				Logger.log("Listing Request: Token supplied does not match any value within the Token Manager database");
+				msg = ("Listing Request: Token supplied does not match any value within the Token Manager database");
 			}
 			if(!intendedEntityName.equals(myName))
 			{
-				Logger.log("Listing Request: Entity name did not match. Intended for "+intendedEntityName);
+				msg = ("Listing Request: Entity name did not match. Intended for "+intendedEntityName);
+			}
+			Logger.log(msg);
+			if(!Server.runningMode.equals("standalone"))
+			{
+				ChoiceNetSpeakerGUI.updateTextArea(msg);
 			}
 		}
 
@@ -1239,6 +1271,8 @@ public class ServerThread extends Thread {
 		int tokenID = (Integer) payload[0].getValue(); // Token ID
 		long creationTimeID = tokenMgr.getTokenCreationTime(tokenID);
 		Token myToken = TokenManager.getSingleToken(creationTimeID);
+		String message = "";
+		Packet newPacket = null;
 		if(myToken != null)
 		{
 			if(myToken.getExpirationTime() >= System.currentTimeMillis())
@@ -1250,6 +1284,13 @@ public class ServerThread extends Thread {
 				long result = myToken.getExpirationTime()-System.currentTimeMillis();
 				result = result/1000; // Save it in seconds
 				msg.setDuration(result+"");
+				String serviceName = myToken.getServiceName();
+				// set the service name =  Advertised name
+				msg.setServiceName(serviceName);
+				// get the service type
+				Advertisement activatedAd = adMgr.getAdvertisementByName(serviceName);
+				// set the service type				
+				msg.setServiceType(activatedAd.getService().getType());
 				// return a new string with additional properties
 				trafficProp = cnLibrary.getOpenFlowFireWallMessageXML(msg);
 				cnLibrary.getOpenFlowFireWallMessageXML(msg);
@@ -1260,21 +1301,29 @@ public class ServerThread extends Thread {
 				// hard coded 
 				ChoiceNetMessageField handleID = new ChoiceNetMessageField("Handle ID", System.currentTimeMillis(), "");
 				ChoiceNetMessageField[] newPayload = {handleID,token}; 
-				Packet newPacket = new Packet(PacketType.USE_ATTEMPT_CONFIRMATION,myName,"",myType,providerType,newPayload);
-				send(newPacket);
+				newPacket = new Packet(PacketType.USE_ATTEMPT_CONFIRMATION,myName,"",myType,providerType,newPayload);
 			}
 			else
 			{
-				//TODO: 
 				// a once valid Token is expired
-				System.out.println("Expired Token has been used. Can not provide Use ATTEMPT ACK");
+				message = ("Expired Token has been used. Can not provide Use ATTEMPT ACK");
+				ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.USE_ATTEMPT_CONFIRMATION.toString(), 1, message);
+				newPacket = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
+				Logger.log(message);
 			}
 		}
 		else
 		{
-			//TODO:
 			// Token ID does not exist in our database
-			System.out.println("Token ID does not exist in the database. Can not provide Use ATTEMPT ACK");
+			message = ("Token ID does not exist in the database. Can not provide Use ATTEMPT ACK");
+			ChoiceNetMessageField[] myPayload = createNACKPayload(PacketType.USE_ATTEMPT_CONFIRMATION.toString(), 1, message);
+			newPacket = new Packet(PacketType.NACK,myName,"",myType, providerType,myPayload);
+			Logger.log(message);
+		}
+		send(newPacket);
+		if(!Server.runningMode.equals("standalone") && !message.equals(""))
+		{
+			ChoiceNetSpeakerGUI.updateTextArea(message);
 		}
 	}
 	private InternalMessageField[] determineQueryType(ChoiceNetMessageField[] message)

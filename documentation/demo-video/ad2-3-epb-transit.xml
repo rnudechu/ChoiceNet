@@ -2,17 +2,19 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 2.1.1</name>
+			<name>Ad 2.3</name>
+			<type>Transit</type>
 			<details>
+				<source_location scheme="IPv4" value="10.1.12.2/32" />
 				<source_location scheme="IPv4" value="10.1.23.2/32" />
-				<destination_location scheme="IPv4" value="10.1.20.0/24" />
+				<destination_location scheme="IPv4" value="10.1.2.0/24" />
 				<source_format scheme="transport media" value="optical packet" />
 				<destination_format scheme="transport media"
 					value="optical packet" />
 			</details>
-			<description>Transport Service Advertisement</description>
+			<description>Transit Service to EPB Service Advertisement</description>
 		</service>
-		<price method="USD" value="420" />
+		<price method="USD" value="4" />
 		<providerID>Wayne Enterprise</providerID>
 		<purchasePortal>
 			<source_location scheme="Payment" value="Bitcoin:mreGsuG9mkiaeRbn5f3L4omCCuMLiNBWzQ" />

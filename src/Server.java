@@ -751,9 +751,21 @@ public class Server {
 		return result;
 	}
 
-	public static PlannerSearchParameter getSearchParameter(long id)
+	public static PlannerSearchParameter getSearchParameterFromHistory(long id)
 	{
 		for(PlannerSearchParameter searchParameter : searchParameterHistory)
+		{
+			if(searchParameter.getIdentifier() == id)
+			{
+				return searchParameter;
+			}
+		}
+		return null;
+	}
+	
+	public static PlannerSearchParameter getSearchParameter(long id)
+	{
+		for(PlannerSearchParameter searchParameter : searchParameterList)
 		{
 			if(searchParameter.getIdentifier() == id)
 			{

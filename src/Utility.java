@@ -8,9 +8,17 @@ public class Utility {
 		public static boolean netMatch(String subnet, String addr){ 
 
 	        String[] parts = addr.split("/");
+	        if(parts.length != 2)
+	        {
+	        	return false;
+	        }
 	        addr = parts[0];
 	        
 	        parts = subnet.split("/");
+	        if(parts.length != 2)
+	        {
+	        	return false;
+	        }
 	        String ip = parts[0];
 	        int prefix;
 

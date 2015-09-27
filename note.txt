@@ -1,4 +1,4 @@
-63bb39fae892855cd5fa3f37fd03a972,63bb39fae892855cd5fa3f37fd03c7e7,63bb39fae892855cd5fa3f37fd03d711
+	63bb39fae892855cd5fa3f37fd03a972,63bb39fae892855cd5fa3f37fd03c7e7,63bb39fae892855cd5fa3f37fd03d711
 
 63bb39fae892855cd5fa3f37fd03a972
 SRC: 10.10.1.0
@@ -125,5 +125,26 @@ Client
 
 - Modify ads given to each provider
 - Check what happens when you send a malformed advertisement, currently receive an ACK
+
+Customer Script 
+	# traffic sent to destination 
+	java UDPClient 10.3.1.1 4000
+	# activate Economy-plane interaction between the three providers
+	java -jar ChoiceNetSpeakerGUI.jar customer.propertoes
+		Provider
+			10.2.1.1:4001
+			ACME Corporation
+			Ad 1.1 
+		Provider2
+			10.2.1.2:4001
+			Wayne Enterprise
+			#Ad 2.2
+			Ad 2.3 Payload Modification
+			Ad 2.3 
+		Provider3
+			10.2.1.3:4001
+			Stark Industries
+			Ad 3.2 
+	
 
 http://192.1.242.16:5984/marketplacev3/_design/examples/_show/posts?parrot=1

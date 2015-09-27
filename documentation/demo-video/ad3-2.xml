@@ -18,9 +18,7 @@
 			<source_location scheme="Payment" value="Bitcoin:mnYyPZZPb3RHMgu1ZTcndW6di6SCumMiS5" />
 		</purchasePortal>
 		<provisioningParameters>
-			<configurableParameters>
-				<ports value="54990" />
-			</configurableParameters>
+			<configurableParameters/>
 		</provisioningParameters>
 	</advertisement>
 </listings>

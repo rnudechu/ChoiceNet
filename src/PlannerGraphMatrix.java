@@ -89,7 +89,7 @@ public class PlannerGraphMatrix {
 		return -1;
 	}
 
-	public void findAllPath(String src,String dst,boolean[] visited, String provisionParameter){
+	public void findAllPath(String src,String dst,boolean[] visited, String provisionParameter, PlannerSearchParameter parameters){
 		PlannerNode srcNode, dstNode = null;
 		int srcIndex = getNodeIndex(src, nodeGraph);
 		int currIndex, parameterIndex = -1;
@@ -113,7 +113,11 @@ public class PlannerGraphMatrix {
 
 
 		if(srcNode.equals(dstNode)){
-			printNodeStack(nodeStack, provisionParameterStack);
+			// check to see if all the parameters from the orignal query is satisfied
+			if(checkStack(parameters, nodeStack))
+			{
+				printNodeStack(nodeStack, provisionParameterStack);
+			}
 		}
 
 		if(visited[srcIndex] != true)
@@ -126,7 +130,7 @@ public class PlannerGraphMatrix {
 				parameterIndex = getNodeIndex(node.getNodeName(), adjNodes);
 				provisionParameter = srcNode.getProvisionParameter().get(parameterIndex);
 				if(visited[currIndex]!=true){
-					findAllPath(node.getNodeName(), dst,visited, provisionParameter);
+					findAllPath(node.getNodeName(), dst,visited, provisionParameter, parameters);
 				}
 			}
 		}
@@ -140,6 +144,109 @@ public class PlannerGraphMatrix {
 	}
 
 
+	private boolean checkStack(PlannerSearchParameter parameters, Stack<PlannerNode> myStack)
+	{
+		boolean result = false;
+		boolean[] itemizedResult = new boolean[4];
+		int index = 0;
+		ArrayList<String> srcLocationType = parameters.getSrcTypeLocation();
+		ArrayList<String> srcLocation = parameters.getSrcLocation();
+		ArrayList<String> dstLocationType = parameters.getDstTypeLocation();
+		ArrayList<String> dstLocation = parameters.getDstLocation();
+		ArrayList<String> srcFormatType = parameters.getSrcTypeFormat();
+		ArrayList<String> srcFormat = parameters.getSrcFormat();
+		ArrayList<String> dstFormatType = parameters.getDstTypeFormat();
+		ArrayList<String> dstFormat = parameters.getDstFormat();
+		boolean resultVal = false;
+		for(PlannerNode myNode: myStack)
+		{
+			int size = srcLocation.size();
+			index = 0;
+			if(size>0)
+			{
+				for(int i = 0; i<size ; i++)
+				{
+					resultVal = myNode.anyMatchingSearchCriteria("SrcLocation",  srcLocation.get(i), srcLocationType.get(i));
+					if(resultVal)
+					{
+						itemizedResult[index] = true;
+					}
+				}
+			}
+			else
+			{
+				itemizedResult[index] = true;
+			}
+			size = dstLocation.size();
+			index = 1;
+			if(size>0)
+			{
+				
+				for(int i = 0; i<size ; i++)
+				{
+					resultVal = myNode.anyMatchingSearchCriteria("DstLocation",  dstLocation.get(i), dstLocationType.get(i));
+					if(resultVal)
+					{
+						itemizedResult[index] = true;
+					}
+				}
+			}
+			else
+			{
+				itemizedResult[index] = true;
+			}
+			size = srcFormat.size();
+			index = 2;
+			if(size>0)
+			{
+				
+				for(int i = 0; i<size ; i++)
+				{
+					resultVal = myNode.anyMatchingSearchCriteria("SrcFormat",  srcFormat.get(i), srcFormatType.get(i));
+					if(resultVal)
+					{
+						itemizedResult[index] = true;
+					}
+				}
+			}
+			else
+			{
+				itemizedResult[index] = true;
+			}
+			
+			size = dstFormat.size();
+			index = 3;
+			if(size>0)
+			{
+				for(int i = 0; i<size ; i++)
+				{
+					resultVal = myNode.anyMatchingSearchCriteria("DstFormat",  dstFormat.get(i), dstFormatType.get(i));
+					if(resultVal)
+					{
+						itemizedResult[index] = true;
+					}
+				}
+			}
+			else
+			{
+				itemizedResult[index] = true;
+			}
+		}
+		int count = 0;
+		for(boolean q: itemizedResult)
+		{
+			if(q)
+			{
+				count++;
+			}
+		}
+		if(count == itemizedResult.length)
+		{
+			result = true;
+		}
+		System.out.println(count+" "+result);
+		return result;
+	}
 
 
 	private void printNodeStack(Stack<PlannerNode> stack, Stack<String> parameterStack) {
@@ -148,6 +255,7 @@ public class PlannerGraphMatrix {
 		ArrayList<String> provisioningParameter = new ArrayList<String>();
 		System.out.println("Parameter Stack: "+parameterStack);
 		for (PlannerNode node: stack) {
+			System.out.println("Help "+node.getSearchedParameter());
 			advertisementList.add(node.getNodeName());
 			total += node.getResourceCost();
 			//provisionParameter = parameterStack.get(i);
@@ -232,7 +340,7 @@ public class PlannerGraphMatrix {
 	
 
 
-	public void run()
+	public void run(PlannerSearchParameter parameters)
 	{
 		int size = nodeGraph.size();
 		createAdjancies();
@@ -240,6 +348,7 @@ public class PlannerGraphMatrix {
 		{
 			if(nodeX.getStatus().equals(PlannerNode.NodeType.SOLUTION))
 			{
+
 				ArrayList<String> advertisementList = new ArrayList<String>();
 				ArrayList<String> provisioningParameter = new ArrayList<String>();
 				advertisementList.add(nodeX.getNodeName());
@@ -255,7 +364,7 @@ public class PlannerGraphMatrix {
 							nodeY.getStatus().equals(PlannerNode.NodeType.DESTINATION))
 					{
 						//					System.out.println(">>>"+nodeX.getNodeName()+" to "+nodeY.getNodeName());
-						findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size],null);
+						findAllPath(nodeX.getNodeName(), nodeY.getNodeName(),new boolean[size],null, parameters);
 					}
 				}
 			}
@@ -263,17 +372,4 @@ public class PlannerGraphMatrix {
 	}
 
 	
-
-	//	public static void main(String[] args) {
-	//
-	//		PlannerGraphMatrix gm = new PlannerGraphMatrix();
-	//		gm.addEdge("0",2,"1",1);
-	//		gm.addEdge("0",2,"2",1);
-	//		gm.addEdge("0",2,"3",1);
-	//		gm.addEdge("1",1,"3",1);
-	//		gm.addEdge("2",1,"0",2);
-	//		gm.addEdge("2",1,"1",1);
-	//		gm.findAllPath("2", "3",new boolean[gm.nodeGraph.size()]);
-	//		gm.printRecipe();
-	//	}
 }

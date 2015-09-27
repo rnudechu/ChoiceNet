@@ -2,15 +2,17 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 2.2</name>
+			<name>Payload Modification</name>
+			<type>In flight service</type>
 			<details>
-				<source_location scheme="IPv4" value="10.1.12.2/32" />
+				<source_location scheme="IPv4" value="10.1.2.50/32" />
 				<destination_location scheme="IPv4" value="10.1.23.0/24" />
-				<source_format scheme="transport media" value="optical packet" />
-				<destination_format scheme="transport media"
-					value="optical packet" />
+				<destination_location scheme="IPv4" value="10.1.12.0/24" />
+				<source_format scheme="payload" value="Plaintext" />
+				<destination_format scheme="payload"
+					value="Uppercase" />
 			</details>
-			<description>Transport Service Advertisement</description>
+			<description>Payload Modification Service Advertisement</description>
 		</service>
 		<price method="USD" value="4" />
 		<providerID>Wayne Enterprise</providerID>

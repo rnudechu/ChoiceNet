@@ -15,6 +15,10 @@ public class OpenFlowFirewallMessage {
 	private String sourcePort;
 	private String destinationPort;
 	private String provisioningParameter;
+	private String previousNetwork;
+	private String serviceType;
+	private String serviceName;
+	private String subject; // intended to hold additional message with a payload. i.e. when searching for a substring value
 	private String status = "UNKNOWN";
 	private String duration;
 	private String reason;
@@ -139,6 +143,34 @@ public class OpenFlowFirewallMessage {
 	public void setProvisioningParameter(String provisioningParameter) {
 		this.provisioningParameter = provisioningParameter;
 	}
+	public String getPreviousNetwork() {
+		return previousNetwork;
+	}
+	@XmlElement
+	public void setPreviousNetwork(String previousNetwork) {
+		this.previousNetwork = previousNetwork;
+	}
+	public String getServiceType() {
+		return serviceType;
+	}
+	@XmlElement
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+	public String getServiceName() {
+		return serviceName;
+	}
+	@XmlElement
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+	public String getSubject() {
+		return subject;
+	}
+	@XmlElement
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
 
 	@Override
 	public String toString() {
@@ -149,7 +181,10 @@ public class OpenFlowFirewallMessage {
 				+ ", destinationAddress=" + destinationAddress
 				+ ", sourcePort=" + sourcePort + ", destinationPort="
 				+ destinationPort + ", provisioningParameter="
-				+ provisioningParameter + ", status=" + status + ", duration="
-				+ duration + ", reason=" + reason + "]";
+				+ provisioningParameter + ", previousNetwork="
+				+ previousNetwork + ", serviceType=" + serviceType
+				+ ", serviceName=" + serviceName + ", subject=" + subject
+				+ ", status=" + status + ", duration=" + duration + ", reason="
+				+ reason + "]";
 	}
 }
