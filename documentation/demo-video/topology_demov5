@@ -1,0 +1,1031 @@
+<rdf:RDF
+    xmlns:request="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:ec2="http://geni-orca.renci.org/owl/ec2.owl#"
+    xmlns:layer="http://geni-orca.renci.org/owl/layer.owl#"
+    xmlns:kansei="http://geni-orca.renci.org/owl/kansei.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:request-schema="http://geni-orca.renci.org/owl/request.owl#"
+    xmlns:app-color="http://geni-orca.renci.org/owl/app-color.owl#"
+    xmlns:orca="http://geni-orca.renci.org/owl/orca.owl#"
+    xmlns:geni="http://geni-orca.renci.org/owl/geni.owl#"
+    xmlns:ip4="http://geni-orca.renci.org/owl/ip4.owl#"
+    xmlns:planetlab="http://geni-orca.renci.org/owl/planetlab.owl#"
+    xmlns:domain="http://geni-orca.renci.org/owl/domain.owl#"
+    xmlns:ethernet="http://geni-orca.renci.org/owl/ethernet.owl#"
+    xmlns:dtn="http://geni-orca.renci.org/owl/dtn.owl#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:modify-schema="http://geni-orca.renci.org/owl/modify.owl#"
+    xmlns:compute="http://geni-orca.renci.org/owl/compute.owl#"
+    xmlns:eucalyptus="http://geni-orca.renci.org/owl/eucalyptus.owl#"
+    xmlns:collections="http://geni-orca.renci.org/owl/collections.owl#"
+    xmlns:openflow="http://geni-orca.renci.org/owl/openflow.owl#"
+    xmlns:topology="http://geni-orca.renci.org/owl/topology.owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" > 
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-MediaServer-ip-10-3-1-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.3.1.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Term">
+    <time:hasDurationDescription rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#TermDuration"/>
+    <rdf:type rdf:resource="http://www.w3.org/2006/time#Interval"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-EPB">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-Provider"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-Provider"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string"># Node 0: The Provider
+# Ubuntu 12.04
+# Download the provider code
+apt-get update 
+apt-get install xterm openjdk-6-jre-headless openjdk-6-jre -y
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/transport-p1.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad1-1.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad1-2.xml
+mkdir defaultAdvertisement
+mkdir generatedAdvertisement
+mkdir ChoiceNet
+mv transport-p1.properties ChoiceNet/
+mv ad1-* ChoiceNet/
+mv test3.xml ChoiceNet/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ChoiceNetSpeakerGUI.jar
+mv ChoiceNetSpeakerGUI.jar ChoiceNet/
+#!/bin/bash
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-EPB">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Marketplace">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-Marketplace"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string"># Node 2
+# Ubuntu 12.04
+# Install CouchDB
+apt-get update
+apt-get install couchdb -y
+apt-get install curl -y
+apt-get install xterm openjdk-6-jre-headless openjdk-6-jre -y
+# make port accessible to everyone, copy your couchdb config file
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/CouchDB/default.ini
+mv default.ini /etc/couchdb
+# Reload CouchDB
+# Download my script for jump starting that feature
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/CouchDB/updateCouchDB.sh
+# Download the ChoiceNet Provider program along with its config file
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/marketplace.properties
+# Used by the Admin tool
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/marketplace_view.json
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC21Demo/adminGUI.jar
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC21Demo/admin.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ChoiceNetSpeaker.jar
+mkdir ChoiceNet
+mv /updateCouchDB.sh ChoiceNet
+mv /adminGUI.jar ChoiceNet
+mv /marketplace_view.json ChoiceNet
+mv /marketplace.properties ChoiceNet
+mv /admin.properties ChoiceNet
+mv /ChoiceNetSpeaker.jar ChoiceNet
+bash /ChoiceNet/updateCouchDB.sh
+#!/bin/bash
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/marketplaceProcessingAgent.sh
+chmod +x marketplaceProcessingAgent.sh
+./marketplaceProcessingAgent.sh</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-ProviderSwitch2">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-ProviderSwitch2-ip-10-0-1-100"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-Provider2-ip-10-2-1-2">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.2</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-Provider3">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-Provider3-ip-10-2-1-3"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider2">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-Provider2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-Provider2"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string"># Node 0: The Provider
+# Ubuntu 12.04
+# Download the provider code
+apt-get update 
+apt-get install xterm openjdk-6-jre-headless openjdk-6-jre -y
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/transport-p2.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad2-1.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad2-2.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad2-3-epb-transit.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad2-3-measurement.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad2-3-payload-modification.xml
+mkdir defaultAdvertisement
+mkdir generatedAdvertisement
+mkdir ChoiceNet
+mv transport-p2.properties ChoiceNet/
+mv ad2-* ChoiceNet/
+mv test3.xml ChoiceNet/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ChoiceNetSpeakerGUI.jar
+mv ChoiceNetSpeakerGUI.jar ChoiceNet/
+#!/bin/bash
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh
+mv /portal /var/www/</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider3">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-Provider3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-Provider3"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string"># Node 0: The Provider
+# Ubuntu 12.04
+# Download the provider code
+apt-get update 
+apt-get install xterm openjdk-6-jre-headless openjdk-6-jre -y
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/transport-p3.properties
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/test3-1.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad3-2.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ad3-2-decryption.xml
+mkdir defaultAdvertisement
+mkdir generatedAdvertisement
+mkdir ChoiceNet
+mv transport-p3.properties ChoiceNet/
+mv ad3-* ChoiceNet/
+mv test3.xml ChoiceNet/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ChoiceNetSpeakerGUI.jar
+mv ChoiceNetSpeakerGUI.jar ChoiceNet/
+#!/bin/bash
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh
+mv /portal /var/www/</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#TermDuration">
+    <time:days rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">3</time:days>
+    <rdf:type rdf:resource="http://www.w3.org/2006/time#DurationDescription"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-ProviderSwitch3">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-Provider"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-ProviderSwitch"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-Marketplace">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-Marketplace-ip-10-2-1-5"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch3">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-Planner">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-Planner-ip-10-2-1-4"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-ProviderSwitch"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-Client"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-MediaServer"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-ProviderSwitch3"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Client">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-Client"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-Client"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string"># Node 1: The Client
+# Ubuntu 12.04
+apt-get update 
+apt-get install xterm openjdk-6-jre-headless openjdk-6-jre -y
+apt-get install wireshark vlc expect -y
+wget http://www4.ncsu.edu/~rnudechu/files/UDPServer.java
+wget http://www4.ncsu.edu/~rnudechu/files/UDPClient.java
+apt-get install openjdk-6-jdk -y
+javac UDPServer.java
+javac UDPClient.java
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallSettings-p1.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallSettings-p2.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallSettings-p2v2.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallSettings-p2v3.xml
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallSettings-p3.xml
+mkdir ChoiceNet
+mv firewallSettings-* ChoiceNet/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/ChoiceNetSpeakerGUI.jar
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/customer.properties
+mv ChoiceNetSpeakerGUI.jar ChoiceNet/
+mv customer.properties ChoiceNet/
+# Old Client stub, no application yet to demonstrate it
+route add -net 10.3.1.0/24 gw 10.10.10.1
+#!/bin/bash
+arp -s 10.3.1.1 $MediaServer.MAC("Link21")
+arp -s 10.2.1.4 $Planner.MAC("Link0")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-ProviderSwitch-ip-10-0-1-100">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.100</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#MediaServer">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-MediaServer"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+apt-get install wireshark vlc expect -y
+wget http://www4.ncsu.edu/~rnudechu/files/UDPServer.java
+wget http://www4.ncsu.edu/~rnudechu/files/UDPClient.java
+# Allow root access to VLC
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/VLC/jailbreakVLC.sh
+chmod +x jailbreakVLC.sh
+./jailbreakVLC.sh
+# Download Video Repository
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/VLC/dl_video-test.sh
+chmod +x dl_video-test.sh
+./dl_video-test.sh
+#Start the VLC Server
+vlc -I telnet --telnet-password videolan --rtsp-host 0.0.0.0 --rtsp-port 8554 &amp;
+vlc -I telnet --telnet-password videolan --telnet-port 4213 --rtsp-host 0.0.0.0 --rtsp-port 5554 &amp;
+#Load the video playlist via telnet
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/VLC/loadVLCServer.sh
+chmod +x loadVLCServer.sh
+./loadVLCServer.sh localhost 4212 videolan
+./loadVLCServer.sh localhost 4213 videolan
+# Set the PC route
+route add -net 10.10.0.0/16 gw 10.3.1.1
+apt-get install openjdk-6-jdk -y
+javac UDPServer.java
+javac UDPClient.java
+che2 php5 libapache2-mod-php5 php5-mcrypt php5-curl unzip -y
+service apache2 restart
+</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-Client">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-Client-ip-10-10-10-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-Provider2">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-Provider2-ip-10-2-1-2"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Planner">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-Planner"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+apt-get install gcc python-dev -y
+mkdir ChoiceNet
+cd ChoiceNet
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/planner.tar.gz
+tar -zxvf planner.tar.gz
+export LD_LIBRARY_PATH=/ChoiceNet:$LD_LIBRARY_PATH
+./compile
+cd /
+wget ftp://xmlsoft.org/libxml2/libxml2-git-snapshot.tar.gz
+tar -zxvf libxml2-git-snapshot.tar.gz
+cd /libxml2-2.9.2
+./configure
+make
+make install
+cd /
+#!/bin/bash
+arp -s 10.2.1.100 $Client.MAC("Link32")
+arp -s 10.2.1.5 $Marketplace.MAC("Link1")
+arp -s 10.2.1.1 $Provider.MAC("Link34")
+arp -s 10.2.1.2 $Provider2.MAC("Link24")
+arp -s 10.2.1.3 $Provider3.MAC("Link14")
+# Install LAMP
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/GEC23Demo/paymentPortal.sh
+chmod +x paymentPortal.sh
+./paymentPortal.sh</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-Provider3"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-ProviderSwitch">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#OVS">
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-OVS"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+apt-get install -y git automake autoconf gcc uml-utilities libtool build-essential git pkg-config linux-headers-`uname -r` -y
+wget http://openvswitch.org/releases/openvswitch-1.10.0.tar.gz
+tar zxvf openvswitch-1.10.0.tar.gz
+cd openvswitch-1.10.0
+./boot.sh
+./configure --with-linux=/lib/modules/`uname -r`/build
+make &amp;&amp; make install
+insmod datapath/linux/openvswitch.ko
+mkdir -p /usr/local/etc/openvswitch
+cd /
+touch topology.txt
+#!/bin/bash
+echo $OVS.MAC("Link0") - Planner &gt;&gt; topology.txt
+echo $OVS.MAC("Link1") - Marketplace &gt;&gt; topology.txt
+echo $OVS.MAC("Link34") - Provider &gt;&gt; topology.txt
+echo $OVS.MAC("Link32") - Client &gt;&gt; topology.txt
+echo $OVS.MAC("Link24") - Provider2 &gt;&gt; topology.txt
+echo $OVS.MAC("Link14") - Provider3 &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; /mapping.txt
+#Dynamically create a config file for OVS
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/OVS/runOVS.sh
+chmod +x runOVS.sh
+mv runOVS.sh openvswitch-1.10.0/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/OVS/setupOVSIntf.sh
+chmod +x setupOVSIntf.sh
+./setupOVSIntf.sh /mapping.txt
+apt-get install xterm wireshark wireshark-dev -y</request-schema:postBootScript>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-OVS"/>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-OVS"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-Provider2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-EPB2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-Client-ip-10-2-1-100">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.100</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-Planner"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch3">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch3"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+# Prepare for LINC Installation
+apt-get install gcc wget make autoconf openssl libssl0.9.8 libssl-dev libncurses5 libncurses5-dev unzip wireshark wireshark-dev git -y
+# OpenFlow Dissector
+git clone https://github.com/CPqD/ofdissector.git 
+cd ofdissector/src 
+export WIRESHARK=/usr/include/wireshark/ 
+scons install 
+cp openflow.so /usr/lib/wireshark/libwireshark1/plugins 
+# 
+apt-get install git bridge-utils libpcap0.8 libpcap-dev libcap2-bin uml-utilities -y
+# Install Erlang 15B03
+cd /
+wget http://www.erlang.org/download/otp_src_R15B03-1.tar.gz
+tar -xvzf otp_src_R15B03-1.tar.gz
+chmod -R 777 otp_src_R15B03
+cd /otp_src_R15B03/
+./configure; make; make install
+cd /
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/LINCv2.zip
+#unzip /LINCv2
+#cd /LINCv2-master
+#rm -rf deps/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/myLINC.zip
+unzip myLINC.zip
+# Bring up the interfaces
+ifconfig eth1 up
+ifconfig eth2 up
+ifconfig eth3 up
+ifconfig eth4 up
+ifconfig eth5 up
+ifconfig eth6 up
+# ExoGENI script
+touch /test.txt
+#!/bin/bash
+echo $ProviderSwitch3.MAC("Link17") - Controller &gt;&gt; topology.txt
+echo $ProviderSwitch3.MAC("Link20") - ProviderSwitch2 &gt;&gt; topology.txt
+echo $ProviderSwitch3.MAC("Link21") - MediaServer &gt;&gt; topology.txt
+echo $ProviderSwitch3.MAC("Link2") - ProviderSwitch1 &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; /mapping.txt
+# SDN Controller
+apt-get update
+apt-get install unzip gcc python-setuptools python-greenlet -y
+# Move the controller code
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/Controller/Ryu.zip
+unzip /Ryu.zip
+cd /Ryu-master
+python ./setup.py install 
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/rnu_epb_controller.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallParser.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/config-p3v2.ini
+mv config-p3v2.ini config.ini
+# Auto-startingn the controller is not working ...
+#ryu-manager rnu_epb_controller.py &amp;
+#Dynamically create a config file for LINC
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/createLINCConfigFilev2.sh
+mv createLINCConfigFilev2.sh createLINCConfigFile.sh
+chmod +x createLINCConfigFile.sh
+./createLINCConfigFile.sh /mapping.txt
+mv sys.config /LINC-Switch-master/rel/files/
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/main.config 
+#mv main.config rel/files/sys.config
+# Install LINC
+cd /LINC-Switch-master
+make offline
+</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-EPB2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-Provider2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-Provider3-ip-10-2-1-3">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.3</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-Client"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-ProviderSwitch3-ip-10-0-1-100">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.100</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-Provider-ip-10-2-1-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-ProviderSwitch">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-ProviderSwitch-ip-10-0-1-100"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-EPB"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-Client-ip-10-10-10-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.10.10.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#EPB2">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-EPB2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-EPB2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-EPB2"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+# Install Wireshark and other utility files
+sudo apt-get install wireshark wireshark-dev unzip vlan -y
+# Download Sample Traffic Shaper
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallParser.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/application-payload-servicev2.py
+# Bring up the interfaces
+ifconfig eth1 up promisc
+ifconfig eth2 up promisc
+ifconfig eth3 up promisc
+#!/bin/bash
+echo $EPB2.MAC("Link26") - To EPB2 &gt;&gt; topology.txt
+echo $EPB2.MAC("Link4") - Out EPB2  &gt;&gt; topology.txt
+echo $EPB2.MAC("Link6") - EPB2 Management  &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; mapping.txt
+# Setup the Interface Mapping
+./setupEPBIntf.sh  mapping.txt</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33-ProviderSwitch"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-ProviderSwitch"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+# Prepare for LINC Installation
+apt-get install gcc wget make autoconf openssl libssl0.9.8 libssl-dev libncurses5 libncurses5-dev unzip wireshark wireshark-dev git -y
+# OpenFlow Dissector
+git clone https://github.com/CPqD/ofdissector.git 
+cd ofdissector/src 
+export WIRESHARK=/usr/include/wireshark/ 
+scons install 
+cp openflow.so /usr/lib/wireshark/libwireshark1/plugins 
+# 
+apt-get install git bridge-utils libpcap0.8 libpcap-dev libcap2-bin uml-utilities -y
+# Install Erlang 15B03
+cd /
+wget http://www.erlang.org/download/otp_src_R15B03-1.tar.gz
+tar -xvzf otp_src_R15B03-1.tar.gz
+chmod -R 777 otp_src_R15B03
+cd /otp_src_R15B03/
+./configure; make; make install
+cd /
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/LINCv2.zip
+#unzip /LINCv2
+#cd /LINCv2-master
+#rm -rf deps/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/myLINC.zip
+unzip myLINC.zip
+# Bring up the interfaces
+ifconfig eth1 up
+ifconfig eth2 up
+ifconfig eth3 up
+ifconfig eth4 up
+ifconfig eth5 up
+ifconfig eth6 up
+# ExoGENI script
+touch /test.txt
+#!/bin/bash
+echo $ProviderSwitch.MAC("Link7") - Controller &gt;&gt; topology.txt
+echo $ProviderSwitch.MAC("Link33") - Client &gt;&gt; topology.txt
+echo $ProviderSwitch.MAC("Link18") - ProviderSwitch2 &gt;&gt; topology.txt
+echo $ProviderSwitch.MAC("Link2") - ProviderSwitch3 &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; /mapping.txt
+# SDN Controller
+apt-get update
+apt-get install unzip gcc python-setuptools python-greenlet -y
+# Move the controller code
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/Controller/Ryu.zip
+unzip /Ryu.zip
+cd /Ryu-master
+python ./setup.py install 
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/rnu_epb_controller.py 
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallParser.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/config-p1v2.ini
+mv config-p1v2.ini config.ini
+# Auto-startingn the controller is not working ...
+#ryu-manager rnu_epb_controller.py &amp;
+#Dynamically create a config file for LINC
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/createLINCConfigFilev2.sh
+mv createLINCConfigFilev2.sh createLINCConfigFile.sh
+chmod +x createLINCConfigFile.sh
+./createLINCConfigFile.sh /mapping.txt
+mv sys.config /LINC-Switch-master/rel/files/
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/main.config 
+#mv main.config rel/files/sys.config
+# Install LINC
+cd /LINC-Switch-master
+make offline
+mv /portal /var/www/</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-Marketplace"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch2">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-ProviderSwitch2"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+# Prepare for LINC Installation
+apt-get install gcc wget make autoconf openssl libssl0.9.8 libssl-dev libncurses5 libncurses5-dev unzip wireshark wireshark-dev git -y
+# OpenFlow Dissector
+git clone https://github.com/CPqD/ofdissector.git 
+cd ofdissector/src 
+export WIRESHARK=/usr/include/wireshark/ 
+scons install 
+cp openflow.so /usr/lib/wireshark/libwireshark1/plugins 
+# 
+apt-get install git bridge-utils libpcap0.8 libpcap-dev libcap2-bin uml-utilities -y
+# Install Erlang 15B03
+cd /
+wget http://www.erlang.org/download/otp_src_R15B03-1.tar.gz
+tar -xvzf otp_src_R15B03-1.tar.gz
+chmod -R 777 otp_src_R15B03
+cd /otp_src_R15B03/
+./configure; make; make install
+cd /
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/LINCv2.zip
+#unzip /LINCv2
+#cd /LINCv2-master
+#rm -rf deps/
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/myLINC.zip
+unzip myLINC.zip
+# Bring up the interfaces
+ifconfig eth1 up
+ifconfig eth2 up
+ifconfig eth3 up
+ifconfig eth4 up
+ifconfig eth5 up
+ifconfig eth6 up
+ifconfig eth7 up
+ifconfig eth8 up
+ifconfig eth9 up
+# ExoGENI script
+touch /test.txt
+#!/bin/bash
+echo $ProviderSwitch2.MAC("Link8") - Controller &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link20") - ProviderSwitch3 &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link26") - To EPB2  &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link4") - Out EPB2  &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link6") -  EPB2 Management &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link9") - To EPB  &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link10") - Out EPB  &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link11") -  EPB Management &gt;&gt; topology.txt
+echo $ProviderSwitch2.MAC("Link18") - ProviderSwitch &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; /mapping.txt
+# SDN Controller
+apt-get update
+apt-get install unzip gcc python-setuptools python-greenlet -y
+# Move the controller code
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/Controller/Ryu.zip
+unzip /Ryu.zip
+cd /Ryu-master
+python ./setup.py install 
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/rnu_epb_controllerv3.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallParser.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/config-p2v2.ini
+mv config-p2v2.ini config.ini
+# Auto-startingn the controller is not working ...
+#ryu-manager rnu_epb_controller.py &amp;
+#Dynamically create a config file for LINC
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/createLINCConfigFilev3.sh
+mv createLINCConfigFilev3.sh createLINCConfigFile.sh
+chmod +x createLINCConfigFile.sh
+./createLINCConfigFile.sh /mapping.txt
+mv sys.config /LINC-Switch-master/rel/files/
+#wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/LINC/main.config 
+#mv main.config rel/files/sys.config
+# Install LINC
+cd /LINC-Switch-master
+make offline</request-schema:postBootScript>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch2"/>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18-ProviderSwitch2"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-ProviderSwitch2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-EPB"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-MediaServer">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21-MediaServer-ip-10-3-1-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-Client">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-Client-ip-10-2-1-100"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-EPB2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0-Planner-ip-10-2-1-4">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.4</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#">
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch3"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link0"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#EPB"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link21"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link18"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Planner"/>
+    <request-schema:hasTerm rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Term"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Client"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Marketplace"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8"/>
+    <topology:hasURL>http://emmy9.casa.umass.edu/Disk_Images/ExoGENI/Ubuntu12.04-1.0.2/ubuntu12.04-1.0.2.xml</topology:hasURL>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link33"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider3"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider2"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#OVS"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#MediaServer"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#ProviderSwitch2"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#EPB2"/>
+    <topology:hasGUID>8ee8735fa6a4f102313f7a29f6fd0918b8ed5fc4</topology:hasGUID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#DiskImage"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link4"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/request.owl#Reservation"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Provider"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14"/>
+    <collections:element rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-Provider-ip-10-0-1-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-ProviderSwitch3">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-ProviderSwitch3-ip-10-0-1-100"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-EPB">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-Provider">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link7-Provider-ip-10-0-1-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-ProviderSwitch2-ip-10-0-1-100">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.100</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch3">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-Provider3">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-Provider3-ip-10-0-1-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-Provider">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-Provider-ip-10-2-1-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link17-Provider3-ip-10-0-1-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link1-Marketplace-ip-10-2-1-5">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.2.1.5</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-Provider2">
+    <ip4:localIPAddress rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-Provider2-ip-10-0-1-1"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link8-Provider2-ip-10-0-1-1">
+    <ip4:netmask>255.255.255.0</ip4:netmask>
+    <layer:label_ID>10.0.1.1</layer:label_ID>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/ip4.owl#IPAddress"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-EPB2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link6-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-EPB2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link20-ProviderSwitch2">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-ProviderSwitch2"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link26-EPB2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link14-Provider3"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link24-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch3"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link2-ProviderSwitch"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-OVS"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link34-Provider"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#EPB">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link11-EPB"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-EPB"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link9-EPB"/>
+    <request-schema:postBootScript rdf:datatype="http://www.w3.org/2001/XMLSchema#string">apt-get update
+# Install Wireshark and other utility files
+sudo apt-get install wireshark wireshark-dev unzip vlan -y
+# Download Sample Traffic Shaper
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/firewallParser.py
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/ChoiceNet/Demo/application-payload-servicev2.py
+# Bring up the interfaces
+ifconfig eth1 up promisc
+ifconfig eth2 up promisc
+ifconfig eth3 up promisc
+#!/bin/bash
+echo $EPB.MAC("Link9") - To EPB &gt;&gt; topology.txt
+echo $EPB.MAC("Link10") - Out EPB  &gt;&gt; topology.txt
+echo $EPB.MAC("Link11") - EPB Management  &gt;&gt; topology.txt
+# Get Interface Mapping
+cd /
+wget http://www4.ncsu.edu/~rnudechu/files/GENI/EPB/topologyIntf.sh
+chmod +x topologyIntf.sh
+./topologyIntf.sh topology.txt &gt;&gt; mapping.txt
+# Setup the Interface Mapping
+./setupEPBIntf.sh  mapping.txt</request-schema:postBootScript>
+    <compute:diskImage rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#"/>
+    <domain:hasResourceType rdf:resource="http://geni-orca.renci.org/owl/compute.owl#VM"/>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/compute.owl#ComputeElement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link32-OVS">
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#Interface"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10">
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-EPB"/>
+    <topology:hasInterface rdf:resource="http://geni-orca.renci.org/owl/7805db97-99de-4828-9faf-d3e4e0345ddf#Link10-ProviderSwitch2"/>
+    <layer:atLayer rdf:resource="http://geni-orca.renci.org/owl/ethernet.owl#EthernetNetworkElement"/>
+    <layer:bandwidth rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">10000000</layer:bandwidth>
+    <rdf:type rdf:resource="http://geni-orca.renci.org/owl/topology.owl#NetworkConnection"/>
+  </rdf:Description>
+</rdf:RDF>
