@@ -2,14 +2,14 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Packet Logged Measurement</name>
+			<name>Packet Logging Measurement</name>
 			<type>Measurement</type>
 			<details>
 				<source_location scheme="IPv4" value="10.1.2.51/32" />
 				<destination_location scheme="IPv4" value="10.1.23.0/24" />
 				<destination_location scheme="IPv4" value="10.1.12.0/24" />
 				<source_format scheme="timestamp" value="packet size" />
-				<destination_format scheme="text" value="CSV,XML" />
+				<destination_format scheme="text" value="file" />
 			</details>
 			<description>Measurement Service Advertisement</description>
 		</service>

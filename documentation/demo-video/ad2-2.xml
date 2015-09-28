@@ -2,7 +2,7 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 2.2</name>
+			<name>A-SI Transit</name>
 			<details>
 				<source_location scheme="IPv4" value="10.1.12.2/32" />
 				<destination_location scheme="IPv4" value="10.1.23.0/24" />
@@ -10,7 +10,7 @@
 				<destination_format scheme="transport media"
 					value="optical packet" />
 			</details>
-			<description>Transport Service Advertisement</description>
+			<description>Transit Service Advertisement</description>
 		</service>
 		<price method="USD" value="4" />
 		<providerID>Wayne Enterprise</providerID>

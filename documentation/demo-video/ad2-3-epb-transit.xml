@@ -2,7 +2,7 @@
 <listings>
 	<advertisement id="1">
 		<service>
-			<name>Ad 2.3</name>
+			<name>Transit to EPB service</name>
 			<type>Transit</type>
 			<details>
 				<source_location scheme="IPv4" value="10.1.12.2/32" />
