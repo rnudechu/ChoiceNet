@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<openFlowFirewallMessage operation="Request">
+    <action>ACCEPT</action>
+    <addressVersion>IPv4</addressVersion>
+    <destinationAddress>ANY</destinationAddress>
+    <destinationPort>ANY</destinationPort>
+    <protocol>ANY</protocol>
+    <sourceAddress>10.1.10.1/32</sourceAddress>
+    <sourcePort>ANY</sourcePort>
+    <provisioningParameter>10.1.2.51</provisioningParameter>
+    <previousNetwork>10.1.12.1</previousNetwork>
+    <subject>packet size:file</subject>
+</openFlowFirewallMessage>
